@@ -1,5 +1,11 @@
+# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (c) 2019 Tor Aksel N. Heirung
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT
+
 # Byte-compiled / optimized / DLL files
-__pycache__/
+**/__pycache__
 *.py[cod]
 *$py.class
 
@@ -36,7 +42,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-htmlcov/
+tests/htmlcov/
 .tox/
 .coverage
 .coverage.*
@@ -64,7 +70,9 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build
+docs/source/api_summary
+docs/source/_static/codecoverage
 
 # PyBuilder
 target/
@@ -106,3 +114,4 @@ venv.bak/
 venv
 file_stash
 .idea
+*.swp

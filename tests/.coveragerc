@@ -1,0 +1,20 @@
+# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Code purpose: Specify parameters for coverage testing
+
+# .coveragerc to control coverage.py
+[run]
+branch = True
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Don't complain if tests don't hit defensive assertion code:
+    raise NotImplementedError
+
+ignore_errors = True
+
+[html]
+directory = htmlcov

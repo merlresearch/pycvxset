@@ -1,0 +1,57 @@
+# Copyright (C) 2023 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Build and test (Windows | Py 3.9+)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      MPLBACKEND: Agg  # https://github.com/orgs/community/discussions/26434
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+
+      - name: Install scs from pip for Windows + Python 3.12
+        if: matrix.python-version == '3.12'
+        run: |
+          pip install scs
+
+      - name: Install pycvxset
+        run: |
+          pip install --editable .
+
+      - name: Run pycvxset diagnostic
+        run: |
+          python3 examples/pycvxset_diag.py --do_not_use_plot_show
+
+      - name: Install pycvxset with testing dependencies
+        run: |
+          pip install --editable ".[with_tests]"
+
+      - name: Run coverage tests
+        run: |
+          coverage run --rcfile=tests/.coveragerc --source=pycvxset -m pytest tests -W error::UserWarning
+          coverage report --skip-covered --rcfile=tests/.coveragerc

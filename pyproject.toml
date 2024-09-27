@@ -1,0 +1,75 @@
+# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[build-system]
+requires = ["setuptools>=68.1.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pycvxset"
+version = "1.0.0"
+dependencies = [
+    "numpy >=1.14",
+    "scipy >=1.3.0",
+    "pycddlib",
+    "matplotlib >=3.8",
+    "cvxpy >=1.5.3",
+    "gurobipy >=11.0.0",
+]
+# numpy>=1.14 for rcond=None correct defaults from https://stackoverflow.com/a/44678023
+# scipy>=1.3.0 for the reflective-simplex option in linprog()
+# matplotlib>=3.8 for https://github.com/matplotlib/matplotlib/pull/25565
+# cvxpy>=1.5.3 for gurobipy error fix https://github.com/cvxpy/cvxpy/issues/2493
+requires-python = ">=3.9"
+authors = [
+    { name = "Abraham P. Vinod", email = "vinod@merl.com" }
+]
+maintainers = [
+    { name = "Abraham P. Vinod", email = "abraham.p.vinod@ieee.org" }
+]
+description = "A Python package for manipulation and visualization of convex sets."
+license = { text = "AGPL-3.0-or-later" }
+keywords = [
+    "Polytope",
+    "Ellipsoid",
+    "Computational geometry",
+    "Set-based control",
+    "Constrained Zonotopes",
+    "Zonotopes"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: AGPL-3.0-or-later",
+    "Operating System :: OS Independent"
+]
+
+[project.optional-dependencies]
+with_tests = [
+    "pytest",
+    "coverage",
+    "lark"
+]
+with_docs_and_tests = [
+    "pytest",
+    "coverage",
+    "lark",
+    "sphinx",
+    "notebook",
+    "ipykernel",
+    "nbconvert",
+    "ipympl",
+    "myst-parser",
+    "nbqa",
+    "black"
+]
+
+[project.urls]
+Homepage = "https://github.com/merl-external/pycvxset"
+Documentation = "https://github.com/merl-external/pycvxset"
+Repository = "https://github.com/merl-external/pycvxset"
+"Bug Tracker" = "https://github.com/merl-external/pycvxset/issues"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"

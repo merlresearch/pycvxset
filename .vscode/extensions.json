@@ -1,0 +1,9 @@
+{
+   "recommendations": [
+      "ms-python.python",
+      "njqdev.vscode-python-typehint",
+      "njpwerner.autodocstring",
+      "ms-python.black-formatter",
+      "ms-python.flake8"
+   ]
+}
