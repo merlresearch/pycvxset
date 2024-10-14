@@ -6,8 +6,8 @@
 
 :orphan:
 
-pycvxset.Polytope
-=================
+pycvxset.Polytope (API details)
+===============================
 
 .. autosummary::
    :toctree: api_summary

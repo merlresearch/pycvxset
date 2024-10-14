@@ -6,8 +6,8 @@
 
 :orphan:
 
-pycvxset.Ellipsoid
-==================
+pycvxset.Ellipsoid (API details)
+================================
 
 .. autosummary::
    :toctree: api_summary

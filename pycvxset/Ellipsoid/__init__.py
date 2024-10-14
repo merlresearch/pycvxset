@@ -18,8 +18,8 @@ from pycvxset.common import (
     convex_set_project,
     convex_set_projection,
     convex_set_support,
+    minimize,
     plot,
-    solve_convex_program_with_containment_constraints,
 )
 from pycvxset.common.constants import (
     DEFAULT_CVXPY_ARGS_LP,
@@ -220,7 +220,7 @@ class Ellipsoid:
     ###########
     # Auxiliary
     ###########
-    def get_cvxpy_containment_constraints(self, x):
+    def containment_constraints(self, x):
         """Get CVXPY constraints for containment of x (a cvxpy.Variable) in an ellipsoid.
 
         Args:
@@ -235,7 +235,7 @@ class Ellipsoid:
         xi = cp.Variable((self.dim,))
         return [x == self.G @ xi + self.c, cp.norm(xi, p=2) <= 1], xi
 
-    solve_convex_program_with_containment_constraints = solve_convex_program_with_containment_constraints
+    minimize = minimize
 
     ##################
     # Unary operations
@@ -258,7 +258,7 @@ class Ellipsoid:
     def chebyshev_centering(self):
         """Compute the Chebyshev center and radius of the ellipsoid."""
         eigenvalues, _ = np.linalg.eig(self.Q)
-        return self.c, float(np.min(eigenvalues))
+        return self.c, np.sqrt(float(np.min(eigenvalues)))
 
     def interior_point(self):
         """Compute an interior point to the Ellipsoid"""
@@ -366,12 +366,10 @@ class Ellipsoid:
         u \|_2 \leq 1 \}` with :math:`GG^T=Q`,  this function solves a convex program with decision variables
         :math:`x,u\in\mathbb{R}^{\mathcal{P}.\text{dim}}`,
 
-            .. math::
-                \begin{align}
-                    \text{minimize}    &\quad  \|x - y\|_p\\
-                    \text{subject to}  &\quad  x = G u + c\\
-                                       &\quad  {\| u \|}_2 \leq 1
-                \end{align}
+        .. math::
+                \text{minimize}    &\quad  \|x - y\|_p\\
+                \text{subject to}  &\quad  x = G u + c\\
+                                   &\quad  {\| u \|}_2 \leq 1
     """
     )
 
@@ -400,10 +398,8 @@ class Ellipsoid:
         \| u \|_2 \leq 1 \}` with :math:`GG^T=Q`,
 
         .. math ::
-            \begin{align}
-                \rho_{\mathcal{P}}(\eta) &= \eta^\top c + \sqrt{\eta^\top Q \eta} = \eta^\top c + \|G^T \eta\|_2\\
-                \nu_{\mathcal{P}}(\eta) &= c + \frac{G G^\top \eta}{\|G^T \eta\|_2} = c + \frac{Q \eta}{\|G^T \eta\|_2}
-            \end{align}
+            \rho_{\mathcal{P}}(\eta) &= \eta^\top c + \sqrt{\eta^\top Q \eta} = \eta^\top c + \|G^T \eta\|_2\\
+            \nu_{\mathcal{P}}(\eta) &= c + \frac{G G^\top \eta}{\|G^T \eta\|_2} = c + \frac{Q \eta}{\|G^T \eta\|_2}
     """
     )
     _compute_project_single_point = _compute_project_single_point

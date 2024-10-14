@@ -26,24 +26,20 @@ DOCSTRING_FOR_PROJECT = (
         - Given a polytope :math:`\mathcal{P}` in V-Rep and a test point
           :math:`y\in\mathbb{R}^{\mathcal{P}.\text{dim}}`, this function solves a convex program with decision variables
           :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}` and
-          :math:`\theta\in\mathbb{R}^{\mathcal{P}.\text{n_vertices}}`,
+          :math:`\theta\in\mathbb{R}^{\mathcal{P}.\text{n\_vertices}}`,
 
             .. math::
-                \begin{align}
-                    \text{minimize}    &\quad  \|x - y\|_p\\
-                    \text{subject to}  &\quad  x = \sum_i \theta_i v_i\\
-                                       &\quad  \sum_i \theta_i = 1, \theta_i \geq 0
-                \end{align}
+                \text{minimize}    &\quad  \|x - y\|_p\\
+                \text{subject to}  &\quad  x = \sum_i \theta_i v_i\\
+                                   &\quad  \sum_i \theta_i = 1, \theta_i \geq 0
         - Given a polytope :math:`\mathcal{P}` in H-Rep and a test point
           :math:`y\in\mathbb{R}^{\mathcal{P}.\text{dim}}`, this function solves a convex program with a decision
           variable :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}`,
 
             .. math::
-                \begin{align}
-                    \text{minimize}    &\quad  \|x - y\|_p\\
-                    \text{subject to}  &\quad  A x \leq b\\
-                                       &\quad  A_e x = b_e
-                \end{align}
+                \text{minimize}    &\quad  \|x - y\|_p\\
+                \text{subject to}  &\quad  A x \leq b\\
+                                   &\quad  A_e x = b_e
     """
 )
 
@@ -67,24 +63,20 @@ DOCSTRING_FOR_SUPPORT = (
         - Given a polytope :math:`\mathcal{P}` in V-Rep and a support direction
           :math:`\eta\in\mathbb{R}^{\mathcal{P}.\text{dim}}`, this function solves a convex program with decision
           variables :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}` and
-          :math:`\theta\in\mathbb{R}^{\mathcal{P}.\text{n_vertices}}`,
+          :math:`\theta\in\mathbb{R}^{\mathcal{P}.\text{n\_vertices}}`,
 
             .. math::
-                \begin{align}
-                    \text{maximize}    &\quad  \eta^\top x\\
-                    \text{subject to}  &\quad  x = \sum_i \theta_i v_i\\
-                                       &\quad  \sum_i \theta_i = 1, \theta_i \geq 0
-                \end{align}
+                \text{maximize}    &\quad  \eta^\top x\\
+                \text{subject to}  &\quad  x = \sum_i \theta_i v_i\\
+                                   &\quad  \sum_i \theta_i = 1, \theta_i \geq 0
         - Given a polytope :math:`\mathcal{P}` in H-Rep and a support direction
           :math:`\eta\in\mathbb{R}^{\mathcal{P}.\text{dim}}`, this function solves a convex program with a decision
           variable :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}`,
 
             .. math::
-                \begin{align}
-                    \text{maximize}    &\quad  \eta^\top x\\
-                    \text{subject to}  &\quad  A x \leq b\\
-                                       &\quad  A_e x = b_e
-                \end{align}
+                \text{maximize}    &\quad  \eta^\top x\\
+                \text{subject to}  &\quad  A x \leq b\\
+                                   &\quad  A_e x = b_e
     """
 )
 
@@ -155,8 +147,9 @@ def affine_map(self, M):
 
 
 def contains(self, Q):
-    r"""Check containment of a polytope :math:`\mathcal{Q}` or when a collection of points
-    :math:`Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}` in the polytope :math:`\mathcal{P}`.
+    r"""Check containment of a set :math:`\mathcal{Q}` (could be a polytope, an ellipsoid, or a constrained zonotope),
+    or a collection of points :math:`Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}` in the polytope
+    :math:`\mathcal{P}`.
 
     Args:
         Q (array_like | Polytope | ConstrainedZonotope | Ellipsoid): Set or a collection of points (each row is a point)

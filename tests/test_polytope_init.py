@@ -455,8 +455,8 @@ def test_str_repr():
     print(P3.__repr__)
 
 
-def test_get_cvxpy_constraints():
+def test_constraints():
     P = Polytope(dim=2)
     x = cp.Variable(2)
     with pytest.raises(ValueError):
-        P.get_cvxpy_containment_constraints(x)
+        P.containment_constraints(x)

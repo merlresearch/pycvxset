@@ -13,19 +13,26 @@ with open("README.md", "r") as fh:
 # scipy>=1.3.0 for the reflective-simplex option in linprog()
 # matplotlib>=3.8 for https://github.com/matplotlib/matplotlib/pull/25565
 # cvxpy>=1.5.3 for gurobipy error fix https://github.com/cvxpy/cvxpy/issues/2493
-INSTALL_REQUIRES = ["numpy>=1.14", "scipy>=1.3.0", "pycddlib", "matplotlib>=3.8", "cvxpy>=1.5.3", "gurobipy>=11.0.0"]
+INSTALL_REQUIRES = [
+    "numpy>=1.14",
+    "scipy>=1.3.0",
+    "pycddlib==2.1.8.post1",
+    "matplotlib>=3.8",
+    "cvxpy>=1.5.3",
+    "gurobipy>=11.0.0",
+]
 TESTS_REQUIRES = ["pytest", "coverage", "lark"]
 DOCS_REQUIRES = ["sphinx", "notebook", "ipykernel", "nbconvert", "ipympl", "myst-parser", "nbqa", "black"]
 
 setup(
     name="pycvxset",
-    version="1.0.0",
+    version="1.0.1",
     description=("A Python package for manipulation and visualization of convex sets.")[0],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/merl-external/pycvxset",
     author="Abraham P. Vinod",
-    author_email="vinod@merl.com",
+    author_email="vinod@merl.com, abraham.p.vinod@ieee.org",
     license="AGPL-3.0-or-later",
     packages=["pycvxset"],
     install_requires=INSTALL_REQUIRES,

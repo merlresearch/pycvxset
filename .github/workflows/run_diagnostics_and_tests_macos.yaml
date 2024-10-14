@@ -38,7 +38,7 @@ jobs:
           cd ..
           git clone https://github.com/mcmtroffaes/pycddlib.git
           cd pycddlib
-          git checkout master
+          git checkout 2.1.8.post1
           git submodule update --init
           ./cddlib-makefile-gmp.sh
           env "CFLAGS=-I$(brew --prefix)/include -L$(brew --prefix)/lib" python3 -m pip install .

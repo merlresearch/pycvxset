@@ -19,10 +19,10 @@ from pycvxset.common import (
     convex_set_projection,
     convex_set_slice,
     convex_set_support,
+    minimize,
     plot,
     sanitize_Aebe,
     sanitize_Gc,
-    solve_convex_program_with_containment_constraints,
 )
 from pycvxset.common.constants import DEFAULT_CVXPY_ARGS_LP, DEFAULT_CVXPY_ARGS_SOCP, PYCVXSET_ZERO
 from pycvxset.common.polytope_approximations import polytopic_inner_approximation, polytopic_outer_approximation
@@ -277,13 +277,11 @@ class ConstrainedZonotope:
             simple manipulations to define a zonotope from the bounds lb, ub:
 
             .. math ::
-                \begin{align}
-                    newobj  &= {x\ |\ lb \leq x \leq ub}\\
-                            &= {x\ |\ - (ub - lb)/2 \leq x - (ub + lb)/2 \leq + (ub - lb)/2}\\
-                            &= {x\ |\ - d \leq x - c \leq d}\\
-                            &= {x\ |\ -1 \leq diag(1./d)(x - c) \leq 1}\\
-                            &= {diag(d)z + c\ |\ -1 \leq z \leq 1}
-                \end{align}
+                newobj  &= {x\ |\ lb \leq x \leq ub}\\
+                        &= {x\ |\ - (ub - lb)/2 \leq x - (ub + lb)/2 \leq + (ub - lb)/2}\\
+                        &= {x\ |\ - d \leq x - c \leq d}\\
+                        &= {x\ |\ -1 \leq diag(1./d)(x - c) \leq 1}\\
+                        &= {diag(d)z + c\ |\ -1 \leq z \leq 1}
         """
         try:
             lb = np.atleast_1d(np.squeeze(lb)).astype(float)
@@ -399,7 +397,7 @@ class ConstrainedZonotope:
         """
         if self._is_empty is None:
             x = cp.Variable((self.dim,))
-            _, feasibility_value, _ = self.solve_convex_program_with_containment_constraints(
+            _, feasibility_value, _ = self.minimize(
                 x,
                 objective_to_minimize=cp.Constant(0),
                 cvxpy_args=self.cvxpy_args_lp,
@@ -490,7 +488,7 @@ class ConstrainedZonotope:
     ###########
     # Auxiliary
     ###########
-    def get_cvxpy_containment_constraints(self, x):
+    def containment_constraints(self, x):
         """Get CVXPY constraints for containment of x (a cvxpy.Variable) in a constrained zonotope.
 
         Args:
@@ -517,7 +515,7 @@ class ConstrainedZonotope:
             else:
                 return [x == self.G @ xi + self.c, cp.norm(xi, p="inf") <= 1], xi
 
-    solve_convex_program_with_containment_constraints = solve_convex_program_with_containment_constraints
+    minimize = minimize
 
     def __pow__(self, power):
         r"""Compute the Cartesian product with itself.

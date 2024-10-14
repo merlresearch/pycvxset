@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
     - [Installation](#installation)
       - [Sanity check](#sanity-check)
     - [Optional: Testing](#optional-testing)
-    - [Optional: Documentation and testing](#optional-documentation-and-testing)
+    - [Optional: Documentation](#optional-documentation)
   - [Getting help](#getting-help)
   - [Contributing](#contributing)
   - [License](#license)
@@ -56,7 +56,7 @@ pycvxset supports Python 3.9+ on Ubuntu, Windows, and MacOS. As described in [se
 2. [scipy](https://scipy.org/)
 3. [cvxpy](https://www.cvxpy.org/)
 4. [matplotlib](https://matplotlib.org/)
-5. [pycddlib](https://pycddlib.readthedocs.io/en/latest/)
+5. [pycddlib](https://pycddlib.readthedocs.io/en/latest/): pycvxset requires `pycddlib<=2.1.8.post1`. We are working on removing this restriction.
 6. [gurobipy](https://pypi.org/project/gurobipy/): This dependency is **optional**. Almost all functionalities of pycvxset are available without [Gurobi](https://www.gurobi.com/). However, pycvxset uses [Gurobi](https://www.gurobi.com/) (through [cvxpy](https://www.cvxpy.org/)) to perform *some* containment and equality checks involving constrained zonotopes. See [License](#license) section for more details.
 
 ### Installation
@@ -73,7 +73,7 @@ Refer to [.github/workflows](.github/workflows) for exact steps to install pycvx
      % python3 -m pip install --upgrade pip
      % git clone https://github.com/mcmtroffaes/pycddlib.git
      % cd pycddlib
-     % git checkout master
+     % git checkout 2.1.8.post1
      % git submodule update --init
      % ./cddlib-makefile-gmp.sh
      % env "CFLAGS=-I$(brew --prefix)/include -L$(brew --prefix)/lib" python3 -m pip install .
@@ -99,19 +99,22 @@ Check your installation by running  `python3 examples/pycvxset_diag.py` in the f
 2. Run `$ ./scripts/run_tests_and_update_docs.sh` to view testing results on the command window.
 3. Open [./docs/source/_static/codecoverage/overall/index.html](./docs/source/_static/codecoverage/overall/index.html) in your browser for coverage results.
 
-### Optional: Documentation and testing
+### Optional: Documentation
 
 1. Use `pip install -e ".[with_docs_and_tests]"` to install the additional dependencies.
-2. Run `$./scripts/run_all.sh`. This will take about 5 minutes.
-     * **Faster but incomplete option:** Run only `$./scripts/run_sphinx_docs.sh` to build the API documentation without rendering the tutorial notebooks or performing coverage.
-3. In your browser, view
-      * API documentation at [./docs/build/index.html](./docs/build/index.html).
-      * View the Jupyter notebooks at [./docs/build/tutorials/tutorials.html](./docs/build/tutorials/tutorials.html).
-      * View code coverage from testing at [./docs/build/_static/codecoverage/overall/index.html](./docs/build/tutorials/tutorials.html).
+2. To produce the documentation,
+      * Run `$./scripts/run_all.sh`. This should take about 15 minutes. For **faster but incomplete options**,
+        * To generate just the latex files for the [MANUAL.pdf](./MANUAL.pdf), run `$./scripts/run_sphinx_pdf.sh`. This command will assume that the environment has [LaTeX](https://www.tug.org/texlive/) setup properly.
+        * To build the API documentation without rendering the notebooks or coverage results, run `$./scripts/run_sphinx_html.sh`.
+3. View the documentation as,
+      * PDF at [MANUAL.pdf](./MANUAL.pdf),
+      * HTML pages in your browser at `./docs/build/index.html`.
+        * View the Jupyter notebooks at `./docs/build/tutorials/tutorials.html`.
+        * View code coverage from testing at `./docs/build/_static/codecoverage/overall/index.html`.
 
 ## Getting help
 
-Let us say that you have read the available [Documentation](https://pycvxset.readthedocs.io/en/latest/) and searched the
+Let us say that you have read the [manual](./MANUAL.pdf) and searched the
 [Discussion](https://github.com/merlresearch/pycvxset/discussions) and the
 [Issue](https://github.com/merlresearch/pycvxset/issues) webpages, but still need help.
 
@@ -174,7 +177,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-License-Identifier: MIT
 ```
 
-The method `contains` in [pycvxset/ConstrainedZonotope/operations_binary.py](./pycvxset/ConstrainedZonotope/operations_binary.py) uses [gurobipy](https://pypi.org/project/gurobipy/) (through [cvxpy](cvxpy.org)) and requires acceptance of appropriate license terms.
+The method `contains` in [pycvxset/ConstrainedZonotope/operations_binary.py](./pycvxset/ConstrainedZonotope/operations_binary.py) uses [gurobipy](https://pypi.org/project/gurobipy/) (through [cvxpy](https://cvxpy.org)) and requires acceptance of appropriate license terms.
 
 ## Acknowledgements
 
@@ -198,4 +201,4 @@ pycvxset extends [pytope](https://github.com/heirung/pytope.git) in several new 
 
 ## Contact
 
-For questions or bugs, contact Abraham P. Vinod (Email: [vinod@mail.com](mailto:vinod@mail.com) or [abraham.p.vinod@ieee.org](mailto:abraham.p.vinod@ieee.org)).
+For questions or bugs, contact Abraham P. Vinod (Email: [vinod@merl.com](mailto:vinod@merl.com), [abraham.p.vinod@ieee.org](mailto:abraham.p.vinod@ieee.org)).

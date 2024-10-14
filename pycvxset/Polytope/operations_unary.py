@@ -34,12 +34,10 @@ def chebyshev_centering(self):
         We solve the LP (see Section 8.5.1 in [BV04]_) for :math:`c` (for `center`) and :math:`R` (for `radius`),
 
         .. math ::
-            \begin{align}
-                \text{maximize}     &\quad R \\
-                \text{subject to}   &\quad A c + R ||A||_\text{row} \leq b,\\
-                                    &\quad A_e c = b_e, \\
-                                    &\quad R \geq 0.
-            \end{align}
+            \text{maximize}     &\quad R \\
+            \text{subject to}   &\quad A c + R ||A||_\text{row} \leq b,\\
+                                &\quad A_e c = b_e, \\
+                                &\quad R \geq 0,
 
         where :math:`||A||_\text{row}` is a vector of dimension :attr:`n_halfspaces` with each element
         as :math:`||a_i||_2`. When (Ae, be) is non-empty, then R is forced to zero post-solve. Consequently,
@@ -151,12 +149,10 @@ def maximum_volume_inscribing_ellipsoid(self):
         We solve the SDP for a positive definite matrix :math:`B\in\mathbb{S}^n_{++}` and :math:`d\in\mathbb{R}^n`,
 
         .. math ::
-            \begin{align}
-                \text{maximize}   &\quad \log \text{det} B \\
-                \text{subject to} &\quad \|B a_i\|_2 + a_i^T d \leq b_i,\\
-                                  &\quad A_e d = b_e,\\
-                                  &\quad B A_e^\top  = 0.
-            \end{align}
+            \text{maximize}   &\quad \log \text{det} B \\
+            \text{subject to} &\quad \|B a_i\|_2 + a_i^T d \leq b_i,\\
+                              &\quad A_e d = b_e,\\
+                              &\quad B A_e^\top  = 0,
 
         where :math:`(a_i,b_i)` is the set of hyperplanes characterizing :math:`\mathcal{P}`, and the inscribing
         ellipsoid is given by :math:`\{Bu + d| {||u||}_2 \leq 1\}`. The center of the ellipsoid is given by :math:`c =
@@ -169,11 +165,9 @@ def maximum_volume_inscribing_ellipsoid(self):
         matrix with positive diagonal entries. Then, we solve the following (equivalent) optimization problem:
 
         .. math ::
-            \begin{align}
-                \text{minimize}   &\quad \text{geomean}(L) \\
-                \text{subject to} &\quad \text{diag}(L) \geq 0\\
-                                  &\quad \|L^T a_i\|_2 + a_i^T d \leq b_i,
-            \end{align}
+            \text{minimize}   &\quad \text{geomean}(L) \\
+            \text{subject to} &\quad \text{diag}(L) \geq 0\\
+                              &\quad \|L^T a_i\|_2 + a_i^T d \leq b_i,
 
         with decision variables :math:`G` and :math:`c`.  Here, we use the observation that :math:`\text{geomean}(L)` is
         a monotone function of :math:`\log\det(GG^T)` (the volume of the ellipsoid).
@@ -264,10 +258,8 @@ def minimum_volume_circumscribing_ellipsoid(self):
         We solve the SDP for a positive definite matrix :math:`A\in\mathbb{S}^n_{++}` and :math:`b\in\mathbb{R}^n`,
 
         .. math ::
-            \begin{align}
-                \text{maximize}   &\quad \log \text{det} A^{-1} \\
-                \text{subject to} &\quad \|Av_i + b\|_2 \leq 1,\ \forall \text{ vertices } v_i \text{ of } \mathcal{P}
-            \end{align}
+            \text{maximize}   &\quad \log \text{det} A^{-1} \\
+            \text{subject to} &\quad \|Av_i + b\|_2 \leq 1,\ \forall \text{ vertices } v_i \text{ of } \mathcal{P}
 
         where the circumscribing ellipsoid is given by :math:`\{x| {||A x + b||}_2 \leq 1\}`, and we use the observation
         that :math:`\log \text{det} A^{-1}= -\log \text{det} A`. The center of the ellipsoid is given by :math:`c =
@@ -279,12 +271,10 @@ def minimum_volume_circumscribing_ellipsoid(self):
         matrix with positive diagonal entries. Then, we solve the following (equivalent) optimization problem:
 
         .. math ::
-            \begin{align}
-                \text{minimize}   &\quad \text{geomean}(L) \\
-                \text{subject to} &\quad \text{diag}(L) > 0\\
-                                  &\quad v_i = Lu_i + c,\ \forall \text{ vertices } v_i \text{ of } \mathcal{P},\\
-                                  &\quad u_i\in\mathbb{R}^,\ \|u_i\|_2 \leq 1.
-            \end{align}
+            \text{minimize}   &\quad \text{geomean}(L) \\
+            \text{subject to} &\quad \text{diag}(L) > 0\\
+                              &\quad v_i = Lu_i + c,\ \forall \text{ vertices } v_i \text{ of } \mathcal{P},\\
+                              &\quad u_i\in\mathbb{R}^,\ \|u_i\|_2 \leq 1,
 
         with decision variables :math:`G`, :math:`c`, and :math:`u_i`, and :math:`\text{geomean}` is the geometric mean
         of the diagonal elements of :math:`G`. Here, we use the observation that :math:`\text{geomean}(L)` is a monotone
@@ -293,11 +283,9 @@ def minimum_volume_circumscribing_ellipsoid(self):
         :math:`c_{L_\text{inv}}=L^{-1}c`, and substituting for the variables :math:`u_i`:
 
         .. math ::
-            \begin{align}
-                \text{maximize}   &\quad \text{geomean}(L_\text{inv}) \\
-                \text{subject to} &\quad \text{diag}(L_\text{inv}) > 0\\
-                                  &\quad \|L_\text{inv}v_i - c_{L_\text{inv}}\|_2 \leq 1,\ \forall \text{ vertices } v_i
-            \end{align}
+            \text{maximize}   &\quad \text{geomean}(L_\text{inv}) \\
+            \text{subject to} &\quad \text{diag}(L_\text{inv}) > 0\\
+                              &\quad \|L_\text{inv}v_i - c_{L_\text{inv}}\|_2 \leq 1,\ \forall \text{ vertices } v_i
 
         The center of the ellipsoid is :math:`c = Lc_{L_\text{inv}}`, and the shape matrix is :math:`Q = GG^T`, where
         :math:`L=L_\text{inv}^{-1}`.

@@ -28,15 +28,13 @@ DOCSTRING_FOR_PROJECT = (
     Notes:
         Given a constrained zonotope :math:`\mathcal{P}` and a test point
         :math:`y\in\mathbb{R}^{\mathcal{P}.\text{dim}}`, this function solves a convex program with decision variables
-        :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}` and :math:`\xi\in\mathbb{R}^{\mathcal{P}.\text{latent_dim}}`,
+        :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}` and :math:`\xi\in\mathbb{R}^{\mathcal{P}.\text{latent\_dim}}`,
 
         .. math::
-            \begin{align}
-                \text{minimize}    &\quad  \|x - y\|_p\\
-                \text{subject to}  &\quad  x = G_P \xi + c_P\\
-                                   &\quad  A_P \xi = b_P\\
-                                   &\quad  \|\xi\|_\infty \leq 1\\
-            \end{align}
+            \text{minimize}    &\quad  \|x - y\|_p\\
+            \text{subject to}  &\quad  x = G_P \xi + c_P\\
+                               &\quad  A_P \xi = b_P\\
+                               &\quad  \|\xi\|_\infty \leq 1
     """
 )
 
@@ -56,16 +54,13 @@ DOCSTRING_FOR_SUPPORT = (
         Given a constrained zonotope :math:`\mathcal{P}` and a support direction
         :math:`\eta\in\mathbb{R}^{\mathcal{P}.\text{dim}}`, this function solves a convex program with decision
         variables :math:`x\in\mathbb{R}^{\mathcal{P}.\text{dim}}` and
-        :math:`\xi\in\mathbb{R}^{\mathcal{P}.\text{latent_dim}}`,
+        :math:`\xi\in\mathbb{R}^{\mathcal{P}.\text{latent\_dim}}`,
 
         .. math ::
-
-            \begin{align}
-                \text{maximize}     &\quad \eta^\top x\\
-                \text{subject to}   &\quad x = G_P \xi + c_P\\
-                                    &\quad A_P \xi = b_P\\
-                                    &\quad \|\xi\|_\infty \leq 1\\
-            \end{align}
+            \text{maximize}     &\quad \eta^\top x\\
+            \text{subject to}   &\quad x = G_P \xi + c_P\\
+                                &\quad A_P \xi = b_P\\
+                                &\quad \|\xi\|_\infty \leq 1
     """
 )
 
@@ -197,8 +192,8 @@ def approximate_pontryagin_difference(self, norm_type, G_S, c_S, method="inner-l
 
 
 def contains(self, Q, verbose=False, time_limit=TIME_LIMIT_FOR_GUROBI_NON_CONVEX):
-    r"""Check containment of a polytope, a constrained zonotope, or a collection of points in the given constrained
-    zonotope.
+    r"""Check containment of a set :math:`\mathcal{Q}` (could be a polytope or a constrained zonotope), or a collection
+    of points :math:`Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}` in the given constrained zonotope.
 
     Args:
         Q (array_like | Polytope | ConstrainedZonotope): Polytope object, ConstrainedZonotope object, or a collection of

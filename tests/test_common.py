@@ -81,9 +81,7 @@ def test_spread_points_on_a_unit_sphere():
 def test_solve_convex_program_with_constrained_zonotope_and_polytope_containment_constraints():
     # Empty constrained zonotope
     x = cp.Variable((2,))
-    x_value, problem_value, problem_status = ConstrainedZonotope(
-        dim=2
-    ).solve_convex_program_with_containment_constraints(
+    x_value, problem_value, problem_status = ConstrainedZonotope(dim=2).minimize(
         x=x,
         objective_to_minimize=np.ones((2,)) @ x,
         cvxpy_args=DEFAULT_CVXPY_ARGS_LP,
@@ -96,7 +94,7 @@ def test_solve_convex_program_with_constrained_zonotope_and_polytope_containment
     # Normal zonotope
     Z = ConstrainedZonotope(G=np.eye(2), c=np.zeros((2,)))
     x = cp.Variable((2,))
-    x_solution, problem_value, problem_status = Z.solve_convex_program_with_containment_constraints(
+    x_solution, problem_value, problem_status = Z.minimize(
         x=x,
         objective_to_minimize=np.ones((2,)) @ x,
         cvxpy_args=DEFAULT_CVXPY_ARGS_LP,
@@ -110,13 +108,13 @@ def test_solve_convex_program_with_constrained_zonotope_and_polytope_containment
     P = Polytope(V=spread_points_on_a_unit_sphere(2, 7)[0])
     C = ConstrainedZonotope(polytope=P)
     x = cp.Variable((2,))
-    x_solution_constrained_zonotope, _, _ = C.solve_convex_program_with_containment_constraints(
+    x_solution_constrained_zonotope, _, _ = C.minimize(
         x=x,
         objective_to_minimize=np.ones((2,)) @ x,
         cvxpy_args=DEFAULT_CVXPY_ARGS_LP,
         task_str="",
     )
-    x_solution_polytope, _, _ = P.solve_convex_program_with_containment_constraints(
+    x_solution_polytope, _, _ = P.minimize(
         x=x,
         objective_to_minimize=np.ones((2,)) @ x,
         cvxpy_args=DEFAULT_CVXPY_ARGS_LP,
@@ -127,7 +125,7 @@ def test_solve_convex_program_with_constrained_zonotope_and_polytope_containment
     # Unbounded polytope
     P = Polytope(A=[[1, 0], [0, 1]], b=[1, 1])
     x = cp.Variable((2,))
-    x_solution_polytope, problem_value, problem_status = P.solve_convex_program_with_containment_constraints(
+    x_solution_polytope, problem_value, problem_status = P.minimize(
         x=x,
         objective_to_minimize=np.ones((2,)) @ x,
         cvxpy_args=DEFAULT_CVXPY_ARGS_LP,
@@ -140,7 +138,7 @@ def test_solve_convex_program_with_constrained_zonotope_and_polytope_containment
     # Infeasible polytope
     P = Polytope(c=[0, 0], h=0.5).intersection_with_halfspaces(A=[-1, 0], b=-2)
     x = cp.Variable((2,))
-    x_solution_polytope, problem_value, problem_status = P.solve_convex_program_with_containment_constraints(
+    x_solution_polytope, problem_value, problem_status = P.minimize(
         x=x,
         objective_to_minimize=np.ones((2,)) @ x,
         cvxpy_args=DEFAULT_CVXPY_ARGS_LP,

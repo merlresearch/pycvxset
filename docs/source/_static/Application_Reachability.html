@@ -8076,9 +8076,7 @@ Answer to Q.5 from Constrained zonotope: False
         <span class="o">==</span> <span class="n">terminal_state</span>
     <span class="p">]</span>
     <span class="c1"># x_0 \in \mathcal{X}_0 (containment constraints differ for polytope and constrained zonotope)</span>
-    <span class="n">const</span> <span class="o">+=</span> <span class="n">initial_set</span><span class="o">.</span><span class="n">get_cvxpy_containment_constraints</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)[</span>
-        <span class="mi">0</span>
-    <span class="p">]</span>
+    <span class="n">const</span> <span class="o">+=</span> <span class="n">initial_set</span><span class="o">.</span><span class="n">containment_constraints</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_time_steps_for_forward_reach_computation</span><span class="p">):</span>
         <span class="c1"># x_{t+1} = A x_t + B u_t</span>
         <span class="n">const</span> <span class="o">+=</span> <span class="p">[</span>
@@ -8087,9 +8085,9 @@ Answer to Q.5 from Constrained zonotope: False
             <span class="o">+</span> <span class="n">system_B</span> <span class="o">@</span> <span class="n">input_trajectory</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span>
         <span class="p">]</span>
         <span class="c1"># u_t \in \mathcal{U}</span>
-        <span class="n">const</span> <span class="o">+=</span> <span class="n">input_set</span><span class="o">.</span><span class="n">get_cvxpy_containment_constraints</span><span class="p">(</span>
-            <span class="n">input_trajectory</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span>
-        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">const</span> <span class="o">+=</span> <span class="n">input_set</span><span class="o">.</span><span class="n">containment_constraints</span><span class="p">(</span><span class="n">input_trajectory</span><span class="p">[:,</span> <span class="n">t</span><span class="p">])[</span>
+            <span class="mi">0</span>
+        <span class="p">]</span>
     <span class="c1"># Solve the optimal control problem</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">input_trajectory</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span> <span class="n">const</span><span class="p">)</span>
     <span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s2">"CLARABEL"</span><span class="p">)</span>
@@ -8366,7 +8364,7 @@ for $t\in\{k-1, k-2, \ldots, 0\}$, initialized to the terminal set $\mathcal{X}_
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>/home/vinod/workspace/git/PaperCodes/general/pycvxset/pycvxset/ConstrainedZonotope/operations_binary.py:585: UserWarning: This function returns an inner-approximation of the Pontryagin difference with a zonotope.
+<pre>/home/vinod/workspace/git/PaperCodes/general/pycvxset/pycvxset/ConstrainedZonotope/operations_binary.py:580: UserWarning: This function returns an inner-approximation of the Pontryagin difference with a zonotope.
   warnings.warn(
 </pre>
 </div>
@@ -8376,10 +8374,10 @@ for $t\in\{k-1, k-2, \ldots, 0\}$, initialized to the terminal set $\mathcal{X}_
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>       | Time (s)      | Area of sets  |
  Scale | Poly. | ConZ. | Poly. | ConZ. |
-[0.000 | 1.585 | 0.070 | 14.070 | 13.750]
-[0.200 | 1.431 | 0.066 | 10.296 | 7.815]
-[0.400 | 1.487 | 0.066 | 7.069 | 4.984]
-[0.800 | 1.465 | 0.063 | 2.257 | 1.293]
+[0.000 | 1.621 | 0.069 | 14.070 | 13.750]
+[0.200 | 1.534 | 0.070 | 10.296 | 7.815]
+[0.400 | 1.552 | 0.068 | 7.069 | 4.984]
+[0.800 | 1.533 | 0.071 | 2.257 | 1.293]
 </pre>
 </div>
 </div>
@@ -8640,10 +8638,8 @@ Since (10) is a convex maximization problem, the optimal occurs at the vertices 
                 <span class="p">]</span>
             <span class="n">problem</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">slack</span><span class="p">),</span> <span class="n">const</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">const</span> <span class="o">=</span> <span class="n">input_set</span><span class="o">.</span><span class="n">get_cvxpy_containment_constraints</span><span class="p">(</span>
-                <span class="n">input_to_apply</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">const</span> <span class="o">+=</span> <span class="n">next_backward_robust_reachable_set_minus_dist</span><span class="o">.</span><span class="n">get_cvxpy_containment_constraints</span><span class="p">(</span>
+            <span class="n">const</span> <span class="o">=</span> <span class="n">input_set</span><span class="o">.</span><span class="n">containment_constraints</span><span class="p">(</span><span class="n">input_to_apply</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">const</span> <span class="o">+=</span> <span class="n">next_backward_robust_reachable_set_minus_dist</span><span class="o">.</span><span class="n">containment_constraints</span><span class="p">(</span>
                 <span class="n">system_B</span> <span class="o">@</span> <span class="n">input_to_apply</span>
             <span class="p">)[</span>
                 <span class="mi">0</span>

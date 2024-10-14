@@ -80,7 +80,7 @@ def chebyshev_centering(self):
 
     chebyshev_center = cp.Variable((self.dim,))
     chebyshev_radius = cp.Variable()
-    const, xi = self.get_cvxpy_containment_constraints(chebyshev_center)
+    const, xi = self.containment_constraints(chebyshev_center)
     rowwise_vecnorm_gamma_matrix = np.linalg.norm(matrix_least_norm_solution, ord=2, axis=1)
     const += [
         chebyshev_radius >= -PYCVXSET_ZERO,
@@ -151,7 +151,7 @@ def maximum_volume_inscribing_ellipsoid(self):
 
     mvie_center = cp.Variable((self.dim,))
     mvie_G_ltri = cp.Variable((self.dim, self.dim))
-    const, xi = self.get_cvxpy_containment_constraints(mvie_center)
+    const, xi = self.containment_constraints(mvie_center)
     for row_index in range(self.dim - 1):
         const += [mvie_G_ltri[row_index, row_index + 1 :] == 0]
     rowwise_vecnorm_gamma_matrix = cp.norm(matrix_least_norm_solution @ mvie_G_ltri, p=2, axis=1)

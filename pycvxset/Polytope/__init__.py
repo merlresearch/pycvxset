@@ -23,9 +23,9 @@ from pycvxset.common import (
     convex_set_support,
     is_constrained_zonotope,
     is_polytope,
+    minimize,
     sanitize_Ab,
     sanitize_and_identify_Aebe,
-    solve_convex_program_with_containment_constraints,
 )
 from pycvxset.common.constants import (
     DEFAULT_CVXPY_ARGS_LP,
@@ -734,7 +734,7 @@ class Polytope:
     ################
     # CVXPY-focussed
     ################
-    def get_cvxpy_containment_constraints(self, x):
+    def containment_constraints(self, x):
         """Get CVXPY constraints for containment of x (a cvxpy.Variable) in a polytope.
 
         Args:
@@ -761,7 +761,7 @@ class Polytope:
         else:
             raise ValueError("Polytope is empty!")
 
-    solve_convex_program_with_containment_constraints = solve_convex_program_with_containment_constraints
+    minimize = minimize
 
     ##################
     # Unary operations

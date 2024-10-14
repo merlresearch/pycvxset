@@ -10,6 +10,14 @@
 echo "Cleaning up untracked and ignored files for fresh build..."
 git clean -fdX
 
+# Run pdf creation first because we clean up the docs
+if command -v pdflatex > /dev/null; then
+    echo "LaTeX is installed. Proceeding with MANUAL.pdf creation."
+    ./scripts/run_sphinx_pdf.sh
+else
+    echo "LaTeX is not installed. Skipping MANUAL.pdf creation."
+fi
+
 # Run example notebooks
 ./scripts/run_example_notebooks_and_update_docs.sh
 
@@ -20,7 +28,7 @@ git clean -fdX
 ./scripts/run_coverage_on_example_notebooks.sh
 
 # Update docs
-./scripts/run_sphinx_docs.sh
+./scripts/run_sphinx_html.sh
 
 if [ -z "${1}" ]; then
     echo "Skipped cleaning after! Use ./scripts/run_all.sh clean_after to clean all files after scripts!"

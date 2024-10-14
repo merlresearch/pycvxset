@@ -6,8 +6,8 @@
 
 :orphan:
 
-pycvxset.ConstrainedZonotope
-============================
+pycvxset.ConstrainedZonotope (API details)
+==========================================
 
 .. autosummary::
    :toctree: api_summary

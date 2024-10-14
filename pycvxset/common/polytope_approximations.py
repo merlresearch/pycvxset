@@ -26,8 +26,8 @@ def polytopic_outer_approximation(self, direction_vectors=None, n_halfspaces=Non
     Notes:
         We compute the polytope using :meth:`support` evaluated along the direction vectors computed by
         :meth:`pycvxset.common.spread_points_on_a_unit_sphere`. When direction_vectors is None and n_halfspaces is None,
-        we select :math:`\text{n_halfspaces} = 2 \text{self.dim} + 2^\text{self.dim}
-        \text{SPOAUS_DIRECTIONS_PER_QUADRANT}` (as defined in :py:mod:`pycvxset.common.constants`).  [BV04]_
+        we select :math:`\text{n\_halfspaces} = 2 \text{self.dim} + 2^\text{self.dim}
+        \text{SPOAUS\_DIRECTIONS\_PER\_QUADRANT}` (as defined in :py:mod:`pycvxset.common.constants`).  [BV04]_
     """
     if self.is_empty:
         return Polytope(dim=self.dim)
@@ -57,8 +57,8 @@ def polytopic_inner_approximation(self, direction_vectors=None, n_vertices=None,
     Notes:
         We compute the polytope using :meth:`extreme` evaluated along the direction vectors computed by
         :meth:`pycvxset.common.spread_points_on_a_unit_sphere`. When direction_vectors is None and n_vertices is None,
-        we select :math:`\text{n_vertices} = 2 \text{self.dim} + 2^\text{self.dim}
-        \text{SPOAUS_DIRECTIONS_PER_QUADRANT}` (as defined in :meth:`pycvxset.common.constants`). [BV04]_
+        we select :math:`\text{n\_vertices} = 2 \text{self.dim} + 2^\text{self.dim}
+        \text{SPOAUS\_DIRECTIONS\_PER\_QUADRANT}` (as defined in :meth:`pycvxset.common.constants`). [BV04]_
     """
     if self.is_empty:
         return Polytope(dim=self.dim)
