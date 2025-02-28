@@ -1,0 +1,6 @@
+﻿pycvxset.common.is\_ellipsoid
+=============================
+
+.. currentmodule:: pycvxset.common
+
+.. autofunction:: is_ellipsoid

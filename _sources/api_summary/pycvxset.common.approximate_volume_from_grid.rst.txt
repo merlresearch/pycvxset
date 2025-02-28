@@ -1,0 +1,6 @@
+﻿pycvxset.common.approximate\_volume\_from\_grid
+===============================================
+
+.. currentmodule:: pycvxset.common
+
+.. autofunction:: approximate_volume_from_grid
