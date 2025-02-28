@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -9,14 +9,12 @@
 start=`date +%s`
 
 # REUSE-IgnoreStart
-COPYRIGHT_TEXT="<!--\n\
-Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)\n\
-SPDX-License-Identifier: AGPL-3.0-or-later\n\
+COPYRIGHT_TEXT="<!--
+Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+SPDX-License-Identifier: AGPL-3.0-or-later
+SPDX-License-Identifier: CC-BY-4.0
 -->"
 # REUSE-IgnoreEnd
-
-# Escape special characters for sed
-ESCAPED_COPYRIGHT_TEXT=$(printf '%s\n' "$COPYRIGHT_TEXT" | sed 's/[\/&]/\\&/g')
 
 # List of notebooks to process
 for notebook in examples/*.ipynb; do
@@ -42,7 +40,8 @@ for notebook in examples/*.ipynb; do
     echo "Moved the HTML ${filename}.html into docs!"
 
     # Insert the copyright text at the top of the HTML file
-    sed -i "1i $ESCAPED_COPYRIGHT_TEXT" docs/source/_static/${filename}.html
+    awk -v text="$COPYRIGHT_TEXT" 'BEGIN {print text} {print}' docs/source/_static/${filename}.html > docs/source/_static/${filename}_temp.html
+    mv docs/source/_static/${filename}_temp.html docs/source/_static/${filename}.html
     echo "Added the copyright info to HTML ${filename}.html!"
 done
 

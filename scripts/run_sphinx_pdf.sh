@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -17,15 +17,18 @@
   sphinx-build -b latex source build
   cd build
 
-  ##### Make hard-coded eits
+  ##### Make hard-coded edits
+
   ## sphinxmanual.cls
   # Make author information right justified
   sed -i '67s/.*/        \\begin{tabular}[t]{r}/' sphinxmanual.cls
+
   ## pycvxset.tex
-  # Comment out the README TOC
-  sed -i '87,150 s/^/%/' pycvxset.tex
-  # Comment out the sanity check png included for README
-  sed -i '340 s/^/%/' pycvxset.tex
+  # Comment out the README TOC (Entire two-staged itemize)
+  sed -i '91,144 s/^/%/' pycvxset.tex
+  # Comment out {docs/source/_static/pycvxset_diag}.png | Use the line number pointed out by latexmk
+  # Edit to the line number may be needed whenever README text changes
+  sed -i '330 s/^/%/' pycvxset.tex
 
   #### After edits to latex, now build
   latexmk pycvxset.tex

@@ -1,4 +1,8 @@
-<!--\nCopyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)\nSPDX-License-Identifier: AGPL-3.0-or-later\n-->
+<!--
+Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+SPDX-License-Identifier: AGPL-3.0-or-later
+SPDX-License-Identifier: CC-BY-4.0
+-->
 <!DOCTYPE html>
 
 <html lang="en">
@@ -7518,7 +7522,9 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h1 id="Reachability-using-Polytope/ConstrainedZonotope-classes">Reachability using Polytope/ConstrainedZonotope classes<a class="anchor-link" href="#Reachability-using-Polytope/ConstrainedZonotope-classes">¶</a></h1><p>This python notebook goes over how we can compute various reachability sets using  the <code>Polytope</code> and
-<code>ConstrainedZonotope</code> classes in <code>pycvxset</code>. Throughout this notebook, we will consider a discrete-time linear system,
+<code>ConstrainedZonotope</code> classes in <code>pycvxset</code>.</p>
+<p><strong>License information</strong>: pycvxset code is released under <code>AGPL-3.0-or-later</code> license, as found in the <a href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/LICENSE.md" target="_blank"> LICENSE.md</a> file. The documentation for pycvxset is released under <code>CC-BY-4.0</code> license, as found in the <a href="https://github.com/merlresearch/pycvxset/raw/main/LICENSES/CC-BY-4.0.md" target="_blank">LICENSES/CC-BY-4.0.md</a>.</p>
+<p>Throughout this notebook, we will consider a discrete-time linear system,
 \begin{align}
 x_{t+1} = A x_t + B u_t + F w_t,\tag{1}
 \end{align}
@@ -8374,10 +8380,10 @@ for $t\in\{k-1, k-2, \ldots, 0\}$, initialized to the terminal set $\mathcal{X}_
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>       | Time (s)      | Area of sets  |
  Scale | Poly. | ConZ. | Poly. | ConZ. |
-[0.000 | 1.621 | 0.069 | 14.070 | 13.750]
-[0.200 | 1.534 | 0.070 | 10.296 | 7.815]
-[0.400 | 1.552 | 0.068 | 7.069 | 4.984]
-[0.800 | 1.533 | 0.071 | 2.257 | 1.293]
+[0.000 | 1.277 | 0.058 | 14.070 | 13.750]
+[0.200 | 1.281 | 0.056 | 10.296 | 7.815]
+[0.400 | 1.290 | 0.056 | 7.069 | 4.984]
+[0.800 | 1.288 | 0.056 | 2.257 | 1.293]
 </pre>
 </div>
 </div>

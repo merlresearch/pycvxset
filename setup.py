@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -26,11 +26,11 @@ DOCS_REQUIRES = ["sphinx", "notebook", "ipykernel", "nbconvert", "ipympl", "myst
 
 setup(
     name="pycvxset",
-    version="1.0.1",
+    version="1.0.2",
     description=("A Python package for manipulation and visualization of convex sets.")[0],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/merl-external/pycvxset",
+    url="https://github.com/merlresearch/pycvxset",
     author="Abraham P. Vinod",
     author_email="vinod@merl.com, abraham.p.vinod@ieee.org",
     license="AGPL-3.0-or-later",

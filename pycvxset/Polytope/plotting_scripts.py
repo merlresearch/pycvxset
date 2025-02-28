@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later

@@ -1,0 +1,37 @@
+<!-- Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>{{ _('Navigation') }}</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="{{ pathto('tutorials/tutorials.html', 1) }}">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="{{ pathto('api_summary/pycvxset.Polytope.html', 1) }}">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="{{ pathto('api_summary/pycvxset.Ellipsoid.html', 1) }}">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="{{ pathto('api_summary/pycvxset.ConstrainedZonotope.html', 1) }}">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="{{ pathto('pycvxset.common.html', 1) }}">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="{{ pathto('pycvxset.common.constants.html', 1) }}">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://arxiv.org/abs/2410.11430" target="_blank">Paper
+            (arXiv)</a></li>
+    <li class="toctree-l1"><a class="reference internal" href="{{ pathto('references.html', 1) }}">References</a></li>
+</ul>
