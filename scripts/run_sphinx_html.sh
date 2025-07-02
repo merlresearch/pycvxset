@@ -25,6 +25,7 @@ echo "Ran pycvxset_diag with save plots"
 
 if [ -z "${1}" ]; then
   echo "Skipped deployment! Use ./scripts/run_sphinx_html.sh deploy to deploy the website!"
+  echo "Run python -m http.server --directory ./docs/build/ to view the website at localhost:8000"
 else
   rm -r docs/build/html/_static/codecoverage/overall
   echo "Remove code coverage for documentation update"

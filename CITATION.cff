@@ -1,0 +1,53 @@
+# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+cff-version: 1.2.0
+title: pycvxset
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Abraham
+    family-names: P. Vinod
+    email: abrahampvinod@ieee.org
+    affiliation: Mitsubishi Electric Research Laboratories (MERL)
+identifiers:
+  - type: other
+    value: 'https://www.merl.com/publications/TR2025-086'
+    description: Technical report and software link
+  - type: url
+    value: 'https://arxiv.org/abs/2410.11430'
+    description: ArXiv paper
+repository-code: 'https://github.com/merlresearch/pycvxset'
+url: 'https://merlresearch.github.io/pycvxset/'
+abstract: >-
+  pycvxset is a Python package for manipulation and
+  visualization of convex sets. Currently, pycvxset supports
+  the following three representations --- polytopes,
+  ellipsoids, and constrained zonotopes (which are
+  equivalent to polytopes). pycvxset supports constructing
+  convex and compact sets from a variety of representations,
+  transform between these representations, and perform
+  various operations on these sets.
+keywords:
+  - Computational geometry
+  - Polytopes
+  - Constrained Zonotopes
+  - Zonotopes
+  - Ellipsoids
+  - Convex sets
+  - Set-based control
+license: AGPL-3.0-or-later
+preferred-citation:
+    type: conference-paper
+    title: "pycvxset: A Python package for convex set manipulation"
+    authors:
+    - family-names: "Vinod"
+      given-names: "Abraham P."
+    collection-title: "Proceedings of the American Control Conference (ACC), Denver, USA"
+    collection-type: "proceedings"
+    year: 2025
+    note: (accepted)
+    url: https://merlresearch.github.io/pycvxset/

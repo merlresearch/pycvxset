@@ -8,7 +8,6 @@ References
 ==========
 
 .. [BV04] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge University Press, 2004.
-.. [HJ13rank] Horn, Roger A., and Charles R. Johnson. Matrix analysis. Cambridge university press, 2012, p. 431, Observation 7.1.8.
 .. [KG98] Kolmanovsky, Ilya, and Elmer G. Gilbert. "Theory and computation of disturbance invariant sets for discrete‐time linear systems." Mathematical problems in engineering 4, no. 4 (1998): 317-367.
 .. [RK22] Raghuraman, Vignesh, and Koeln, Justin P.. "Set operations and order reductions for constrained zonotopes." Automatica 139 (2022): 110204.
 .. [SDGR16] Scott, Joseph K., Davide M. Raimondo, Giuseppe Roberto Marseglia, and Richard D. Braatz. "Constrained zonotopes: A new tool for set-based estimation and fault detection." Automatica 69 (2016): 126-136.

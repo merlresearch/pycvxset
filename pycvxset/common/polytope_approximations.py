@@ -4,7 +4,7 @@
 
 # Code purpose:  Define the methods to compute polytopic approximations of sets
 
-from pycvxset.common import spread_points_on_a_unit_sphere
+from pycvxset.common import is_ellipsoid, spread_points_on_a_unit_sphere
 from pycvxset.Polytope import Polytope
 
 
@@ -36,7 +36,12 @@ def polytopic_outer_approximation(self, direction_vectors=None, n_halfspaces=Non
             direction_vectors = spread_points_on_a_unit_sphere(self.dim, n_halfspaces, verbose=verbose)[0]
         ray_shooting_center = self.interior_point()
         shifted_set = self - ray_shooting_center
-        return Polytope(A=direction_vectors, b=shifted_set.support(direction_vectors)[0]) + ray_shooting_center
+        P = Polytope(A=direction_vectors, b=shifted_set.support(direction_vectors)[0])
+        if is_ellipsoid(shifted_set) and not shifted_set.is_full_dimensional:
+            # We can do better than just outer-approximation via support, since we know the affine hull
+            Ae, be = shifted_set.affine_hull()
+            P = P.intersection_with_affine_set(Ae, be)
+        return P + ray_shooting_center
 
 
 def polytopic_inner_approximation(self, direction_vectors=None, n_vertices=None, verbose=False):

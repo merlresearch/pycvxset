@@ -10,6 +10,7 @@
 import itertools
 import warnings
 
+import cdd
 import cvxpy as cp
 import numpy as np
 
@@ -143,19 +144,21 @@ def convex_set_contains_points(self, points):
     """
     points = np.atleast_2d(points).astype(float)
     n_points, point_dim = points.shape
-    if self.is_empty and n_points > 1:
-        return np.zeros((n_points,), dtype="bool")
-    elif self.is_empty and n_points == 1:
-        return False
-    elif point_dim != self.dim:
+    if point_dim != self.dim:
         # Could transpose here if test_points.shape[1] == self.dim, but better to
         # specify that points must be columns:
         raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and test_points.dim: {point_dim:d})")
-    distance_to_test_points = self.distance(points, p="inf")
-    if n_points > 1:
-        return distance_to_test_points <= PYCVXSET_ZERO
+    elif self.is_empty:
+        if n_points > 1:
+            return np.zeros((n_points,), dtype="bool")
+        else:
+            return False
     else:
-        return distance_to_test_points[0] <= PYCVXSET_ZERO
+        distance_to_test_points = self.distance(points, p="inf")
+        if n_points > 1:
+            return distance_to_test_points <= PYCVXSET_ZERO
+        else:
+            return distance_to_test_points[0] <= PYCVXSET_ZERO
 
 
 def convex_set_distance(self, points, p=2):
@@ -187,6 +190,42 @@ def convex_set_extreme(self, eta):
         For more detailed description, see documentation for :meth:`support` function.
     """
     return self.support(eta)[1]
+
+
+def convex_set_minimum_volume_circumscribing_rectangle(self):
+    r"""Compute the minimum volume circumscribing rectangle for a set.
+
+    Raises:
+        ValueError: When set is empty
+        ValueError: When set is unbounded OR solver error!
+
+    Returns:
+        tuple: A tuple of two elements
+            - lb (numpy.ndarray): Lower bound :math:`l` on the set,
+              :math:`\mathcal{P}\subseteq\{l\}\oplus\mathbb{R}_{\geq 0}`.
+            - ub (numpy.ndarray): Upper bound :math:`u` on the set,
+              :math:`\mathcal{P}\subseteq\{u\}\oplus(-\mathbb{R}_{\geq 0})`.
+
+    Notes:
+        This function computes the lower/upper bound by an element-wise support computation (2n linear programs), where
+        n is attr:`self.dim`. To reuse the :meth:`support` function for the lower bound computation, we solve the
+        optimization for each :math:`i\in\{1,2,...,n\}`,
+
+        .. math::
+            \inf_{x\in\mathcal{P}} e_i^\top x=-\sup_{x\in\mathcal{P}} -e_i^\top x=-\rho_{\mathcal{P}}(-e_i),
+
+        where :math:`e_i\in\mathbb{R}^n` denotes the standard coordinate vector, and :math:`\rho_{\mathcal{P}}` is the
+        support function of :math:`\mathcal{P}`.
+    """
+    if self.is_empty:
+        raise ValueError("Can not compute circumscribing rectangle for an empty set!")
+    else:
+        try:
+            lb = -self.support(-np.eye(self.dim))[0]
+            ub = self.support(np.eye(self.dim))[0]
+        except NotImplementedError as err:
+            raise ValueError("Unable to compute minimum_volume_circumscribing_rectangle!") from err
+    return lb, ub
 
 
 def convex_set_project(cvx_set, points, p=2):
@@ -236,7 +275,7 @@ def convex_set_project(cvx_set, points, p=2):
             return np.array(project_evaluation_list), np.array(distance_evaluation_list)
 
 
-def convex_set_projection(self, project_away_dim):
+def convex_set_projection(self, project_away_dims):
     r"""Orthogonal projection of a set :math:`\mathcal{P}` after removing some user-specified dimensions.
 
     .. math::
@@ -249,18 +288,21 @@ def convex_set_projection(self, project_away_dim):
     :math:`e_i\in\mathbb{R}^m`.
 
     Args:
-        project_away_dim (array_like): Dimensions to projected away in integer interval [0, 1, ..., n - 1].
+        project_away_dims (array_like): Dimensions to projected away in integer interval [0, 1, ..., n - 1].
+
+    Raises:
+        ValueError: When project_away_dims are not in the integer interval | All dimensions are projected away
     """
-    project_away_dim = np.atleast_1d(np.squeeze(project_away_dim)).astype(float)
-    if project_away_dim.size == 0:
+    project_away_dims = np.atleast_1d(np.squeeze(project_away_dims)).astype(float)
+    if project_away_dims.size == 0:
         return self.copy()
     else:
-        if np.min(project_away_dim) < 0 or np.max(project_away_dim) >= self.dim:
+        if np.min(project_away_dims) < 0 or np.max(project_away_dims) >= self.dim:
             raise ValueError(
-                f"Expected project_away_dim to be in the integer interval [0:{self.dim-1:d}]!"
-                f"Got {np.array2string(np.array(project_away_dim)):s}"
+                f"Expected project_away_dims to be in the integer interval [0:{self.dim-1:d}]!"
+                f"Got {np.array2string(np.array(project_away_dims)):s}"
             )
-        corrected_retain_dimensions = [d for d in range(self.dim) if d not in project_away_dim]
+        corrected_retain_dimensions = [d for d in range(self.dim) if d not in project_away_dims]
         n_dimensions_to_retain = len(corrected_retain_dimensions)
         if n_dimensions_to_retain == 0:
             raise ValueError("Can not project away all dimensions!")
@@ -318,6 +360,9 @@ def convex_set_support(self, eta):
 def convex_set_slice(self, dims, constants):
     """Slice a set restricting certain dimensions to constants.
 
+    This function uses :meth:`intersection_with_affine_set` to implement the slicing by designing an appropriate affine
+    set from dims and constants.
+
     Args:
         dims (array_like): List of dims to restrict to a constant in the integer interval [0, 1, ..., n - 1].
         constants (array_like): List of constants
@@ -339,6 +384,25 @@ def convex_set_slice(self, dims, constants):
             raise ValueError(f"dims has an entry {dim} that is not in the integer interval [1:{self.dim:d}]") from err
         be[index] = value
     return self.intersection_with_affine_set(Ae, be)
+
+
+def convex_set_slice_then_projection(self, dims, constants):
+    """Wrapper for :meth:`slice` and :meth:`projection`.
+
+    The function first restricts a set at certain dimensions to constants, and then projects away those dimensions.
+    Useful for visual inspection of higher dimensional sets.
+
+    Args:
+        dims (array_like): List of dims to restrict to a constant in the integer interval [0, 1, ..., dim - 1], and then
+            project away.
+        constants (array_like): List of constants
+
+    Raises:
+        ValueError: dims has entries beyond n
+        ValueError: dims and constants are not 1D arrays of same size
+        ValueError: When dims are not in the integer interval | All dimensions are projected away
+    """
+    return self.slice(dims=dims, constants=constants).projection(project_away_dims=dims)
 
 
 def _compute_project_single_point(self, point, p):
@@ -371,6 +435,27 @@ def _compute_support_function_single_eta(self, eta):
         task_str=f"support function evaluation of the set at eta = {np.array2string(np.array(eta)):s}",
     )
     return -negative_support_function_evaluation, support_vector
+
+
+def compute_irredundant_affine_set_using_cdd(Ae, be):
+    """Given an affine set (Ae, be), compute an irredundant set (irredundant_Ae, irredundant_be) using cdd
+
+    Args:
+        Ae (numpy.ndarray): Equality coefficient matrix (N times self.dim) that define the affine set
+            :math:`\\{x|A_ex = b_e\\}`.
+        be (numpy.ndarray): Equality constant vector (N,) that define the affine set :math:`\\{x| A_ex = b_e\\}`.
+
+    Returns:
+        tuple: A tuple containing two elements:
+            1. irredundant_Ae (numpy.ndarray): Irredundant Ae describing the given affine set :math:`{x|A_e x = b_e}`
+            2. irredundant_be (numpy.ndarray): Irredundant be describing the given affine set :math:`{x|A_e x = b_e}`
+    """
+    be_mAe = np.hstack((np.array([be]).T, -Ae))
+    He_cdd = cdd.matrix_from_array(be_mAe, lin_set=set(range(len(be))), rep_type=cdd.RepType.INEQUALITY)
+    cdd.matrix_canonicalize(He_cdd)
+    He_cdd_array = np.array(He_cdd.array)
+    irredundant_be, irredundant__Ae = He_cdd_array[:, 0], -He_cdd_array[:, 1:]
+    return irredundant__Ae, irredundant_be
 
 
 def is_ellipsoid(Q):
@@ -994,35 +1079,3 @@ def spread_points_on_a_unit_sphere(n_dim, n_points=None, cvxpy_socp_args=None, v
                 print("Completed spreading the vectors!")
                 print(f"Minimum separation among the points: {minimum_separation:1.4f}")
     return opt_locations, minimum_separation, opt_locations_first_quad
-
-
-def convex_set_minimum_volume_circumscribing_rectangle(self):
-    r"""Compute the minimum volume circumscribing rectangle for a set.
-
-    Raises:
-        ValueError: When set is empty
-
-    Returns:
-        tuple: A tuple of two elements
-            - lb (numpy.ndarray): Lower bound :math:`l` on the set,
-              :math:`\mathcal{P}\subseteq\{l\}\oplus\mathbb{R}_{\geq 0}`.
-            - ub (numpy.ndarray): Upper bound :math:`u` on the set,
-              :math:`\mathcal{P}\subseteq\{u\}\oplus(-\mathbb{R}_{\geq 0})`.
-
-    Notes:
-        This function computes the lower/upper bound by an element-wise support computation (2n linear programs), where
-        n is attr:`self.dim`. To reuse the :meth:`support` function for the lower bound computation, we solve the
-        optimization for each :math:`i\in\{1,2,...,n\}`,
-
-        .. math::
-            \inf_{x\in\mathcal{P}} e_i^\top x=-\sup_{x\in\mathcal{P}} -e_i^\top x=-\rho_{\mathcal{P}}(-e_i),
-
-        where :math:`e_i\in\mathbb{R}^n` denotes the standard coordinate vector, and :math:`\rho_{\mathcal{P}}` is the
-        support function of :math:`\mathcal{P}`.
-    """
-    if self.is_empty:
-        raise ValueError("Can not compute circumscribing rectangle for an empty set!")
-    else:
-        lb = -self.support(-np.eye(self.dim))[0]
-        ub = self.support(np.eye(self.dim))[0]
-    return lb, ub

@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Code purpose:  Define the methods involving another set or a point used with ConstrainedZonotope class
-# Coverage: This file has 1 + 2 = 3 untested statements to handle unexpected errors from CVXPY and np.linalg.lstsq
-# Coverage: When tested without gurobi, this file has 35 untested statements and 1 partial statement.
+# Coverage: With TESTING_STATEMENTS_INVOLVING_GUROBI="no", this file has 87 untested statements + 51 partial statement.
+# Coverage: With TESTING_STATEMENTS_INVOLVING_GUROBI="minimal" (default), this file has 5 untested statements + 1
+# partial statement.
+# Coverage: With TESTING_STATEMENTS_INVOLVING_GUROBI="full", this file has 4 untested statements.
 
 import warnings
 
 import cvxpy as cp
+import gurobipy
 import numpy as np
 
 from pycvxset.common import (
@@ -20,7 +23,11 @@ from pycvxset.common import (
     sanitize_and_identify_Aebe,
     sanitize_Gc,
 )
-from pycvxset.common.constants import PYCVXSET_ZERO, PYCVXSET_ZERO_GUROBI, TIME_LIMIT_FOR_GUROBI_NON_CONVEX
+from pycvxset.common.constants import (
+    PYCVXSET_ZERO,
+    PYCVXSET_ZERO_GUROBI,
+    TIME_LIMIT_FOR_CONSTRAINED_ZONOTOPE_CONTAINMENT_GUROBI_IN_S,
+)
 
 DOCSTRING_FOR_PROJECT = (
     "\n"
@@ -47,6 +54,22 @@ DOCSTRING_FOR_PROJECTION = (
 )
 
 
+DOCSTRING_FOR_SLICE = (
+    "\n"
+    + r"""
+    Returns:
+        ConstrainedZonotope: Constrained zonotope that has been sliced at the specified dimensions.
+    """
+)
+
+DOCSTRING_FOR_SLICE_THEN_PROJECTION = (
+    "\n"
+    + r"""
+    Returns:
+        ConstrainedZonotope: m-dimensional set obtained via projection after slicing.
+    """
+)
+
 DOCSTRING_FOR_SUPPORT = (
     "\n"
     + r"""
@@ -61,18 +84,6 @@ DOCSTRING_FOR_SUPPORT = (
             \text{subject to}   &\quad x = G_P \xi + c_P\\
                                 &\quad A_P \xi = b_P\\
                                 &\quad \|\xi\|_\infty \leq 1
-    """
-)
-
-DOCSTRING_FOR_SLICE = (
-    "\n"
-    + r"""
-    Returns:
-        ConstrainedZonotope: Constrained zonotope that has been sliced at the specified dimensions.
-
-    Notes:
-        This function uses :meth:`intersection_with_affine_set` to implement the slicing by designing an appropriate
-        affine set from dims and constants.
     """
 )
 
@@ -169,7 +180,7 @@ def approximate_pontryagin_difference(self, norm_type, G_S, c_S, method="inner-l
         if matrix_rank_GAe != self.dim + self.n_equalities:
             raise ValueError(
                 "Expected constrained zonotope with the matrix [G; Ae] to have full row-rank! If the constrained "
-                "zonotope is full-dimensional, then use remove_redundant_equalities method first and then call this "
+                "zonotope is full-dimensional, then call remove_redundancies method first and then call this "
                 "function --- minus/approximate_pontryagin_difference."
             )
 
@@ -183,15 +194,52 @@ def approximate_pontryagin_difference(self, norm_type, G_S, c_S, method="inner-l
             return self.__class__(dim=self.dim)
         else:
             D = np.diag(D_elements)
-            if self.n_equalities > 0:
-                return self.__class__(G=self.G @ D, c=self.c - c_S, Ae=self.Ae @ D, be=self.be)
-            else:
+            if self.is_zonotope:
                 return self.__class__(G=self.G @ D, c=self.c - c_S)
+            else:
+                return self.__class__(G=self.G @ D, c=self.c - c_S, Ae=self.Ae @ D, be=self.be)
     else:
         raise ValueError(f"Invalid method provided. Should be in ['inner-least-squares']. Got {method:s}!")
 
 
-def contains(self, Q, verbose=False, time_limit=TIME_LIMIT_FOR_GUROBI_NON_CONVEX):
+def cartesian_product(self, sequence_Q):
+    r"""Generate the Cartesian product of a set :math:`\mathcal{Q}` (or a list of `\mathcal{Q}`) with
+    :math:`\mathcal{P}`.
+
+    Args:
+        sequence_Q (list | tuple | Polytope | ConstrainedZonotope): List of sets to take Cartesian product with
+
+    Returns:
+        ConstrainedZonotope: Cartesian product of self and all sets in sequence_Q
+    """
+    try:
+        _ = (Q for Q in sequence_Q)
+    except TypeError:
+        # Not iterable. So make it iterable.
+        sequence_Q = (sequence_Q,)
+
+    product_set = self.copy()
+    for Q in sequence_Q:
+        if is_polytope(Q):
+            Q = self.__class__(polytope=Q)
+        elif is_ellipsoid(Q):
+            raise ValueError(
+                "Expected sequence_Q to be either an individual (OR a sequence of) ConstrainedZonotope or Polytope "
+                f"object. Got {type(Q)}"
+            )
+        newobj_G = np.vstack(
+            (
+                np.hstack((product_set.G, np.zeros((product_set.dim, Q.latent_dim)))),
+                np.hstack((np.zeros((Q.dim, product_set.latent_dim)), Q.G)),
+            )
+        )
+        newobj_c = np.hstack((product_set.c, Q.c))
+        newobj_Ae, newobj_be = get_first_two_blocks_for_Ae_be(product_set, Q)
+        product_set = self.__class__(G=newobj_G, c=newobj_c, Ae=newobj_Ae, be=newobj_be)
+    return product_set
+
+
+def contains(self, Q, verbose=False, time_limit=TIME_LIMIT_FOR_CONSTRAINED_ZONOTOPE_CONTAINMENT_GUROBI_IN_S):
     r"""Check containment of a set :math:`\mathcal{Q}` (could be a polytope or a constrained zonotope), or a collection
     of points :math:`Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}` in the given constrained zonotope.
 
@@ -201,15 +249,15 @@ def contains(self, Q, verbose=False, time_limit=TIME_LIMIT_FOR_GUROBI_NON_CONVEX
             Q is a matrix (N times self.dim) with each row is a point.
         verbose (bool, optional): Verbosity flag to provide cvxpy when solving the MIQP related to checking containment
             of a constrained zonotope within another constrained zonotope. Defaults to False.
-        time_limit (int, optional): Time limit for GUROBI solver when solving the MIQP related to checking containment
-            of a constrained zonotope within another constrained zonotope. Defaults to 10.
+        time_limit (int, optional): Time limit in seconds for GUROBI solver when solving the MIQP related to checking
+            containment of a constrained zonotope within another constrained zonotope. Set time_limit to np.inf if no
+            limit is desired. Defaults to 60s (see constants.py).
 
     Raises:
         ValueError: Dimension mismatch between Q and the constrained zonotope
         ValueError: Q is Ellipsoid
-        ValueError: time_limit exceeded when checking containment of two constrained zonotopes
+        ValueError: Unable to perform containment check between two constrained zonotopes (including time_limit issues)
         NotImplementedError: GUROBI is not installed when checking containment of two constrained zonotopes
-        NotImplementedError: Unable to perform containment check between two constrained zonotopes
         NotImplementedError: Failed to check containment between two constrained zonotopes, due to an unhandled status
 
     Returns:
@@ -299,8 +347,8 @@ def contains(self, Q, verbose=False, time_limit=TIME_LIMIT_FOR_GUROBI_NON_CONVEX
                 problem.solve(solver="GUROBI", reoptimize=True, NonConvex=2, verbose=verbose, TimeLimit=time_limit)
                 # From https://github.com/cvxpy/cvxpy/issues/1091, dispose the model explicitly
                 problem.solver_stats.extra_stats.dispose()
-            except cp.error.SolverError as err:
-                raise NotImplementedError(
+            except (cp.error.SolverError, gurobipy._exception.GurobiError) as err:
+                raise ValueError(
                     "Unable to perform containment check between two constrained zonotopes! CVXPY returned "
                     f"error: {str(err)}"
                 ) from err
@@ -314,7 +362,7 @@ def contains(self, Q, verbose=False, time_limit=TIME_LIMIT_FOR_GUROBI_NON_CONVEX
             elif problem.status == cp.USER_LIMIT:
                 raise ValueError(
                     f"Exceeded specified time limit of {time_limit:.2f} seconds exceeded when checking containment of "
-                    "two constrained zonotopes."
+                    f"two constrained zonotopes. CVXPY status {problem.status:s}"
                 )
             else:
                 # Is not expected to happen!
@@ -342,17 +390,22 @@ def intersection(self, Q):
     Notes:
         * When Q is a constrained zonotope, this function uses :meth:`intersection_under_inverse_affine_map` with R set
           to identity matrix.
-        * when Q is a polytope in H-Rep, this function uses  :meth:`intersection_with_halfspaces` and
+        * When Q is a polytope in H-Rep, this function uses  :meth:`intersection_with_halfspaces` and
           :meth:`intersection_with_affine_set`.
+        * When Q is a polytope in V-Rep, this function converts Q into a constrained zonotope to avoid a halfspace
+          enumeration.
     """
     if is_constrained_zonotope(Q):
         return self.intersection_under_inverse_affine_map(Q, np.eye(self.dim))
     elif is_polytope(Q):
-        constrained_zonotope_after_intersection_with_H = self.intersection_with_halfspaces(Q.A, Q.b)
-        if Q.n_equalities > 0:
-            return constrained_zonotope_after_intersection_with_H.intersection_with_affine_set(Q.Ae, Q.be)
+        if Q.in_V_rep:
+            return self.intersection(self.__class__(polytope=Q))
         else:
-            return constrained_zonotope_after_intersection_with_H
+            constrained_zonotope_after_intersection_with_H = self.intersection_with_halfspaces(Q.A, Q.b)
+            if Q.n_equalities > 0:
+                return constrained_zonotope_after_intersection_with_H.intersection_with_affine_set(Q.Ae, Q.be)
+            else:
+                return constrained_zonotope_after_intersection_with_H
     else:
         raise TypeError(f"Unsupported operation between Constrained Zonotope and {type(Q)}")
 
@@ -364,6 +417,9 @@ def intersection_with_affine_set(self, Ae, be):
         Ae (array_like): Equality coefficient matrix (N times self.dim) that define the affine set :math:`\{x|A_ex =
             b_e\}`.
         be (array_like): Equality constant vector (N,) that define the affine set :math:`\{x| A_ex = b_e\}`.
+
+    Raises:
+        ValueError: When the number of columns in Ae is different from self.dim
 
     Returns:
         ConstrainedZonotope: The intersection of a constrained zonotope with the affine set.
@@ -420,7 +476,7 @@ def intersection_with_halfspaces(self, A, b):
             return self.__class__(dim=self.dim)
         else:
             newobj_G, newobj_c, newobj_Ae, newobj_be = temp_set.G, temp_set.c, temp_set.Ae, temp_set.be
-            d_m = Q_b_i - Q_a_i @ newobj_c + np.linalg.norm(Q_a_i @ newobj_G, ord=1, axis=0)
+            d_m = Q_b_i - Q_a_i @ newobj_c + np.linalg.norm(Q_a_i @ newobj_G, ord=1)
             new_row = np.hstack((Q_a_i @ newobj_G, d_m / 2))
             if newobj_Ae.size == 0:
                 newobj_Ae = np.array([new_row])
@@ -529,8 +585,8 @@ def plus(self, Q):
         the other hand, when Q is a point, this function computes the constrained zonotope :math:`\mathcal{R}=\{x +
         Q|x\in\mathcal{P}\}`.
 
-        This function implements (12) of [SDGR16]_ when Q is a constrained zonotope. When Q is a Polytope in
-        H-Rep, this function converts it into a constrained zonotope, and then uses (12) of [SDGR16]_.
+        This function implements (12) of [SDGR16]_ when Q is a constrained zonotope. When Q is a Polytope, this function
+        converts it into a constrained zonotope, and then uses (12) of [SDGR16]_.
     """
     if is_constrained_zonotope(Q):
         if Q.dim != self.dim:
@@ -552,7 +608,11 @@ def plus(self, Q):
 
 
 def minus(self, Q):
-    """Pontryagin difference of a constrained zonotope with a set (zonotope) or a point Q.
+    r"""Implement - operation: Pontryagin difference with a constrained zonotope minuend
+
+    When Q is an ellipsoid or a zonotope, minus returns an inner-approximation of the set corresponding to the
+    Pontryagin difference of a constrained zonotope and Q. When Q is a point or a singleton set, an exact set
+    corresponding to the translation by -Q or -Q.c is returned.
 
     Args:
         Q (array_like | Ellipsoid | ConstrainedZonotope): Point/set to use as subtrahend in the Pontryagin difference.
@@ -571,12 +631,16 @@ def minus(self, Q):
         point.
     """
     if is_ellipsoid(Q):
+        if Q.is_singleton:
+            return self.plus(-Q.c)
         warnings.warn(
             "This function returns an inner-approximation of the Pontryagin difference with an ellipsoid.", UserWarning
         )
         G_S, c_S = Q.G, Q.c
         p = 2
     elif is_constrained_zonotope(Q) and Q.is_zonotope:
+        if Q.is_singleton:
+            return self.plus(-Q.c)
         warnings.warn(
             "This function returns an inner-approximation of the Pontryagin difference with a zonotope.", UserWarning
         )

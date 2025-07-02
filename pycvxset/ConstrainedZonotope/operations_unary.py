@@ -7,11 +7,10 @@
 
 import warnings
 
-import cdd  # pycddlib -- for vertex enumeration from H-representation
 import cvxpy as cp
 import numpy as np
 
-from pycvxset.common import sanitize_and_identify_Aebe
+from pycvxset.common import compute_irredundant_affine_set_using_cdd, sanitize_and_identify_Aebe
 from pycvxset.common.constants import PYCVXSET_ZERO
 from pycvxset.Polytope import Polytope
 
@@ -72,7 +71,7 @@ def chebyshev_centering(self):
     if matrix_rank_GAe != self.dim + self.n_equalities:
         raise ValueError(
             "Expected constrained zonotope with the matrix [G; Ae] to have full row-rank! If the constrained zonotope "
-            "is full-dimensional, then use remove_redundant_equalities method first and then call this function --- "
+            "is full-dimensional, then use remove_redundancies method first and then call this function --- "
             "chebyshev_centering"
         )
 
@@ -84,7 +83,8 @@ def chebyshev_centering(self):
     rowwise_vecnorm_gamma_matrix = np.linalg.norm(matrix_least_norm_solution, ord=2, axis=1)
     const += [
         chebyshev_radius >= -PYCVXSET_ZERO,
-        cp.norm(xi, p="inf") <= 1 - chebyshev_radius * rowwise_vecnorm_gamma_matrix,
+        xi <= 1 - chebyshev_radius * rowwise_vecnorm_gamma_matrix,
+        -xi <= 1 - chebyshev_radius * rowwise_vecnorm_gamma_matrix,
     ]
     prob = cp.Problem(cp.Maximize(chebyshev_radius), const)
 
@@ -139,7 +139,7 @@ def maximum_volume_inscribing_ellipsoid(self):
     if matrix_rank_GAe != self.dim + self.n_equalities:
         raise ValueError(
             "Expected constrained zonotope with the matrix [G; Ae] to have full row-rank! If the constrained zonotope "
-            "is full-dimensional, then use remove_redundant_equalities method first and then call this function --- "
+            "is full-dimensional, then use remove_redundancies method first and then call this function --- "
             "maximum_volume_inscribing_ellipsoid"
         )
 
@@ -156,7 +156,8 @@ def maximum_volume_inscribing_ellipsoid(self):
         const += [mvie_G_ltri[row_index, row_index + 1 :] == 0]
     rowwise_vecnorm_gamma_matrix = cp.norm(matrix_least_norm_solution @ mvie_G_ltri, p=2, axis=1)
     const += [
-        cp.norm(xi, p="inf") <= 1 - rowwise_vecnorm_gamma_matrix,
+        xi <= 1 - rowwise_vecnorm_gamma_matrix,
+        -xi <= 1 - rowwise_vecnorm_gamma_matrix,
     ]
     prob = cp.Problem(cp.Maximize(cp.geo_mean(cp.diag(mvie_G_ltri))), const)
     try:
@@ -178,7 +179,7 @@ def maximum_volume_inscribing_ellipsoid(self):
 
 
 def remove_redundancies(self):
-    """Remove any redundancies in the equality system using pycddlib"""
+    """Remove any redundancies in the equality system using pycddlib and other geometric properties"""
     _, _, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(self.Ae, self.be)
     if Aebe_status == "no_Ae_be":
         # Set only (Ae, be) to empty | Full-dimensionality depends on rank of G
@@ -195,9 +196,4 @@ def remove_redundancies(self):
         self._c = solution_to_Ae_x_eq_be
         self._is_full_dimensional, self._is_empty = False, False
     else:  # affine_set
-        be_mAe = np.hstack((np.array([self.be]).T, -self.Ae))
-        He_cdd = cdd.Matrix(be_mAe, linear=True, number_type="float")
-        He_cdd.rep_type = cdd.RepType.INEQUALITY  # specifies that this is H-rep
-        He_cdd.canonicalize()
-        He_cdd_array = np.array([v for index, v in enumerate(He_cdd) if index in He_cdd.lin_set])
-        self._be, self._Ae = He_cdd_array[:, 0], -He_cdd_array[:, 1:]
+        self._Ae, self._be = compute_irredundant_affine_set_using_cdd(self.Ae, self.be)

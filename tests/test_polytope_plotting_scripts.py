@@ -27,14 +27,17 @@ def test_print_and_plot():
     with pytest.warns(UserWarning, match="Can not plot an empty polytope!"):
         Polytope(dim=3).plot3d()
     plt.close()
+    # Unbounded polytope can not be plotted
     P = Polytope(A=[[1, 1], [-1, -1]], b=[1, 1])
-    # Issues two warnings!
-    with pytest.warns(UserWarning, match="bounded"):
-        try:
-            P.plot()
-        except NotImplementedError as err:
-            print(err)
+    try:
+        P.is_bounded
+        code_works_for_is_bounded = True
+    except ValueError:
+        code_works_for_is_bounded = False
+    if not code_works_for_is_bounded:
+        # Could be Solver not matching OR Can not plot an unbounded polytope
         P.cvxpy_args_lp = {"solver": "OSQP"}
+    with pytest.warns(UserWarning, match="Can not plot an unbounded polytope!"):
         P.plot()
     plt.close()
     with pytest.warns(UserWarning, match="Can not plot an unbounded polytope!"):

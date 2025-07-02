@@ -25,10 +25,10 @@
 
   ## pycvxset.tex
   # Comment out the README TOC (Entire two-staged itemize)
-  sed -i '91,144 s/^/%/' pycvxset.tex
+  sed -i '91,148 s/^/%/' pycvxset.tex
   # Comment out {docs/source/_static/pycvxset_diag}.png | Use the line number pointed out by latexmk
-  # Edit to the line number may be needed whenever README text changes
-  sed -i '330 s/^/%/' pycvxset.tex
+  # Edit to the line numbers below may be needed whenever README text changes
+  sed -i '332 s/^/%/' pycvxset.tex
 
   #### After edits to latex, now build
   latexmk pycvxset.tex

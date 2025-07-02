@@ -5,10 +5,11 @@
 # SPDX-License-Identifier: MIT
 
 # Code purpose:  Define the plotting methods for the Polytope class
-# Coverage: This file has 5 untested statements + 1 partial to handle unexpected errors from pycddlib
+# Coverage: This file has 5 untested statements + 1 partial to handle unexpected errors
 
 import warnings
 
+import cdd
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Polygon
@@ -58,7 +59,7 @@ def plot(
     Raises:
         ValueError: When an incorrect axes is provided.
         NotImplementedError: When a polytope.dim >= 4 or == 1 | autoscale_enable is set to False for 3D plotting.
-        UserWarning: When an empty polytope is provided.
+        UserWarning: When an empty polytope or an unbounded polytope is provided.
         UserWarning: In 3D plotting, when all faces have less than 3 vertices
 
     Returns:
@@ -77,9 +78,9 @@ def plot(
           in V-Rep is given to be plotted.
         - *Handle returned for the patches*: For 2D plot, axis handle of the single patch is returned. For 3D
           plotting, multiple patches are present, and plot returns the first patch's axis handle. In this case, the
-          order of patches are determined by the use of `pycddlib.Polyhedron.get_input_incidence
-          <https://pycddlib.readthedocs.io/en/latest/polyhedron.html#cdd.Polyhedron.get_input_incidence>`_ from the
-          specified (A, b). Also, labeling the first patch is done using Poly3DCollection.
+          order of patches are determined by the use of `pycddlib.copy_input_incidence
+          <https://pycddlib.readthedocs.io/en/latest/cdd.html#cdd.copy_input_incidence>`_ from the from the specified
+          (A, b). Also, labeling the first patch is done using Poly3DCollection.
         - *Disabling face colors*: We can plot the polytope frames without filling it by setting
           `patch_args['facecolor'] = None` or `patch_args['fill'] = False`. If visual comparison of 3D polytopes is
           desired, it may be better to plot just the polytope frames instead by setting patch_args['facecolor'] = None.
@@ -93,15 +94,18 @@ def plot(
     """
 
     # Start plotting
+
     if self.is_empty:
         # Can't plot an empty polytope
         warnings.warn("Can not plot an empty polytope!", UserWarning)
         return plt.gca(), None, None
-    elif not self.is_bounded:
+
+    if not self.is_bounded:
         # Can't plot an unbounded polytope
         warnings.warn("Can not plot an unbounded polytope!", UserWarning)
         return plt.gca(), None, None
-    elif self.dim == 2:
+
+    if self.dim == 2:
         # Ensures that redundant vertices are removed, and if no V-rep, we will call it as well
         self.minimize_V_rep()
         return plot2d(self, ax=ax, patch_args=patch_args, vertex_args=vertex_args, autoscale_enable=autoscale_enable)
@@ -201,6 +205,7 @@ def plot3d(
     Raises:
         ValueError: When either a non-3D polytope is provided.
         UserWarning: When all faces have less than 3 vertices
+        NotImplementedError: autoscale_enable needs to be currently enabled for 3D plotting
 
     Returns:
         (axes, handle, handle): Tuple with axes containing the polygon, handle for plotting patch, handle for plotting
@@ -210,10 +215,8 @@ def plot3d(
         - This function requires polytope in H-Rep and V-Rep, and uses CDD to compute incidences, and vertices.
           Consequently, at least one halfspace/vertex enumeration is performed.
         - Since 3D plotting involves multiple patches, the first patch's axis handle is returned. In this case, the
-          order of patches are determined by the use of
-          `pycddlib.Polyhedron.get_input_incidence
-          <https://pycddlib.readthedocs.io/en/latest/polyhedron.html#cdd.Polyhedron.get_input_incidence>`_ from the
-          specified (A, b).
+          order of patches are determined by the use of `pycddlib.copy_input_incidence
+          <https://pycddlib.readthedocs.io/en/latest/cdd.html#cdd.copy_input_incidence>`_ from the specified (A, b).
         - This function calls :meth:`pycvxset.common.prune_and_round_vertices` when a 3D polytope
           in V-Rep is given to be plotted.
         - When label is passed in patch_args, the label is only applied to the first patch. Subsequent patches will not
@@ -261,16 +264,16 @@ def plot3d(
         except (ValueError, IndexError) as err:
             raise ValueError("Ran into issues during facet enumeration!") from err
 
-    # Use CDD to compute list_incidences and cdd_polytope.get_input_incidence makes sense when generated from H-Rep
+    # Use CDD to compute list_incidences and copy_input_incidence makes sense when generated from H-Rep
     if self.n_equalities > 0:
         cdd_polytope = get_cdd_polyhedron_from_Ab_Aebe(self.A, self.b, self.Ae, self.be)
     else:
         cdd_polytope = get_cdd_polyhedron_from_Ab_Aebe(self.A, self.b)
-    cdd_polytope_A = -np.array(cdd_polytope.get_inequalities())[:, 1:]
-    list_incidences = [list(x) for x in cdd_polytope.get_input_incidence()]
+    cdd_polytope_A = -np.array(cdd.copy_inequalities(cdd_polytope).array)[:, 1:]
+    list_incidences = [list(x) for x in cdd.copy_input_incidence(cdd_polytope)]
     # Overwrite all vertices as a n_vertices times n matrix
     try:
-        tV_cdd_matrix = cdd_polytope.get_generators()
+        tV_cdd_matrix = cdd.copy_generators(cdd_polytope)
         set_attributes_V_from_cdd(self, tV_cdd_matrix)
     except ValueError as err:
         raise ValueError("Ran into issues during vertex enumeration!") from err

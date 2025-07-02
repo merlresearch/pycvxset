@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from pycvxset import ConstrainedZonotope, Ellipsoid, Polytope, spread_points_on_a_unit_sphere
-from pycvxset.common.constants import PYCVXSET_ZERO, TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI
+from pycvxset.common.constants import PYCVXSET_ZERO, TESTING_STATEMENTS_INVOLVING_GUROBI
 
 
 def test_project_closest_point_distance():
@@ -82,7 +82,7 @@ def test_plus_scalar_multiplication():
     assert Z2.is_zonotope
     assert np.allclose(Z2.G, 0.5 * np.eye(2))
     assert np.allclose(Z2.c, 0.5 * np.ones(2))
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert Z1 == Z2
 
     # Test plus and multiplication of a constrained zonotope with scalar and commutative property of plus
@@ -94,8 +94,15 @@ def test_plus_scalar_multiplication():
     Z2 = [0.5, 0.5] + (0.5 * ConstrainedZonotope(polytope=P))
     assert not Z2.is_empty
     assert not Z2.is_zonotope
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert Z1 == Z2
+    elif TESTING_STATEMENTS_INVOLVING_GUROBI == "minimal":
+        with pytest.raises(ValueError):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
+                Z1.contains(Z2, time_limit=0.1)
+        with pytest.raises(ValueError):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
+                Z2.contains(Z1, time_limit=0.1)
 
     # Test plus with polytope (and thereby with constrained zonotope)
     C3 = Z1 + P
@@ -104,8 +111,20 @@ def test_plus_scalar_multiplication():
     assert not C4.is_empty
     assert not C3.is_zonotope
     assert not C4.is_zonotope
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
-        assert C3 == C4
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
+        with pytest.raises(ValueError):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
+                C4.contains(C3, time_limit=0.1)
+        with pytest.raises(ValueError):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
+                assert C3 == C4
+    elif TESTING_STATEMENTS_INVOLVING_GUROBI == "minimal":
+        with pytest.raises(ValueError):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
+                C4.contains(C3, time_limit=0.1)
+        with pytest.raises(ValueError):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
+                C3.contains(C4, time_limit=0.1)
 
 
 def test_matrix_times_set():
@@ -125,7 +144,7 @@ def test_matrix_times_set():
     assert not Z.is_empty
     assert Z1.is_zonotope
     assert Z2.is_zonotope
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert Z1 == Z2
 
     # Test constrained zonotope multiplication with @
@@ -136,7 +155,7 @@ def test_matrix_times_set():
     assert not C2.is_empty
     assert not C1.is_zonotope
     assert not C2.is_zonotope
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1 == C2
 
     with pytest.raises(ValueError):
@@ -170,7 +189,7 @@ def test_set_times_matrix():
     assert not Z.is_empty
     assert Z1.is_zonotope
     assert Z2.is_zonotope
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert Z1 == Z2
 
     # Test constrained zonotope multiplication with @
@@ -181,7 +200,7 @@ def test_set_times_matrix():
     assert not C2.is_empty
     assert not C1.is_zonotope
     assert not C2.is_zonotope
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1 == C2
 
     # Bad multiplier
@@ -226,18 +245,32 @@ def test_contains():
         ConstrainedZonotope() <= C1
     with pytest.raises(ValueError):
         ConstrainedZonotope(lb=[-1, -1, -1], ub=[1, 1, 1]) <= C1
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
-        P1_in_H_rep = Polytope(A=P1_in_V_rep.A, b=P1_in_V_rep.b)
-        # Check Polytope == Polytope (V-Rep and H-Rep)
-        assert P1_in_H_rep == P1_in_V_rep
-        # Check Polytope == ConstrainedZonotope (via V-Rep)
-        assert P1_in_V_rep == C1
+
+    P1_in_H_rep = Polytope(A=P1_in_V_rep.A, b=P1_in_V_rep.b)
+    # Check Polytope == Polytope (V-Rep and H-Rep)
+    assert P1_in_H_rep == P1_in_V_rep
+    # Check Polytope == ConstrainedZonotope (via V-Rep)
+    assert P1_in_V_rep == C1
+    # Strict containment
+    P2 = 0.5 * P1_in_H_rep
+    C2 = ConstrainedZonotope(polytope=P2)
+    assert P2 in P1_in_H_rep
+    # Polytope.contains(CZ) via <=
+    assert C2 <= P1_in_H_rep
+    # Polytope.contains(CZ) via >=
+    assert P1_in_H_rep >= C2
+    # Polytope.contains(CZ) via <=
+    assert C2 <= P1_in_V_rep
+    # Polytope.contains(CZ) via >=
+    assert P1_in_V_rep >= C2
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
+        # CZ.contains(Polytope) via >=
+        assert C1 >= P2
+        # CZ.contains(Polytope) via <=
+        assert P2 <= C1
+        assert P2.slice(dims=[1], constants=[0.5]) <= C1
         # Check Polytope == ConstrainedZonotope (via H-Rep)
         assert P1_in_H_rep == C1
-        # Strict containment
-        P2 = 0.5 * P1_in_H_rep
-        assert P2 in P1_in_H_rep
-        C2 = ConstrainedZonotope(polytope=P2)
         Z1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
         Z2 = 0.1 * Z1
         # Test in, neq
@@ -249,26 +282,32 @@ def test_contains():
         assert Z1 >= C2
         # Zonotope.contains(CZ) via <=
         assert Z2 <= Z1
-        # Polytope.contains(CZ) via <=
-        assert C2 <= P1_in_H_rep
-        # Polytope.contains(CZ) via >=
-        assert P1_in_H_rep >= C2
-        # Polytope.contains(CZ) via <=
-        assert C2 <= P1_in_V_rep
-        # Polytope.contains(CZ) via >=
-        assert P1_in_V_rep >= C2
-        # CZ.contains(Polytope) via >=
-        assert C1 >= P2
-        # CZ.contains(Polytope) via <=
-        assert P2 <= C1
+    elif TESTING_STATEMENTS_INVOLVING_GUROBI == "minimal":
+        C2.contains(P2)
+        Z1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
+        C2.contains(Z1)
+        Z1.contains(P2)
 
     # Sanity check
     C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
     C2 = ConstrainedZonotope(polytope=Polytope(lb=[-1, -1], ub=[1, 1]))
     assert C1.G.shape == (2, 2)
     assert C2.G.shape == (2, 6)
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1 == C2
+
+    # Testing from issue #2
+    A = np.array([[1, 0], [0, 1], [-1, 0], [0, -1]])
+    b = np.array([1, 1, 0, 0])
+    CZ = ConstrainedZonotope(polytope=Polytope(A=A, b=b))
+
+    assert CZ.contains(np.array([0.5, 0.5]))
+    assert not CZ.contains(np.array([1.5, 1.5]))
+    assert not CZ.contains(np.array([1.5, 0.5]))
+    assert not CZ.contains(np.array([0.5, 1.5]))
+    assert (
+        CZ.contains(np.array([[0.5, 0.5], [1.5, 1.5], [1.5, 0.5], [0.5, 1.5]])) == [True, False, False, False]
+    ).all()
 
 
 def test_intersection():
@@ -282,7 +321,7 @@ def test_intersection():
     assert np.allclose(lb, [0, 0])
     assert np.allclose(ub, [1, 1])
     assert not C1_cap_C2.is_empty
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1_cap_C2 == Polytope(lb=lb, ub=ub)
 
     # Test intersection of two constrained zonotopes (and intersection with halfspaces)
@@ -300,10 +339,14 @@ def test_intersection():
     lb_P, ub_P = P1_cap_P2.minimum_volume_circumscribing_rectangle()
     assert np.allclose(lb_C, lb_P)
     assert np.allclose(ub_C, ub_P)
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1_cap_C2 == P1_cap_P2
 
-    # # Test intersection of two constrained zonotopes (and intersection with affine_sets)
+    # ConstrainedZonotope intersected with a non-overlapping halfspace => Empty
+    C3 = ConstrainedZonotope(lb=[0, 0], ub=[2, 2]).intersection_with_halfspaces(A=[-1, -1], b=-5)
+    assert C3.is_empty
+
+    # Test intersection of two constrained zonotopes (and intersection with affine_sets)
     C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1]).intersection_with_affine_set(Ae=[1, 1], be=1)
     P1 = Polytope(lb=[-1, -1], ub=[1, 1]).intersection_with_affine_set(Ae=[1, 1], be=1)
     C2 = ConstrainedZonotope(lb=[0, 0], ub=[2, 2]).intersection_with_affine_set(Ae=[1, 1], be=1)
@@ -319,9 +362,9 @@ def test_intersection():
     lb_P, ub_P = P1_cap_P2.minimum_volume_circumscribing_rectangle()
     assert np.allclose(lb_C, lb_P)
     assert np.allclose(ub_C, ub_P)
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         with pytest.raises(ValueError):
-            with pytest.warns(UserWarning):
+            with pytest.warns(UserWarning, match="Solution may be inaccurate*"):
                 assert C1_cap_C2 == P1_cap_P2
 
     # Test intersection of a constrained zonotope and a zonotope
@@ -334,9 +377,20 @@ def test_intersection():
     C2_cap_C1 = C2.intersection(C1)
     assert not C1_cap_C2.is_empty
     assert not C2_cap_C1.is_empty
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1_cap_C2 == C2_cap_C1
         assert P2_cap_P1 == C2_cap_C1
+
+    # Test intersection of a constrained zonotope and a polytope (in V-Rep)
+    C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
+    P2_V = Polytope(V=[[0, 0], [0, 2], [2, 0], [2, 2]])
+    C1_cap_P2_V = C1.intersection(P2_V)
+    lb_C1_P2, ub_C1_P2 = C1_cap_P2_V.minimum_volume_circumscribing_rectangle()
+    assert np.allclose(lb_C1_P2, [0, 0])
+    assert np.allclose(ub_C1_P2, [1, 1])
+    assert not C1_cap_P2_V.is_empty
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
+        assert C1_cap_P2_V == Polytope(lb=lb_C1_P2, ub=ub_C1_P2)
 
     # Test intersection of a constrained zonotope and a polytope (no He)
     C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
@@ -347,10 +401,8 @@ def test_intersection():
     assert np.allclose(ub_C1_P2, [1, 1])
     assert not C1_cap_P2.is_empty
     assert not P2_cap_P1.is_empty
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
-        assert C1_cap_P2 == Polytope(lb=lb_C1_P2, ub=ub_C1_P2)
-        assert C1_cap_C2 == C2_cap_C1
-        assert C2_cap_C1 == P2_cap_P1
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
+        assert C1_cap_P2_V == C1_cap_P2
 
     # Test intersection of a constrained zonotope and a polytope (with He)
     C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
@@ -360,9 +412,9 @@ def test_intersection():
     assert np.allclose(lb_C1_P2, [0, 0])
     assert np.allclose(ub_C1_P2, [1, 1])
     assert not C1_cap_P2.is_empty
-    if TESTING_CONTAINMENT_STATEMENTS_INVOLVING_GUROBI:
+    assert C1_cap_P2 == Polytope(V=[[0, 0], [1, 1]])
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
         assert C1_cap_P2 != Polytope(lb=lb_C1_P2, ub=ub_C1_P2)
-        assert C1_cap_P2 == Polytope(V=[[0, 0], [1, 1]])
 
     with pytest.raises(TypeError):
         C1.intersection("char")
@@ -405,7 +457,7 @@ def test_minus():
     P1 = Polytope(lb=[-1, -1], ub=[1, 1])
     P2 = Polytope(lb=[-0.5, -0.5], ub=[0.5, 0.5])
     P1_minus_P2 = P1 - P2
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="This function*"):
         C1_minus_C2 = C1 - C2
     assert C1_minus_C2.is_zonotope
     assert not P1_minus_P2.is_empty
@@ -418,7 +470,7 @@ def test_minus():
     P1 = Polytope(lb=[-1, -1], ub=[1, 1])
     P2 = Polytope(lb=[-0.5, -0.5], ub=[0.5, 0.5])
     P1_minus_P2 = P1 - P2
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="This function*"):
         C1_minus_C2 = C1 - C2
     assert not C1_minus_C2.is_zonotope
     assert not P1_minus_P2.is_empty
@@ -436,7 +488,7 @@ def test_minus():
     P1 = Polytope(lb=[-1, -1], ub=[1, 1]).intersection_with_halfspaces(A=[1, 1], b=0)
     ell = Ellipsoid(c=[0, 0], r=0.1)
     P1_minus_ell = P1 - ell
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="This function*"):
         C1_minus_ell = C1 - ell
     assert not C1_minus_ell.is_empty
     assert not P1_minus_ell.is_empty
@@ -462,6 +514,30 @@ def test_minus():
     assert not C1_minus_Q.is_empty
     assert np.allclose(C1_minus_Q.G, C1.G)
     assert np.allclose(C1_minus_Q.c, C1.c - Q)
+    assert np.allclose(C1_minus_Q.Ae, C1.Ae)
+    assert np.allclose(C1_minus_Q.be, C1.be)
+    C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1]).intersection_with_halfspaces(A=[1, 1], b=0)
+    Q = ConstrainedZonotope(G=None, c=np.ones((2,)))
+    C1_minus_Q = C1 - Q
+    assert not C1_minus_Q.is_empty
+    assert np.allclose(C1_minus_Q.G, C1.G)
+    assert np.allclose(C1_minus_Q.c, C1.c - Q.c)
+    assert np.allclose(C1_minus_Q.Ae, C1.Ae)
+    assert np.allclose(C1_minus_Q.be, C1.be)
+    C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1]).intersection_with_halfspaces(A=[1, 1], b=0)
+    Q = Ellipsoid(c=np.ones((2,)), G=None)
+    C1_minus_Q = C1 - Q
+    assert not C1_minus_Q.is_empty
+    assert np.allclose(C1_minus_Q.G, C1.G)
+    assert np.allclose(C1_minus_Q.c, C1.c - Q.c)
+    assert np.allclose(C1_minus_Q.Ae, C1.Ae)
+    assert np.allclose(C1_minus_Q.be, C1.be)
+    C1 = ConstrainedZonotope(lb=[-1, -1], ub=[1, 1]).intersection_with_halfspaces(A=[1, 1], b=0)
+    Q = Ellipsoid(c=np.ones((2,)), r=0)
+    C1_minus_Q = C1 - Q
+    assert not C1_minus_Q.is_empty
+    assert np.allclose(C1_minus_Q.G, C1.G)
+    assert np.allclose(C1_minus_Q.c, C1.c - Q.c)
     assert np.allclose(C1_minus_Q.Ae, C1.Ae)
     assert np.allclose(C1_minus_Q.be, C1.be)
 

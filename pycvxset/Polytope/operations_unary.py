@@ -352,6 +352,7 @@ def minimum_volume_circumscribing_rectangle(self):
 
     Raises:
         ValueError: When polytope is empty
+        ValueError: When polytope is unbounded
 
     Returns:
         tuple: A tuple of two items
@@ -403,18 +404,20 @@ def normalize(self):
     """
     if self.in_V_rep:
         self.determine_H_rep()
-    norm_A_row_wise = np.linalg.norm(self.A, ord=2, axis=1, keepdims=True)  # Gives a row vector of norms
-    normalized_A = self.A / norm_A_row_wise
-    normalized_b = self.b / norm_A_row_wise[0]  # [0] to ensure that broadcast does not create a matrix
+    norm_A_row_wise = np.linalg.norm(self.A, ord=2, axis=1, keepdims=True)
+    normalized_H = self.H / norm_A_row_wise
     if self.n_equalities > 0:
-        norm_Ae_row_wise = np.linalg.norm(self.Ae, ord=2, axis=1, keepdims=True)  # Gives a row vector of norms
-        normalized_Ae = self.Ae / norm_Ae_row_wise
-        normalized_be = self.be / norm_Ae_row_wise[0]  # [0] to ensure that broadcast does not create a matrix
+        norm_Ae_row_wise = np.linalg.norm(self.Ae, ord=2, axis=1, keepdims=True)
+        normalized_He = self.H / norm_Ae_row_wise
         self._set_attributes_from_Ab_Aebe(
-            normalized_A, normalized_b, Ae=normalized_Ae, be=normalized_be, erase_V_rep=False
+            A=normalized_H[:, :-1],
+            b=normalized_H[:, -1],
+            Ae=normalized_He[:, :-1],
+            be=normalized_He[:, -1],
+            erase_V_rep=False,
         )
     else:
-        self._set_attributes_from_Ab_Aebe(normalized_A, normalized_b, erase_V_rep=False)
+        self._set_attributes_from_Ab_Aebe(A=normalized_H[:, :-1], b=normalized_H[:, -1], erase_V_rep=False)
 
 
 def volume(self):

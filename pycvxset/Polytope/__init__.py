@@ -20,6 +20,7 @@ from pycvxset.common import (
     convex_set_project,
     convex_set_projection,
     convex_set_slice,
+    convex_set_slice_then_projection,
     convex_set_support,
     is_constrained_zonotope,
     is_polytope,
@@ -37,6 +38,7 @@ from pycvxset.Polytope.operations_binary import (
     DOCSTRING_FOR_PROJECT,
     DOCSTRING_FOR_PROJECTION,
     DOCSTRING_FOR_SLICE,
+    DOCSTRING_FOR_SLICE_THEN_PROJECTION,
     DOCSTRING_FOR_SUPPORT,
     affine_map,
     contains,
@@ -268,7 +270,7 @@ class Polytope:
             self._set_polytope_to_empty(self.dim)
         elif Aebe_status == "single_point":
             # Single point case
-            self._is_empty, self._is_full_dimensional, self._is_bounded = False, False, True
+            self._is_empty, self._is_full_dimensional, self._is_bounded = False, self.dim == 1, True
             # Omit assignment of inequalities! They are redundant.
             self._A, self._b = np.empty((0, self.dim)), np.empty((0,))
             # Also update V-Rep
@@ -291,7 +293,8 @@ class Polytope:
                 elif sum(valid_rows_Ab) != mA:
                     warnings.warn("Removed some rows in A that had all zeros | b that had np.inf!", UserWarning)
                 self._A, self._b = A[valid_rows_Ab, :], b[valid_rows_Ab]
-                # We have not assigned self._is_empty, self._is_full_dimensional, self._is_bounded
+                # We have not assigned self._is_empty, self._is_full_dimensional, self._is_bounded OR
+                # Keep the previous assignments
 
         if erase_V_rep:
             self._V = np.empty((0, self.dim))
@@ -411,25 +414,37 @@ class Polytope:
             NotImplementedError: Unable to solve chebyshev centering problem using CVXPY
 
         Notes:
-            - We use Chebyshev_centering to determine if the polytope is nonempty and full-dimensional. Specifically,
+            - When in H-Rep, we use Chebyshev_centering to determine if the polytope is nonempty and full-dimensional.
+              Specifically,
               1. Chebyshev radius == :math:`\infty`, the polytope is unbounded. Note that, this is just a sufficient
                  condition, and an unbounded polytope can have a finite Chebyshev radius. For example, consider a
                  3-dimensional axis-aligned cuboid :math:`[-1, 1] \times [-1, 1] \times \mathbb{R}`.
-              2. 0 < Chebyshev radius < :math:`\infty`, the polytope is nonempty and full-dimensional.
-              3. Chebyshev radius == 0, the polytope is nonempty and but not full-dimensional.
+              2. 0 < Chebyshev radius < :math:`\infty`, the polytope is always nonempty. It is full-dimensional when r >
+                 0 or dim == 1.
+              3. Chebyshev radius == 0, the polytope is nonempty and but not full-dimensional except when dim == 1
+                 (handled above).
               4. Chebyshev radius == - :math:`infty`, the polytope is empty. In this case, it is full-dimensional, only
                  if dim=0.
+            - When in V-Rep, vertices provide all the information necessary.
         """
-        _, chebyshev_radius = self.chebyshev_centering()
-        if chebyshev_radius == -np.inf:
-            # Set is empty chebyshev_radius < 0 when infeasible
-            self._is_empty, self._is_full_dimensional = True, self.dim == 0
-        elif chebyshev_radius < np.inf:
-            # Set is non-empty since chebyshev_radius >= 0
-            # Set is full-dimensional if chebyshev_radius > 0
-            self._is_empty, self._is_full_dimensional = False, chebyshev_radius > 0
+        if self.in_V_rep:
+            self._is_full_dimensional = None
+            self._is_empty, self._is_full_dimensional, self._is_bounded = (
+                self.n_vertices == 0,
+                self.is_full_dimensional,
+                True,
+            )
         else:
-            self._is_full_dimensional, self._is_empty, self._is_bounded = self.n_equalities == 0, False, False
+            _, chebyshev_radius = self.chebyshev_centering()
+            if chebyshev_radius == -np.inf:
+                # Set is empty chebyshev_radius < 0 when infeasible
+                self._is_empty, self._is_full_dimensional = True, self.dim == 0
+            elif chebyshev_radius < np.inf:
+                # Set is non-empty since chebyshev_radius >= 0
+                # Set is full-dimensional if chebyshev_radius > 0 or dim == 1
+                self._is_empty, self._is_full_dimensional = False, chebyshev_radius > 0 or self.dim == 1
+            else:
+                self._is_empty, self._is_full_dimensional, self._is_bounded = False, self.n_equalities == 0, False
 
     @property
     def dim(self):
@@ -603,9 +618,11 @@ class Polytope:
         """
         if self._is_full_dimensional is None:
             if self.in_V_rep:
-                if self.n_vertices <= self.dim:
-                    # Simplex needs at least self.dim + 1 vertices
-                    self._is_full_dimensional = self.dim == 1
+                if self.dim == 1:
+                    self._is_full_dimensional = True
+                elif self.n_vertices <= self.dim:
+                    # Simplex of n-dim with n > 1 needs at least self.dim + 1 vertices
+                    self._is_full_dimensional = False
                 else:
                     delta_vertices = self.V[1:] - self.V[0]
                     delta_vertices[abs(delta_vertices) <= PYCVXSET_ZERO] = 0
@@ -619,7 +636,7 @@ class Polytope:
         """Check if the polytope is empty.
 
         Returns:
-           bool: When True, the polytope is empty
+            bool: When True, the polytope is empty
 
         Notes:
             This property is well-defined when the polytope is in V-Rep, but may solve a Chebyshev centering problem
@@ -641,7 +658,12 @@ class Polytope:
             rectangle to check for boundedness.
         """
         if self._is_bounded is None:
-            lb, ub = self.minimum_volume_circumscribing_rectangle()
+            try:
+                lb, ub = self.minimum_volume_circumscribing_rectangle()
+            except ValueError as err:
+                raise ValueError(
+                    "Failed while checking if the set is bounded! If set is bounded, try using a different solver."
+                ) from err
             if (np.abs(np.hstack((ub, lb))) < np.inf).all():
                 self._is_bounded = True
             else:
@@ -653,7 +675,7 @@ class Polytope:
         """Check if the polytope have a halfspace representation (H-Rep).
 
         Returns:
-           bool: When True, the polytope has halfspace representation (H-Rep). Otherwise, False.
+            bool: When True, the polytope has halfspace representation (H-Rep). Otherwise, False.
         """
         return self._in_H_rep
 
@@ -734,11 +756,14 @@ class Polytope:
     ################
     # CVXPY-focussed
     ################
-    def containment_constraints(self, x):
+    def containment_constraints(self, x, flatten_order="F"):
         """Get CVXPY constraints for containment of x (a cvxpy.Variable) in a polytope.
 
         Args:
             x (cvxpy.Variable): CVXPY variable to be optimized
+            flatten_order (char): Order to use for flatten (choose between "F", "C"). Defaults to "F", which implements
+                column-major flatten. In 2D, column-major flatten results in stacking rows horizontally to achieve a
+                single horizontal row.
 
         Raises:
             ValueError: When polytope is empty
@@ -750,6 +775,7 @@ class Polytope:
             #. theta (cvxpy.Variable | None): CVXPY variable representing the convex combination coefficient when
                polytope is in V-Rep. It is None when the polytope is in H-Rep or empty.
         """
+        x = x.flatten(order=flatten_order)
         if self.in_V_rep:
             theta = cp.Variable((self.n_vertices,), nonneg=True)
             return [x == self.V.T @ theta, cp.sum(theta) == 1], theta
@@ -759,7 +785,7 @@ class Polytope:
                 polytope_containment_constraints += [self.Ae @ x == self.be]
             return polytope_containment_constraints, None
         else:
-            raise ValueError("Polytope is empty!")
+            raise ValueError("Containment constraints can not be generated for an empty polytope!")
 
     minimize = minimize
 
@@ -897,8 +923,8 @@ class Polytope:
 
     project.__doc__ = convex_set_project.__doc__ + DOCSTRING_FOR_PROJECT
 
-    def projection(self, project_away_dim):
-        return convex_set_projection(self, project_away_dim=project_away_dim)
+    def projection(self, project_away_dims):
+        return convex_set_projection(self, project_away_dims=project_away_dims)
 
     projection.__doc__ = convex_set_projection.__doc__ + DOCSTRING_FOR_PROJECTION
 
@@ -906,6 +932,11 @@ class Polytope:
         return convex_set_slice(self, dims, constants)
 
     slice.__doc__ = convex_set_slice.__doc__ + DOCSTRING_FOR_SLICE
+
+    def slice_then_projection(self, dims, constants):
+        return convex_set_slice_then_projection(self, dims=dims, constants=constants)
+
+    slice_then_projection.__doc__ = convex_set_slice_then_projection.__doc__ + DOCSTRING_FOR_SLICE_THEN_PROJECTION
 
     def support(self, eta):
         return convex_set_support(self, eta)

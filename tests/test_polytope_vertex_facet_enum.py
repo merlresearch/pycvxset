@@ -110,6 +110,30 @@ def test_minimal_V_rep():
     with pytest.raises(ValueError):
         P7.minimize_V_rep()
 
+    P = Polytope(V=[[1, 0, 0], [1, 1, 1]])
+    P.minimize_V_rep()
+    assert P.n_vertices == 2
+
+    P = Polytope(V=[[1, 0, 0], [1, 0, 0]])
+    P.minimize_V_rep()
+    assert P.n_vertices == 1
+
+    P = Polytope(V=[[1, 0], [1, 1]])
+    P.minimize_V_rep()
+    assert P.n_vertices == 2
+
+    P = Polytope(V=[[1, 0], [1, 0]])
+    P.minimize_V_rep()
+    assert P.n_vertices == 1
+
+    P = Polytope(V=[[1, 0, 0]])
+    P.minimize_V_rep()
+    assert P.n_vertices == 1
+
+    P = Polytope(V=[[1], [0], [-1]])
+    P.minimize_V_rep()
+    assert P.n_vertices == 2
+
 
 def test_minimize_H_rep():
     # Create a polytope from with four redundant constraints. The non-redundant
@@ -140,9 +164,11 @@ def test_minimize_H_rep():
     P1a.minimize_H_rep()
     assert P1a.H.shape[0] == 4
 
+    # Empty polytope
     P2 = Polytope(A=[[1, 0], [0, 1], [0, -1]], b=[2, 10, -11])
     P2.minimize_H_rep()
     assert P2.H.shape[0] == 0
+    assert P2.is_empty
 
     P3 = Polytope(c=[0, 0], h=3)
     P3a = P3.intersection_with_halfspaces(A=[[1, 0], [2, 0]], b=[2, 2])
@@ -150,5 +176,25 @@ def test_minimize_H_rep():
     assert P3a.H.shape[0] == 4
 
     P7 = Polytope(A=[[1, 1], [-1, -1]], b=[1, 1])  # Unbounded polytope
-    P7.minimize_H_rep()
-    assert P7.n_halfspaces == 2
+    try:
+        P.is_bounded
+        code_works_for_is_bounded = True
+    except ValueError:
+        code_works_for_is_bounded = False
+    if not code_works_for_is_bounded:
+        # Could be Solver not matching OR Can not plot an unbounded polytope
+        P.cvxpy_args_lp = {"solver": "OSQP"}
+    with pytest.raises(ValueError):
+        P7.minimize_H_rep()
+    P7_lb_ub = Polytope(lb=[-1, -1], ub=[1, 1])
+    P7a = Polytope(A=P7_lb_ub.A[:-1, :], b=P7_lb_ub.b[:-1])
+    with pytest.raises(ValueError):
+        P7a.minimize_H_rep()
+
+    P8 = Polytope(V=[[1, 1]])
+    P8.minimize_V_rep()
+    assert P8.n_vertices == 1
+
+    P9 = Polytope(V=[[1, 1], [1, 1]])
+    P9.minimize_V_rep()
+    assert P9.n_vertices == 1

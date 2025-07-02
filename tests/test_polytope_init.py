@@ -308,6 +308,30 @@ def test_is_full_dimensional():
         P.is_full_dimensional
     P.cvxpy_args_lp = {"solver": "CLARABEL"}
     assert P.is_full_dimensional  # Unit box but (A, b)
+    P = Polytope(A=np.eye(2), b=[3, 3], Ae=np.eye(2), be=[1, 1])
+    assert not P.is_empty
+    assert not P.is_full_dimensional
+    P = Polytope(A=1, b=2, Ae=1, be=1)
+    assert not P.is_empty
+    assert P.is_full_dimensional
+    P = Polytope(A=[[-1], [1]], b=[-2, 2])
+    assert not P.is_empty
+    assert P.is_full_dimensional
+    P = Polytope(V=[[2]])
+    assert not P.is_empty
+    assert P.is_full_dimensional
+    P = Polytope(V=[[2, 2]])
+    assert not P.is_empty
+    assert not P.is_full_dimensional
+    P = Polytope(V=[[2, 2], [1, 1]])
+    assert not P.is_empty
+    assert not P.is_full_dimensional
+    P = Polytope(V=[[2, 2], [1, 1], [1, 3]])
+    assert not P.is_empty
+    assert P.is_full_dimensional
+    P = Polytope(V=[[2], [2]])
+    assert not P.is_empty
+    assert P.is_full_dimensional
 
 
 def test_bool_and_empty_sets():
@@ -455,7 +479,33 @@ def test_str_repr():
     print(P3.__repr__)
 
 
-def test_constraints():
+def test_containment_constraints():
+    P = Polytope(lb=[-1, -1], ub=[1, 1])
+    opt_x_value = P.extreme([1, 1])
+    for test_shape in [2, (2,), (2, 1), (1, 2), (1, 1, 2), (1, 2, 1)]:
+        x = cp.Variable(test_shape).flatten(order="F")
+        # Warn only if 3D variables
+        check_warning = False
+        try:
+            check_warning = len(test_shape) > 2
+        except TypeError:
+            pass
+        prob = cp.Problem(cp.Maximize(cp.sum(x)), P.containment_constraints(x)[0])
+        if check_warning:
+            with pytest.warns(UserWarning):
+                prob.solve(**DEFAULT_CVXPY_ARGS_LP)
+        else:
+            prob.solve(**DEFAULT_CVXPY_ARGS_LP)
+        assert np.isclose(x.value, opt_x_value).all()
+        prob = cp.Problem(cp.Maximize(cp.sum(x)), P.containment_constraints(x.flatten(order="F"))[0])
+        if check_warning:
+            with pytest.warns(UserWarning):
+                prob.solve(**DEFAULT_CVXPY_ARGS_LP)
+        else:
+            prob.solve(**DEFAULT_CVXPY_ARGS_LP)
+        assert np.isclose(x.value, opt_x_value).all()
+
+    # Empty polytope
     P = Polytope(dim=2)
     x = cp.Variable(2)
     with pytest.raises(ValueError):

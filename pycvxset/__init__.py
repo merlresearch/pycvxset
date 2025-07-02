@@ -7,6 +7,7 @@
 # Code purpose:  __init__ script for pycvxset package
 
 from .common import (
+    PYCVXSET_ZERO,
     approximate_volume_from_grid,
     is_constrained_zonotope,
     is_ellipsoid,

@@ -16,7 +16,7 @@ with open("README.md", "r") as fh:
 INSTALL_REQUIRES = [
     "numpy>=1.14",
     "scipy>=1.3.0",
-    "pycddlib==2.1.8.post1",
+    "pycddlib>=3.0.0",
     "matplotlib>=3.8",
     "cvxpy>=1.5.3",
     "gurobipy>=11.0.0",
@@ -26,7 +26,7 @@ DOCS_REQUIRES = ["sphinx", "notebook", "ipykernel", "nbconvert", "ipympl", "myst
 
 setup(
     name="pycvxset",
-    version="1.0.2",
+    version="1.1.0",
     description=("A Python package for manipulation and visualization of convex sets.")[0],
     long_description=long_description,
     long_description_content_type="text/markdown",

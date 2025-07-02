@@ -55,6 +55,30 @@ DOCSTRING_FOR_PROJECTION = (
 )
 
 
+DOCSTRING_FOR_SLICE = (
+    "\n"
+    + r"""
+    Returns:
+        Polytope: Polytope that has been sliced at the specified dimensions.
+
+    Notes:
+        This function requires :math:`\mathcal{P}` to be in H-Rep, and performs a vertex halfspace when
+        :math:`\mathcal{P}` is in V-Rep.
+    """
+)
+
+DOCSTRING_FOR_SLICE_THEN_PROJECTION = (
+    "\n"
+    + r"""
+    Returns:
+        Polytope: m-dimensional set obtained via projection after slicing.
+
+    Notes:
+        This function requires :math:`\mathcal{P}` to be in H-Rep, and performs a vertex halfspace when
+        :math:`\mathcal{P}` is in V-Rep.
+    """
+)
+
 DOCSTRING_FOR_SUPPORT = (
     "\n"
     + r"""
@@ -77,20 +101,6 @@ DOCSTRING_FOR_SUPPORT = (
                 \text{maximize}    &\quad  \eta^\top x\\
                 \text{subject to}  &\quad  A x \leq b\\
                                    &\quad  A_e x = b_e
-    """
-)
-
-DOCSTRING_FOR_SLICE = (
-    "\n"
-    + r"""
-    Returns:
-        Polytope: Polytope that has been sliced at the specified dimensions.
-
-    Notes:
-        - This function requires :math:`\mathcal{P}` to be in H-Rep, and performs a vertex halfspace when
-          :math:`\mathcal{P}` is in V-Rep.
-        - This function uses :meth:`intersection_with_affine_set` to implement the slicing by designing an appropriate
-          affine set from dims and constants.
     """
 )
 
@@ -166,20 +176,18 @@ def contains(self, Q):
 
     Notes:
         - *Containment of polytopes*: This function accommodates the following combinations of representations for
-          :math:`\mathcal{P}` and :math:`\mathcal{Q}`.
-          * P is H-Rep and Q is H-Rep: No enumeration needed. Compare support function evaluations.
-          * P is H-Rep and Q is V-Rep: No enumeration needed. Check for containment of vertices of Q in P.
-          * P is V-Rep and Q is H-Rep: Vertex enumeration needed to compute Q.V
-          * P is V-Rep and Q is V-Rep: No enumeration needed. Check for containment of vertices of Q in P.
+          :math:`\mathcal{P}` and :math:`\mathcal{Q}`. It eliminates the need for enumeration by comparing support
+          function evaluations almost always. When P is H-Rep and Q is V-Rep, then we perform a quick check for
+          containment of vertices of Q in P. Otherwise,
           * Q is empty: Return True
           * P is empty: Return False
 
         - *Containment of points*: This function accommodates :math:`\mathcal{P}` to be in H-Rep or V-Rep. When testing
           if a point is in a polytope where only V-Rep is available for self, we solve a collection of second-order cone
           programs for each point using :meth:`project` (check if distance between v and :math:`\mathcal{P}` is nearly
-          zero).  Otherwise, we use the observation that for :math:`\mathcal{P}` with (A, b), then
-          :math:`v\in\mathcal{P}` if and only if :math:`Av\leq b`. For numerical precision considerations, we use
-          :meth:`numpy.isclose`.
+          zero).  Otherwise, we use the observation that for :math:`\mathcal{P}` with (A, b, Ae, be), then
+          :math:`v\in\mathcal{P}` if and only if :math:`Av\leq b` and :math:`A_ev=b_e`. For numerical precision
+          considerations, we use :meth:`numpy.isclose`.
     """
     if is_constrained_zonotope(Q) or is_ellipsoid(Q) or is_polytope(Q):
         # Q is a polytope or a constrained zonotope
@@ -189,7 +197,7 @@ def contains(self, Q):
             return False
         elif Q.is_empty:
             return True
-        elif is_constrained_zonotope(Q) or is_ellipsoid(Q) or (self.in_H_rep and Q.in_H_rep):
+        elif is_constrained_zonotope(Q) or is_ellipsoid(Q) or not (self.in_H_rep and Q.in_V_rep):
             # Compute inclusion via support function of Q
             containment_in_Ab = True
             containment_in_Aebe = True
@@ -197,11 +205,11 @@ def contains(self, Q):
                 containment_in_Ab = np.all(Q.support(self.A)[0] <= self.b + PYCVXSET_ZERO)
             if self.n_equalities > 0:
                 containment_in_Aebe = bool(np.all(Q.support(self.Ae)[0] <= self.be + PYCVXSET_ZERO)) and bool(
-                    np.all(Q.support(-self.Ae)[0] <= -self.be + PYCVXSET_ZERO)
+                    np.all(-Q.support(-self.Ae)[0] >= self.be - PYCVXSET_ZERO)
                 )
             return containment_in_Aebe and containment_in_Ab
         else:
-            # Compute inclusion via vertices of Q
+            # Compute inclusion via vertices of Q, which is most useful when (self.in_H_rep and Q.in_V_rep) is True
             containment_of_vertices = self.contains(Q.V)
             return bool(np.all(containment_of_vertices))
     else:
@@ -234,12 +242,12 @@ def contains(self, Q):
                         np.all(test_points_contained_in_Ab, axis=0), np.all(test_points_contained_in_Aebe, axis=0)
                     )
                 else:
-                    return test_points_contained_in_Ab[0] and test_points_contained_in_Aebe[0]
+                    if self.n_halfspaces > 0:
+                        return test_points_contained_in_Ab[0] and test_points_contained_in_Aebe[0]
+                    else:
+                        return test_points_contained_in_Aebe[0]
             else:
-                if n_test_points > 1:
-                    return np.all(test_points_contained_in_Ab, axis=0)
-                else:
-                    return test_points_contained_in_Ab[0]
+                return np.all(test_points_contained_in_Ab, axis=0)
         else:  # in_V_rep alone is available!
             return convex_set_contains_points(self, test_points)
 

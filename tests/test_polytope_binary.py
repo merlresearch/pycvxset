@@ -138,9 +138,17 @@ def test_contains():
     assert [1, 1, 1] not in PH1_3D_slice
     assert ([[0, 0, 0], [1, 1, 0]] <= PH1_3D_slice).all()
 
+    # A, b, Ae, be
+    Pnew = Polytope(lb=[-1, 1], ub=[1, 1])
+    assert not Pnew.is_full_dimensional
+    assert Pnew.n_equalities == 1
+    assert Pnew.n_halfspaces == 2
+    assert Pnew == Pnew
+
     # Case where nH = 0 and nHe > 0 but bounded
     Pnew = Polytope(A=[1], b=1, Ae=[1], be=[1])
     assert Pnew == Pnew
+    assert not Pnew.contains(Polytope(lb=-1, ub=1))
 
     # Empty polytope with single point
     assert [1, 1, 1] not in Polytope(dim=3)
@@ -154,6 +162,29 @@ def test_contains():
 
     # Use <= operator instead
     assert np.allclose([[0, 0], [2, 2]] <= Polytope(c=[1, 0], h=1), [1, 0])
+
+    # Singleton
+    P = Polytope(A=np.eye(2), b=[3, 3], Ae=np.eye(2), be=[2, 2])
+    assert np.isclose(P.chebyshev_centering()[1], 0)
+    assert P.contains([2, 2])
+    assert not P.contains([1, 1])
+    P = Polytope(V=[[2, 2]])
+    assert np.isclose(P.chebyshev_centering()[1], 0)
+    assert P.contains([2, 2])
+    assert not P.contains([1, 1])
+
+    # Testing from issue #2
+    A = np.array([[1, 0], [0, 1], [-1, 0], [0, -1]])
+    b = np.array([1, 1, 0, 0])
+    polytope = Polytope(A=A, b=b)
+
+    assert polytope.contains(np.array([0.5, 0.5]))  # True
+    assert not polytope.contains(np.array([1.5, 1.5]))  # False
+    assert not polytope.contains(np.array([1.5, 0.5]))  # False
+    assert not polytope.contains(np.array([0.5, 1.5]))  # False
+    assert (
+        polytope.contains(np.array([[0.5, 0.5], [1.5, 1.5], [1.5, 0.5], [0.5, 1.5]])) == [True, False, False, False]
+    ).all()
 
 
 def test_intersection_and_redundant_inequalities():
@@ -328,8 +359,8 @@ def test_polytope_product_with_vector_m_times_set_set_times_m():
     P5.minimize_V_rep()
     assert P5.dim == 1
     assert P5.n_vertices == 2
-    assert np.max(P5.V) == 1.0
-    assert np.min(P5.V) == -1.0
+    assert np.isclose(np.max(P5.V), 1)
+    assert np.isclose(np.min(P5.V), -1)
 
     # Multiplication with an empty polytope
     assert (Polytope(dim=5).affine_map(np.eye(5))).is_empty
@@ -477,6 +508,14 @@ def test_slice():
     # Invalidself.dim
     with pytest.raises(ValueError):
         Polytope(c=[0, 0, 0], h=0.5).slice(dims=0.2, constants=0.5)
+
+
+def test_slice_then_projection():
+    P = Polytope(c=[0, 0, 0], h=0.5)
+    Q = P.slice(dims=2, constants=0.25).projection(project_away_dims=2)
+    Q_projection = P.slice_then_projection(dims=2, constants=0.25)
+    assert Q.dim == 2
+    assert Q == Q_projection
 
 
 def test_chebyshev_centering_support_extreme():

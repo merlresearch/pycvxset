@@ -19,12 +19,16 @@ SPDX-License-Identifier: MIT
   - [Contributing](#contributing)
   - [License](#license)
   - [Acknowledgements](#acknowledgements)
+  - [Citing](#citing)
   - [Contact](#contact)
 
 ## What is pycvxset?
 
-pycvxset is a Python package for manipulation and visualization of convex sets. Currently, pycvxset supports the following three
-representations:
+pycvxset (pronounced "Pie CVX Set") is a Python package for manipulation and visualization of convex sets. The code is
+open-source (see [https://github.com/merlresearch/pycvxset](https://github.com/merlresearch/pycvxset)), and is
+maintained by [Abraham P.  Vinod](http://merl.com/people/vinod).
+
+Currently, pycvxset supports the following three representations:
 1. **polytopes**,
 2. **ellipsoids**, and
 3. **constrained zonotopes** (which are equivalent to polytopes).
@@ -45,8 +49,6 @@ Some of the operations enabled by pycvxset include:
 
 See the Jupyter notebooks in [examples](https://github.com/merlresearch/pycvxset/tree/main/examples) folder for more details on how pycvxset can be used in set-based control and perform reachability analysis.
 
-This repository is developed and maintained by [Abraham P. Vinod](http://merl.com/people/vinod).
-
 ## Quick start
 
 ### Requirements
@@ -56,7 +58,7 @@ pycvxset supports Python 3.9+ on Ubuntu, Windows, and MacOS. As described in [se
 2. [scipy](https://scipy.org/)
 3. [cvxpy](http://www.cvxpy.org/)
 4. [matplotlib](https://matplotlib.org/)
-5. [pycddlib](https://pycddlib.readthedocs.io/en/latest/): pycvxset requires `pycddlib<=2.1.8.post1`. We are working on removing this restriction.
+5. [pycddlib](https://pycddlib.readthedocs.io/en/latest/): pycvxset requires `pycddlib>=3.0.0`. Use `pycvxset<=1.0.2` to use `pycvxset` with earlier versions of `pycddlib<=2.1.8.post1`.
 6. [gurobipy](https://pypi.org/project/gurobipy/): This dependency is **optional**. Almost all functionalities of pycvxset are available without [Gurobi](https://www.gurobi.com/). However, pycvxset uses [Gurobi](https://www.gurobi.com/) (through [cvxpy](http://www.cvxpy.org/)) to perform *some* containment and equality checks involving constrained zonotopes. See [License](#license) section for more details.
 
 ### Installation
@@ -65,21 +67,16 @@ Refer to [.github/workflows](https://github.com/merlresearch/pycvxset/tree/main/
 1. OS-dependent pre-installation steps:
    * **Ubuntu**: Install [gmp](https://gmplib.org/).
      ```
-     $ sudo apt-get install libgmp-dev
+     $ sudo apt-get install libgmp-dev libcdd-dev python3-dev
      ```
-   * **MacOS**: Install [pycddlib](https://github.com/mcmtroffaes/pycddlib/) manually in order to link with [gmp](https://gmplib.org/).
+     See [pycddlib documentation](https://pycddlib.readthedocs.io/en/latest/quickstart.html#installing-cddlib-and-gmp) or [pycddlib/build.yml](https://github.com/mcmtroffaes/pycddlib/blob/master/.github/workflows/build.yml) for more details.
+   * **MacOS**: Install [gmp](https://gmplib.org/) and [cddlib](https://formulae.brew.sh/formula/cddlib).
      ```
-     % brew install gmp
+     % brew install gmp cddlib
      % python3 -m pip install --upgrade pip
-     % git clone https://github.com/mcmtroffaes/pycddlib.git
-     % cd pycddlib
-     % git checkout 2.1.8.post1
-     % git submodule update --init
-     % ./cddlib-makefile-gmp.sh
-     % env "CFLAGS=-I$(brew --prefix)/include -L$(brew --prefix)/lib" python3 -m pip install .
-     % cd ..
+     % env "CFLAGS=-I$(brew --prefix)/include -L$(brew --prefix)/lib" python -m pip install pycddlib==3.0.0
      ```
-     These steps are adapted from [pycddlib/build.yml](https://github.com/mcmtroffaes/pycddlib/blob/master/.github/workflows/build.yml).
+     See [pycddlib documentation](https://pycddlib.readthedocs.io/en/latest/quickstart.html#installing-cddlib-and-gmp) or [pycddlib/build.yml](https://github.com/mcmtroffaes/pycddlib/blob/master/.github/workflows/build.yml) for more details.
    * **Windows**: No special steps required since pip takes care of it. If plotting fails, you can set matplotlib backend via an environment variable `set MPLBACKEND=Agg`.
      See [https://matplotlib.org/3.5.1/users/explain/backends.html#selecting-a-backend](https://matplotlib.org/3.5.1/users/explain/backends.html#selecting-a-backend) for more details.
 2. Clone the pycvxset repository into a desired folder `PYCVXSET_DIR`.
@@ -91,6 +88,30 @@ Refer to [.github/workflows](https://github.com/merlresearch/pycvxset/tree/main/
 
 ![](./docs/source/_static/pycvxset_diag.png)
 ![](_static/pycvxset_diag.png)
+
+The following code block is reproduced from `run_demo` function in [examples/pycvxset_diag.py](https://github.com/merlresearch/pycvxset/blob/main/examples/pycvxset_diag.py). The code block demonstrates how one can use `pycvxset` to define sets and manipulate them:
+
+```python
+# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+
+import numpy as np
+from pycvxset import Ellipsoid, Polytope
+from scipy.spatial.transform import Rotation
+
+# Define P as the intersection of a box with different sides and a halfspace
+box_with_different_sides = Polytope(c=[0, 0, 0], h=[1, 0.5, 0.1])
+P = box_with_different_sides.intersection_with_halfspaces([1, -0.5, 0], 0.25)
+# Affine transformation (Rotate and translate P)
+rotate_angle = np.pi / 4
+R = Rotation.from_rotvec(rotate_angle * np.array([0, 0, 1])).as_matrix()
+shift_vec = [5, 4, 3]
+transformed_P = R @ P + shift_vec
+# Projection (Compute its shadow on to the xy space)
+project_transformed_P_to_XY = transformed_P.projection(project_away_dims=2)
+# Centering ellipsoids
+ellipsoid_inside_projection = Ellipsoid.deflate(project_transformed_P_to_XY)
+ellipsoid_outside_projection = Ellipsoid.inflate(project_transformed_P_to_XY)
+```
 
 ### Optional: Testing
 
@@ -201,6 +222,20 @@ pycvxset extends [pytope](https://github.com/heirung/pytope.git) in several new 
 - Include extensive documentation and example Jupyter notebooks,
 - Implement exhaustive testing with nearly 100% coverage, and
 - Support for *Ellipsoid* and *ConstrainedZonotope* set representations.
+
+## Citing
+
+If you use this software in your research, please cite it using the metadata from [CITATION.cff](https://github.com/merlresearch/pycvxset/tree/main/CITATION.cff) or the following bibtex entry.
+
+```
+@inproceedings{vinod2024pycvxset,
+  title={{pycvxset: A Python package for convex set manipulation}},
+  author={Vinod, Abraham P},
+  booktitle={Proceedings of American Control Conference (ACC)},
+  year={2025},
+  note = {(accepted)}
+}
+```
 
 ## Contact
 

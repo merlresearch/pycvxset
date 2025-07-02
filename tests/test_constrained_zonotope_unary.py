@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from pycvxset import ConstrainedZonotope, Polytope, approximate_volume_from_grid
+from pycvxset.common.constants import TESTING_STATEMENTS_INVOLVING_GUROBI
 
 
 def test_approximate_volume_from_grid_and_minimum_volume_circumscribing_rectangle():
@@ -71,6 +72,15 @@ def test_slice():
     C_sliced = C.slice([1], [0.75])
     assert C_sliced.dim == 2
     assert np.allclose(C_sliced.support([[1, 0], [-1, 0]])[1][:, 1], 0.75)
+
+
+def test_slice_then_projection():
+    P = ConstrainedZonotope(c=[0, 0, 0], h=0.5)
+    Q = P.slice(dims=2, constants=0.25).projection(project_away_dims=2)
+    Q_projection = P.slice_then_projection(dims=2, constants=0.25)
+    assert Q.dim == 2
+    if TESTING_STATEMENTS_INVOLVING_GUROBI == "full":
+        assert Q == Q_projection
 
 
 def test_chebyshev_center_and_redundant_inequalities():
