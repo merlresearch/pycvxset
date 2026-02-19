@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pycvxset.ConstrainedZonotope &#8212; pycvxset 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=f6a572b4" />
+    <script src="../_static/documentation_options.js?v=6efca38a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pycvxset.ConstrainedZonotope (API details)" href="../pycvxset.ConstrainedZonotope.html" />
+    <link rel="prev" title="pycvxset.Ellipsoid (API details)" href="../pycvxset.Ellipsoid.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/pycvxset_logo.png" alt="Logo of pycvxset"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">pycvxset</a></h1>
+
+
+
+<p class="blurb">A Python package for manipulation and visualization of convex sets.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=merlresearch&repo=pycvxset&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><!-- Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>Navigation</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="pycvxset.Polytope.html">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="pycvxset.Ellipsoid.html">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="#">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="../pycvxset.common.html">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="../pycvxset.common.constants.html">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://www.merl.com/publications/docs/TR2025-086.pdf" target="_blank">Paper (ACC '25)
+            </a></li>
+    <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pycvxset-constrainedzonotope">
+<h1>pycvxset.ConstrainedZonotope<a class="headerlink" href="#pycvxset-constrainedzonotope" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pycvxset.ConstrainedZonotope">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pycvxset.</span></span><span class="sig-name descname"><span class="pre">ConstrainedZonotope</span></span><a class="reference internal" href="../_modules/pycvxset/ConstrainedZonotope.html#ConstrainedZonotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.ConstrainedZonotope" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Constrained zonotope class</p>
+<p>Constrained zonotope defines a polytope in the working dimension <span class="math notranslate nohighlight">\(\mathbb{R}^n\)</span> as an affine transformation of
+a polytope defined in latent space <span class="math notranslate nohighlight">\(B_\infty(A_e, b_e)\subset \mathbb{R}^{N_C}\)</span>. Here, <span class="math notranslate nohighlight">\(B_\infty(A_e,
+b_e)\)</span> is defined as the intersection of a unit <span class="math notranslate nohighlight">\(\ell_\infty\)</span>-norm ball and a collection of <span class="math notranslate nohighlight">\(M_C\)</span> linear
+constraints <span class="math notranslate nohighlight">\(\{\xi\in\mathbb{R}^{N_C}|A_e \xi = b_e\}.\)</span></p>
+<p>Formally, a <strong>constrained zonotope</strong> is defined as follows,</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{C} = \{G \xi + c\ |\ \xi \in B_\infty(A_e, b_e)\} \subset \mathbb{R}^n,\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[B_\infty(A_e, b_e)= \{\xi\ |\ \| \xi \|_\infty \leq 1, A_e \xi = b_e\} \subset \mathbb{R}^{N_C},\]</div>
+<p>with <span class="math notranslate nohighlight">\(G\in\mathbb{R}^{n\times N_C}\)</span>, <span class="math notranslate nohighlight">\(c\in\mathbb{R}^{n}\)</span>, <span class="math notranslate nohighlight">\(A_e\in\mathbb{R}^{M_C\times N_C}\)</span>, and
+<span class="math notranslate nohighlight">\(b\in\mathbb{R}^{M_C}\)</span>.</p>
+<p>A constrained zonotope provide an alternative and equivalent representation of any
+convex and compact polytope.  Furthermore, a constrained zonotope admits closed-form expressions for several set
+manipulations that can often be accomplished without invoking any optimization solvers. See <a class="reference internal" href="../references.html#sdgr16" id="id1"><span>[SDGR16]</span></a> <a class="reference internal" href="../references.html#rk22" id="id2"><span>[RK22]</span></a>
+<a class="reference internal" href="../references.html#vwd24" id="id3"><span>[VWD24]</span></a> for more details.</p>
+<p>A <strong>zonotope</strong> is a special class of constrained zonotopes, and are defined as</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{Z} = \{G \xi + c\ |\ \|\xi\|_\infty \leq 1\} \subset \mathbb{R}^n.\]</div>
+<p>In other words, a zonotope is a constrained zonotope with no equality constraints in the latent dimension space. In
+<a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#module-pycvxset.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstrainedZonotope</span></code></a>, we model zonotopes by having (Ae,be) be empty (n_equalities is zero).</p>
+<p>Constrained zonotope object construction admits <strong>one</strong> of the following combinations (as keyword arguments):</p>
+<ol class="arabic simple">
+<li><p>dim for an <strong>empty</strong> constrained zonotope of dimension dim,</p></li>
+<li><p>(G, c, Ae, be) for a <strong>constrained zonotope</strong>,</p></li>
+<li><p>(G, c) for a <strong>zonotope</strong>,</p></li>
+<li><p>(lb, ub) for a <strong>zonotope</strong> equivalent to an <strong>axis-aligned cuboid</strong> with appropriate bounds <span class="math notranslate nohighlight">\(\{x\ |\
+lb\leq x \leq ub\}\)</span>, and</p></li>
+<li><p>(c, h) for a <strong>zonotope</strong> equivalent to an <strong>axis-aligned cuboid</strong> centered at c with specified
+scalar/vector half-sides <span class="math notranslate nohighlight">\(h\)</span>, <span class="math notranslate nohighlight">\(\{x\ |\ \forall i\in\{1,2,...,n\}, |x_i - c_i| \leq h_i\}\)</span>.</p></li>
+<li><p>(c=p, G=None) for a <strong>zonotope</strong> equivalent to a <strong>single point</strong> p,</p></li>
+<li><p>P for a <strong>constrained zonotope</strong> equivalent to the <a class="reference internal" href="../pycvxset.Polytope.html#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><code class="xref py py-class docutils literal notranslate"><span class="pre">pycvxset.Polytope.Polytope</span></code></a> object P,</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimension of the empty constrained zonotope. If NOTHING is provided, dim=0 is assumed.</p></li>
+<li><p><strong>c</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>numpy.ndarray</em><em>, </em><em>optional</em>) – Affine transformation translation vector. Must be 1D array, and
+the constrained zonotope dimension is determined by number of elements in c. When c is provided, either (G)
+or (G, Ae, be) or (h) must be provided additionally. When h is provided, c is the centroid of the resulting
+zonotope.</p></li>
+<li><p><strong>G</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>numpy.ndarray</em>) – Affine transformation matrix. The vectors are stacked vertically
+with matching number of rows as c. When G is provided, (c, Ae, be) OR (c) must also be provided. To define a
+constrained zonotope with a single point, set c to the point AND G to None (do not set (Ae, be) or set them
+to (None, None)).</p></li>
+<li><p><strong>Ae</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>numpy.ndarray</em>) – Equality coefficient vectors. The vectors are stacked
+vertically with matching number of columns as G. When Ae is provided, (G, c, be) must also be provided.</p></li>
+<li><p><strong>be</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>numpy.ndarray</em>) – Equality coefficient constants. The constants are expected to be in a 1D
+numpy array. When be is provided, (G, c, Ae) must also be provided.</p></li>
+<li><p><strong>lb</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>numpy.ndarray</em><em>, </em><em>optional</em>) – Lower bounds of the axis-aligned cuboid. Must be 1D array, and
+the constrained zonotope dimension is determined by number of elements in lb. When lb is provided, ub must
+also be provided.</p></li>
+<li><p><strong>ub</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>numpy.ndarray</em><em>, </em><em>optional</em>) – Upper bounds of the axis-aligned cuboid. Must be 1D array of
+length as same as lb.  When ub is provided, lb must also be provided.</p></li>
+<li><p><strong>h</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>numpy.ndarray</em><em>, </em><em>optional</em>) – Half-side length of the axis-aligned cuboid. Can be a
+scalar or a vector of length as same as c. When h is provided, c must also be provided.</p></li>
+<li><p><strong>polytope</strong> (<a class="reference internal" href="../pycvxset.Polytope.html#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a><em>, </em><em>optional</em>) – Polytope to use to construct constrained zonotope.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – (G, c) is not compatible.</p></li>
+<li><p><strong>ValueError</strong> – (G, c, Ae, be) is not compatible.</p></li>
+<li><p><strong>ValueError</strong> – (lb, ub) is not valid</p></li>
+<li><p><strong>ValueError</strong> – (c, h) is not valid</p></li>
+<li><p><strong>ValueError</strong> – Provided polytope is not bounded.</p></li>
+<li><p><strong>UserWarning</strong> – When a row with all zeros in Ae and be.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.ConstrainedZonotope.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pycvxset/ConstrainedZonotope.html#ConstrainedZonotope.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.ConstrainedZonotope.__init__" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ae</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">be</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">polytope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../pycvxset.Polytope.html#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dd><p>Constructor for ConstrainedZonotope class</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.__init__" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(...)</p></td>
+<td><p>Constructor for ConstrainedZonotope class</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.affine_map" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.affine_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">affine_map</span></code></a>(M)</p></td>
+<td><p>Multiply a matrix or a scalar with a constrained zonotope</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.approximate_pontryagin_difference" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.approximate_pontryagin_difference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">approximate_pontryagin_difference</span></code></a>(norm_type, ...)</p></td>
+<td><p>Approximate Pontryagin difference between a constrained zonotope and an affine transformation of a unit-norm ball.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.cartesian_product" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.cartesian_product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cartesian_product</span></code></a>(sequence_Q)</p></td>
+<td><p>Generate the Cartesian product of a set <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span> (or a list of <cite>mathcal{Q}</cite>) with <span class="math notranslate nohighlight">\(\mathcal{P}\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.chebyshev_centering" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.chebyshev_centering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chebyshev_centering</span></code></a>([enable_warning])</p></td>
+<td><p>Computes a ball with the largest radius that fits within the constrained zonotope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.closest_point" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.closest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">closest_point</span></code></a>(points[, p])</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code> to compute the point in the convex set closest to the given point.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.containment_constraints" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.containment_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">containment_constraints</span></code></a>(x[, flatten_order])</p></td>
+<td><p>Get CVXPY constraints for containment of x (a cvxpy.Variable) in a constrained zonotope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.contains" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.contains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains</span></code></a>(Q[, verbose, time_limit])</p></td>
+<td><p>Check containment of a set <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span> (could be a polytope or a constrained zonotope), or a collection of points <span class="math notranslate nohighlight">\(Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}\)</span> in the given constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.copy" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Get a copy of the constrained zonotope</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.distance" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>(points[, p])</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code> to compute distance of a point to a convex set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.extreme" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.extreme"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extreme</span></code></a>(eta)</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">support()</span></code> to compute the extreme point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.interior_point" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.interior_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interior_point</span></code></a>([point_type, enable_warning])</p></td>
+<td><p>Compute an interior point of the constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersection</span></code></a>(Q)</p></td>
+<td><p>Compute the intersection of constrained zonotope with another constrained zonotope or polytope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection_under_inverse_affine_map" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection_under_inverse_affine_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersection_under_inverse_affine_map</span></code></a>(Y, R)</p></td>
+<td><p>Compute the intersection of constrained zonotope with another constrained zonotope under an inverse affine map</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection_with_affine_set" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection_with_affine_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersection_with_affine_set</span></code></a>(Ae, be)</p></td>
+<td><p>Compute the intersection of a constrained zonotope with an affine set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection_with_halfspaces" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.intersection_with_halfspaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersection_with_halfspaces</span></code></a>(A, b)</p></td>
+<td><p>Compute the intersection of a constrained zonotope with a collection of halfspaces (polyhedron).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.inverse_affine_map_under_invertible_matrix" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.inverse_affine_map_under_invertible_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_affine_map_under_invertible_matrix</span></code></a>(M)</p></td>
+<td><p>Compute the inverse affine map of a constrained zonotope for a given matrix M.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.maximum_volume_inscribing_ellipsoid" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.maximum_volume_inscribing_ellipsoid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_volume_inscribing_ellipsoid</span></code></a>([...])</p></td>
+<td><p>Compute the maximum volume ellipsoid that fits within the given constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.minimize" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.minimize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimize</span></code></a>(x, objective_to_minimize, cvxpy_args)</p></td>
+<td><p>Solve a convex program with CVXPY objective subject to containment constraints.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.minimum_volume_circumscribing_rectangle" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.minimum_volume_circumscribing_rectangle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimum_volume_circumscribing_rectangle</span></code></a>()</p></td>
+<td><p>Compute the minimum volume circumscribing rectangle for a set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.minus" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.minus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minus</span></code></a>(Q[, enable_warning])</p></td>
+<td><p>Implement - operation: Pontryagin difference with a constrained zonotope minuend</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.plot" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([method, ax, direction_vectors, ...])</p></td>
+<td><p>Plot a polytopic approximation of the set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.plus" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.plus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plus</span></code></a>(Q)</p></td>
+<td><p>Add a point or a set Q to a constrained zonotope (Minkowski sum).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.polytopic_inner_approximation" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.polytopic_inner_approximation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polytopic_inner_approximation</span></code></a>([...])</p></td>
+<td><p>Compute a polytopic inner-approximation of a given set via ray shooting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.polytopic_outer_approximation" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.polytopic_outer_approximation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polytopic_outer_approximation</span></code></a>([...])</p></td>
+<td><p>Compute a polytopic outer-approximation of a given set via ray shooting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.project" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.project"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project</span></code></a>(x[, p])</p></td>
+<td><p>Project a point or a collection of points on to a set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.projection" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.projection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">projection</span></code></a>(project_away_dims)</p></td>
+<td><p>Orthogonal projection of a set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> after removing some user-specified dimensions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.remove_redundancies" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.remove_redundancies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_redundancies</span></code></a>()</p></td>
+<td><p>Remove any redundancies in CZ using pycddlib and other geometric properties.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.slice" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice</span></code></a>(dims, constants)</p></td>
+<td><p>Slice a set restricting certain dimensions to constants.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.slice_then_projection" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.slice_then_projection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_then_projection</span></code></a>(dims, constants)</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">slice()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">projection()</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.support" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">support</span></code></a>(eta)</p></td>
+<td><p>Evaluates the support function and support vector of a set.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.Ae" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.Ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ae</span></code></a></p></td>
+<td><p>Equality coefficient vectors Ae for the constrained zonotope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.G" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.G"><code class="xref py py-obj docutils literal notranslate"><span class="pre">G</span></code></a></p></td>
+<td><p>Affine transformation matrix G for the constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.He" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.He"><code class="xref py py-obj docutils literal notranslate"><span class="pre">He</span></code></a></p></td>
+<td><p>Equality constraints <cite>He=[Ae, be]</cite> for the constrained zonotope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.be" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.be"><code class="xref py py-obj docutils literal notranslate"><span class="pre">be</span></code></a></p></td>
+<td><p>Equality constants be for the constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.c" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.c"><code class="xref py py-obj docutils literal notranslate"><span class="pre">c</span></code></a></p></td>
+<td><p>Affine transformation vector c for the constrained zonotope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.cvxpy_args_lp" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.cvxpy_args_lp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvxpy_args_lp</span></code></a></p></td>
+<td><p>CVXPY arguments in use when solving a linear program</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.cvxpy_args_socp" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.cvxpy_args_socp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvxpy_args_socp</span></code></a></p></td>
+<td><p>CVXPY arguments in use when solving a second-order cone program</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.dim" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dim</span></code></a></p></td>
+<td><p>Dimension of the constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_bounded" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_bounded"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_bounded</span></code></a></p></td>
+<td><p>Check if the constrained zonotope is bounded (which is always True)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_empty" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a></p></td>
+<td><p>Check if the constrained zonotope is empty</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_full_dimensional" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_full_dimensional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_full_dimensional</span></code></a></p></td>
+<td><p>Check if the affine dimension of the constrained zonotope is the same as the constrained zonotope dimension</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_singleton" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_singleton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_singleton</span></code></a></p></td>
+<td><p>Check if the constrained zonotope is a singleton</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_zonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.is_zonotope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zonotope</span></code></a></p></td>
+<td><p>Check if the constrained zonotope is a zonotope</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.latent_dim" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.latent_dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">latent_dim</span></code></a></p></td>
+<td><p>Latent dimension of the constrained zonotope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.n_equalities" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.n_equalities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_equalities</span></code></a></p></td>
+<td><p>Number of equality constraints used when defining the constrained zonotope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope.type_of_set" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope.type_of_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type_of_set</span></code></a></p></td>
+<td><p>Return the type of set</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.ConstrainedZonotope.__new__">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pycvxset.ConstrainedZonotope.__new__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pycvxset/ConstrainedZonotope.html#ConstrainedZonotope.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ae</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">be</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">polytope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../pycvxset.Polytope.html#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dd><p>Constructor for ConstrainedZonotope class</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2020-2026, Mitsubishi Electric Research Laboratories (MERL).
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api_summary/pycvxset.ConstrainedZonotope.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

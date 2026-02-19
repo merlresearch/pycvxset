@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pycvxset.Ellipsoid &#8212; pycvxset 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=f6a572b4" />
+    <script src="../_static/documentation_options.js?v=6efca38a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pycvxset.Ellipsoid (API details)" href="../pycvxset.Ellipsoid.html" />
+    <link rel="prev" title="pycvxset.Polytope (API details)" href="../pycvxset.Polytope.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/pycvxset_logo.png" alt="Logo of pycvxset"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">pycvxset</a></h1>
+
+
+
+<p class="blurb">A Python package for manipulation and visualization of convex sets.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=merlresearch&repo=pycvxset&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><!-- Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>Navigation</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="pycvxset.Polytope.html">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="#">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="pycvxset.ConstrainedZonotope.html">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="../pycvxset.common.html">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="../pycvxset.common.constants.html">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://www.merl.com/publications/docs/TR2025-086.pdf" target="_blank">Paper (ACC '25)
+            </a></li>
+    <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pycvxset-ellipsoid">
+<h1>pycvxset.Ellipsoid<a class="headerlink" href="#pycvxset-ellipsoid" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pycvxset.Ellipsoid">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pycvxset.</span></span><span class="sig-name descname"><span class="pre">Ellipsoid</span></span><a class="reference internal" href="../_modules/pycvxset/Ellipsoid.html#Ellipsoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Ellipsoid" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Ellipsoid class.</p>
+<p>We can define a bounded, non-empty ellipsoid <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> using <strong>one</strong> of the following combinations:</p>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\((c, Q)\)</span> for a full-dimensional ellipsoid in the <strong>quadratic form</strong>
+<span class="math notranslate nohighlight">\(\mathcal{P}=\{x \in \mathbb{R}^n\ |\  (x - c)^T Q^{-1} (x - c) \leq 1\}\)</span> with a n-dimensional
+positive-definite matrix <span class="math notranslate nohighlight">\(Q\)</span> and a n-dimensional vector <span class="math notranslate nohighlight">\(c\)</span>. Here, pycvxset computes a n-dimensional
+lower-triangular, square matrix <span class="math notranslate nohighlight">\(G\)</span> that satisfies <span class="math notranslate nohighlight">\(GG^T=Q\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\((c, G)\)</span> for a full-dimensional or a degenerate ellipsoid as an <strong>affine transformation of a unit-ball</strong>
+<span class="math notranslate nohighlight">\(\mathcal{P} = \{x \in \mathbb{R}^n\ |\ \exists u\in\mathbb{R}^N,\ x = c + G u,\ {\|u\|}_2 \leq 1\}\)</span> with a
+n x N matrix <span class="math notranslate nohighlight">\(G\)</span>. Here, pycvxset computes <span class="math notranslate nohighlight">\(Q=GG^T\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\((c, r)\)</span> for a ball of radius <span class="math notranslate nohighlight">\(r \geq 0\)</span>
+<span class="math notranslate nohighlight">\(\mathcal{P} = \{x \in \mathbb{R}^n\ |\ {\|x - c\|}_2 \leq r\}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\((c)\)</span> for a singleton ellipsoid <span class="math notranslate nohighlight">\(\mathcal{P} = \{c\}\)</span>.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>numpy.ndarray</em>) – Center of the ellipsoid c. Vector of length (self.dim,)</p></li>
+<li><p><strong>Q</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>numpy.ndarray</em><em>, </em><em>optional</em>) – Shape matrix of the ellipsoid Q. Q must be a positive
+definite matrix (self.dim times self.dim).
+(self.dim times self.dim).</p></li>
+<li><p><strong>G</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>numpy.ndarray</em><em>, </em><em>optional</em>) – Square root of the shape matrix of the ellipsoid G that
+satisfies <span class="math notranslate nohighlight">\(GG^T=Q\)</span>.  Need not be a square matrix, but must have self.dim rows. If a singleton must be
+specified, G must have zero columns.</p></li>
+<li><p><strong>r</strong> (<em>scalar</em><em>, </em><em>optional</em>) – Non-negative scalar that provides the radius of the self.dim-dimensional ball.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When more than one of Q, G, r was provided</p></li>
+<li><p><strong>ValueError</strong> – When c or Q or G or r does not satisfy implicit properties</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ol class="arabic simple">
+<li><p>Empty ellipsoids are not permitted (c is a required keyword argument).</p></li>
+<li><p>When provided G is such that <span class="math notranslate nohighlight">\(Q=GG^T\)</span> is positive definite, we overwrite <span class="math notranslate nohighlight">\(G\)</span> with a
+lower-triangular, square, n-dimensional matrix  for consistency. Here, <span class="math notranslate nohighlight">\(G\)</span> has strictly positive
+diagonal elements, and its determinant is the product of its diagonal elements (see volume computation).</p></li>
+<li><p>We use the eigenvalues of <span class="math notranslate nohighlight">\(Q\)</span> to determine the radii of the maximum volume inscribing ball (Chebyshev
+radius <span class="math notranslate nohighlight">\(R^-\)</span>) and the minimum volume circumscribing ball <span class="math notranslate nohighlight">\(R^+\geq R^-\)</span>.</p>
+<ol class="loweralpha simple">
+<li><p>The ellipsoid represents a singleton when <span class="math notranslate nohighlight">\(R^+\)</span> is negligible.</p></li>
+<li><p>The ellipsoid is full-dimensional when <span class="math notranslate nohighlight">\(R^-\)</span> is non-trivial.</p></li>
+</ol>
+</li>
+</ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Ellipsoid.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pycvxset/Ellipsoid.html#Ellipsoid.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Ellipsoid.__init__" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dd><p>Constructor for Ellipsoid</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.__init__" title="pycvxset.Ellipsoid.Ellipsoid.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(-&gt; None
+ -&gt; None
+ -&gt; None)</p></td>
+<td><p>Constructor for Ellipsoid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.affine_hull" title="pycvxset.Ellipsoid.Ellipsoid.affine_hull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">affine_hull</span></code></a>()</p></td>
+<td><p>Compute the left null space of self.G to identify the affine hull.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.affine_map" title="pycvxset.Ellipsoid.Ellipsoid.affine_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">affine_map</span></code></a>(M)</p></td>
+<td><p>Compute the affine transformation of the given ellipsoid based on a given scalar/matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.chebyshev_centering" title="pycvxset.Ellipsoid.Ellipsoid.chebyshev_centering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chebyshev_centering</span></code></a>()</p></td>
+<td><p>Compute the Chebyshev center and radius of the ellipsoid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.closest_point" title="pycvxset.Ellipsoid.Ellipsoid.closest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">closest_point</span></code></a>(points[, p])</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code> to compute the point in the convex set closest to the given point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.containment_constraints" title="pycvxset.Ellipsoid.Ellipsoid.containment_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">containment_constraints</span></code></a>(x[, flatten_order])</p></td>
+<td><p>Get CVXPY constraints for containment of x (a cvxpy.Variable) in an ellipsoid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.contains" title="pycvxset.Ellipsoid.Ellipsoid.contains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains</span></code></a>(Q)</p></td>
+<td><p>Check containment of a set or a collection of points in an ellipsoid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.copy" title="pycvxset.Ellipsoid.Ellipsoid.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Create a copy of the ellipsoid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.deflate" title="pycvxset.Ellipsoid.Ellipsoid.deflate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deflate</span></code></a>(cvx_set)</p></td>
+<td><p>Compute the minimum volume ellipsoid that covers the given set (also known as Lowner-John Ellipsoid).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.distance" title="pycvxset.Ellipsoid.Ellipsoid.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>(points[, p])</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code> to compute distance of a point to a convex set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.extreme" title="pycvxset.Ellipsoid.Ellipsoid.extreme"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extreme</span></code></a>(eta)</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">support()</span></code> to compute the extreme point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.inflate" title="pycvxset.Ellipsoid.Ellipsoid.inflate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inflate</span></code></a>(cvx_set)</p></td>
+<td><p>Compute the maximum volume ellipsoid that fits within the given set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.inflate_ball" title="pycvxset.Ellipsoid.Ellipsoid.inflate_ball"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inflate_ball</span></code></a>(cvx_set)</p></td>
+<td><p>Compute the largest ball (Chebyshev ball) of a given set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.interior_point" title="pycvxset.Ellipsoid.Ellipsoid.interior_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interior_point</span></code></a>()</p></td>
+<td><p>Compute an interior point to the Ellipsoid</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.intersection_with_affine_set" title="pycvxset.Ellipsoid.Ellipsoid.intersection_with_affine_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersection_with_affine_set</span></code></a>(Ae, be)</p></td>
+<td><p>Compute the intersection of an ellipsoid with an affine set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.inverse_affine_map_under_invertible_matrix" title="pycvxset.Ellipsoid.Ellipsoid.inverse_affine_map_under_invertible_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_affine_map_under_invertible_matrix</span></code></a>(M)</p></td>
+<td><p>Compute the inverse affine transformation of an ellipsoid based on a given scalar/matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.maximum_volume_inscribing_ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid.maximum_volume_inscribing_ellipsoid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_volume_inscribing_ellipsoid</span></code></a>()</p></td>
+<td><p>Compute the parameters of the maximum volume inscribing ellipsoid for a given ellipsoid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.minimize" title="pycvxset.Ellipsoid.Ellipsoid.minimize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimize</span></code></a>(x, objective_to_minimize, cvxpy_args)</p></td>
+<td><p>Solve a convex program with CVXPY objective subject to containment constraints.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.minimum_volume_circumscribing_ball" title="pycvxset.Ellipsoid.Ellipsoid.minimum_volume_circumscribing_ball"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimum_volume_circumscribing_ball</span></code></a>()</p></td>
+<td><p>Compute the parameters of a minimum volume circumscribing ball.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.minimum_volume_circumscribing_ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid.minimum_volume_circumscribing_ellipsoid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimum_volume_circumscribing_ellipsoid</span></code></a>()</p></td>
+<td><p>Compute the parameters of the minimum volume circumscribing ellipsoid for a given ellipsoid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.minimum_volume_circumscribing_rectangle" title="pycvxset.Ellipsoid.Ellipsoid.minimum_volume_circumscribing_rectangle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimum_volume_circumscribing_rectangle</span></code></a>()</p></td>
+<td><p>Compute the minimum volume circumscribing rectangle for a set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.plot" title="pycvxset.Ellipsoid.Ellipsoid.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([method, ax, direction_vectors, ...])</p></td>
+<td><p>Plot a polytopic approximation of the set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.plus" title="pycvxset.Ellipsoid.Ellipsoid.plus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plus</span></code></a>(point)</p></td>
+<td><p>Add a point to an ellipsoid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.polytopic_inner_approximation" title="pycvxset.Ellipsoid.Ellipsoid.polytopic_inner_approximation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polytopic_inner_approximation</span></code></a>([...])</p></td>
+<td><p>Compute a polytopic inner-approximation of a given set via ray shooting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.polytopic_outer_approximation" title="pycvxset.Ellipsoid.Ellipsoid.polytopic_outer_approximation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polytopic_outer_approximation</span></code></a>([...])</p></td>
+<td><p>Compute a polytopic outer-approximation of a given set via ray shooting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.project" title="pycvxset.Ellipsoid.Ellipsoid.project"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project</span></code></a>(x[, p])</p></td>
+<td><p>Project a point or a collection of points on to a set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.projection" title="pycvxset.Ellipsoid.Ellipsoid.projection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">projection</span></code></a>(project_away_dims)</p></td>
+<td><p>Orthogonal projection of a set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> after removing some user-specified dimensions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.quadratic_form_as_a_symmetric_matrix" title="pycvxset.Ellipsoid.Ellipsoid.quadratic_form_as_a_symmetric_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quadratic_form_as_a_symmetric_matrix</span></code></a>()</p></td>
+<td><p>Define a (self.dim + 1)-dimensional symmetric matrix M where self = {x | [x, 1] &#64; M &#64; [x, 1] &lt;= 0}.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.slice" title="pycvxset.Ellipsoid.Ellipsoid.slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice</span></code></a>(dims, constants)</p></td>
+<td><p>Slice a set restricting certain dimensions to constants.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.slice_then_projection" title="pycvxset.Ellipsoid.Ellipsoid.slice_then_projection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_then_projection</span></code></a>(dims, constants)</p></td>
+<td><p>Wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">slice()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">projection()</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.support" title="pycvxset.Ellipsoid.Ellipsoid.support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">support</span></code></a>(eta)</p></td>
+<td><p>Evaluates the support function and support vector of a set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.volume" title="pycvxset.Ellipsoid.Ellipsoid.volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">volume</span></code></a>()</p></td>
+<td><p>Compute the volume of the ellipsoid.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.G" title="pycvxset.Ellipsoid.Ellipsoid.G"><code class="xref py py-obj docutils literal notranslate"><span class="pre">G</span></code></a></p></td>
+<td><p>Affine transformation matrix <span class="math notranslate nohighlight">\(G\)</span> that satisfies <span class="math notranslate nohighlight">\(GG^T=Q\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.Q" title="pycvxset.Ellipsoid.Ellipsoid.Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Q</span></code></a></p></td>
+<td><p>Shape matrix of the ellipsoid <span class="math notranslate nohighlight">\(Q\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.c" title="pycvxset.Ellipsoid.Ellipsoid.c"><code class="xref py py-obj docutils literal notranslate"><span class="pre">c</span></code></a></p></td>
+<td><p>Center of the ellipsoid <span class="math notranslate nohighlight">\(c\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.cvxpy_args_lp" title="pycvxset.Ellipsoid.Ellipsoid.cvxpy_args_lp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvxpy_args_lp</span></code></a></p></td>
+<td><p>CVXPY arguments in use when solving a linear program</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.cvxpy_args_sdp" title="pycvxset.Ellipsoid.Ellipsoid.cvxpy_args_sdp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvxpy_args_sdp</span></code></a></p></td>
+<td><p>CVXPY arguments in use when solving a semi-definite program</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.cvxpy_args_socp" title="pycvxset.Ellipsoid.Ellipsoid.cvxpy_args_socp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvxpy_args_socp</span></code></a></p></td>
+<td><p>CVXPY arguments in use when solving a second-order cone program</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.dim" title="pycvxset.Ellipsoid.Ellipsoid.dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dim</span></code></a></p></td>
+<td><p>Dimension of the ellipsoid <span class="math notranslate nohighlight">\(dim\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.is_bounded" title="pycvxset.Ellipsoid.Ellipsoid.is_bounded"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_bounded</span></code></a></p></td>
+<td><p>Check if the ellipsoid is bounded.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.is_empty" title="pycvxset.Ellipsoid.Ellipsoid.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a></p></td>
+<td><p>Check if the ellipsoid is empty.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.is_full_dimensional" title="pycvxset.Ellipsoid.Ellipsoid.is_full_dimensional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_full_dimensional</span></code></a></p></td>
+<td><p>Check if the ellipsoid is full-dimensional.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.is_singleton" title="pycvxset.Ellipsoid.Ellipsoid.is_singleton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_singleton</span></code></a></p></td>
+<td><p>Check if the ellipsoid is a singleton.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.latent_dim" title="pycvxset.Ellipsoid.Ellipsoid.latent_dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">latent_dim</span></code></a></p></td>
+<td><p>Latent dimension of the ellipsoid <span class="math notranslate nohighlight">\(dim\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid.type_of_set" title="pycvxset.Ellipsoid.Ellipsoid.type_of_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type_of_set</span></code></a></p></td>
+<td><p>Return the type of set</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Ellipsoid.__new__">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pycvxset.Ellipsoid.__new__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pycvxset/Ellipsoid.html#Ellipsoid.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dd><p>Constructor for Ellipsoid</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2020-2026, Mitsubishi Electric Research Laboratories (MERL).
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api_summary/pycvxset.Ellipsoid.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

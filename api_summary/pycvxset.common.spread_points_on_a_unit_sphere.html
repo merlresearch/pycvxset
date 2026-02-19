@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pycvxset.common.spread_points_on_a_unit_sphere &#8212; pycvxset 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=f6a572b4" />
+    <script src="../_static/documentation_options.js?v=6efca38a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pycvxset.common.constants" href="../pycvxset.common.constants.html" />
+    <link rel="prev" title="pycvxset.common.prune_and_round_vertices" href="pycvxset.common.prune_and_round_vertices.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/pycvxset_logo.png" alt="Logo of pycvxset"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">pycvxset</a></h1>
+
+
+
+<p class="blurb">A Python package for manipulation and visualization of convex sets.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=merlresearch&repo=pycvxset&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><!-- Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>Navigation</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="pycvxset.Polytope.html">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="pycvxset.Ellipsoid.html">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="pycvxset.ConstrainedZonotope.html">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="../pycvxset.common.html">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="../pycvxset.common.constants.html">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://www.merl.com/publications/docs/TR2025-086.pdf" target="_blank">Paper (ACC '25)
+            </a></li>
+    <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pycvxset-common-spread-points-on-a-unit-sphere">
+<h1>pycvxset.common.spread_points_on_a_unit_sphere<a class="headerlink" href="#pycvxset-common-spread-points-on-a-unit-sphere" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="pycvxset.common.spread_points_on_a_unit_sphere">
+<span class="sig-prename descclassname"><span class="pre">pycvxset.common.</span></span><span class="sig-name descname"><span class="pre">spread_points_on_a_unit_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cvxpy_socp_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_points_on_a_unit_sphere</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/pycvxset/common.html#spread_points_on_a_unit_sphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.common.spread_points_on_a_unit_sphere" title="Link to this definition">¶</a></dt>
+<dd><p>Spread points on a unit sphere in n-dimensional space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em>) – The dimension of the sphere.</p></li>
+<li><p><strong>n_points</strong> (<em>int</em>) – The number of points to be spread on the unit sphere. Defaults to None, in which case, we choose</p></li>
+<li><p><strong>=</strong> (<em>n_points</em>)</p></li>
+<li><p><strong>cvxpy_socp_args</strong> (<em>dict</em>) – Additional arguments to be passed to the CVXPY solver. Defaults to None, in which case
+the function uses DEFAULT_CVXPY_ARGS_SOCP from pycvxset.common.constants.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print verbose output. Defaults to False.</p></li>
+<li><p><strong>enable_warning</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enables the UserWarning. May be turned off if expected. Defaults to True.</p></li>
+<li><p><strong>save_points_on_a_unit_sphere</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to save the computed points and minimum separation to a
+file. Defaults to SPOAUS_SAVE_POINTS_ON_A_UNIT_SPHERE.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing three items:</dt><dd><p># opt_locations (ndarray): The spread points on the unit sphere.
+# minimum_separation (float): The minimum separation between the points.
+# opt_locations_first_quad (ndarray): The spread points in the first quadrant.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If n_points is less than 2 * dim.</p></li>
+<li><p><strong>UserWarning</strong> – If n_points - 2 * dim is not a multiple of 2^dim.</p></li>
+<li><p><strong>NotImplementedError</strong> – Unable to solve the convexified problem using CVXPY</p></li>
+<li><p><strong>NotImplementedError</strong> – Convex-concave procedure did not converge!</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function uses the CVXPY library to solve a convex optimization problem to spread the points on the unit
+sphere. The spread points are returned as opt_locations, the separation between the points is returned as
+separation, and the spread points in the first quadrant are returned as opt_locations_first_quad.</p>
+<p>For dim in [1, 2], the points are available in closed-form. For dim &gt;= 3, we solve the following non-convex
+optimization problem using convex-concave procedure:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{rlrl}
+    \text{maximize}     &amp;\quad R \\
+    \text{subject to}   &amp;\quad R \geq 0\\
+                        &amp;\quad x \geq R/2\\
+                        &amp;\quad \|x_i - x_j\| \geq R, &amp;&amp; 1 \leq i &lt; j \leq n_\text{points}\\
+                        &amp;\quad \|x_i - e_j\| \geq R, &amp;&amp; 1 \leq i \leq n_\text{points},
+                                                        1 \leq j \leq n_\text{dim}\\
+                        &amp;\quad \|x_i \| \leq 1,      &amp;&amp; 1 \leq i \leq n_\text{points}\\
+                        &amp;\quad \|x_i \| \geq 0.8,    &amp;&amp; 1 \leq i \leq n_\text{points}\\
+\end{array}\end{split}\]</div>
+<p>The optimization problem seeks to spread points (apart from the standard axes) in the first quadrant so that
+their pairwise separation is maximized, while they have a norm close to 1. The second constraint is motivated to
+ensure that the reflections of the points about the quadrant plane is also separated by R.</p>
+<p>When <cite>save_points_on_a_unit_sphere</cite> is True, the function saves the computed points (all), the computed
+points in the first quadrant, and the minimum separation to a file named
+<cite>tmp/spoaus_dim_{dim}_n_points_{n_points_int}.npz</cite>. If the file already exists, the function loads the
+points and minimum separation from the file instead of recomputing them. This can save time when calling
+<cite>spread_points_on_a_unit_sphere</cite> with default values.</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2020-2026, Mitsubishi Electric Research Laboratories (MERL).
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api_summary/pycvxset.common.spread_points_on_a_unit_sphere.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pycvxset.Ellipsoid &#8212; pycvxset 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=f6a572b4" />
+    <script src="../../_static/documentation_options.js?v=6efca38a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/pycvxset_logo.png" alt="Logo of pycvxset"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">pycvxset</a></h1>
+
+
+
+<p class="blurb">A Python package for manipulation and visualization of convex sets.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=merlresearch&repo=pycvxset&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><!-- Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>Navigation</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="../../tutorials/tutorials.html">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="../../api_summary/pycvxset.Polytope.html">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="../../api_summary/pycvxset.Ellipsoid.html">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="../../api_summary/pycvxset.ConstrainedZonotope.html">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="../../pycvxset.common.html">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="../../pycvxset.common.constants.html">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://www.merl.com/publications/docs/TR2025-086.pdf" target="_blank">Paper (ACC '25)
+            </a></li>
+    <li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pycvxset.Ellipsoid</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: AGPL-3.0-or-later</span>
+
+<span class="c1"># Code purpose:  Define the Ellipsoid class</span>
+<span class="c1"># Coverage: This file has 2 missing statements + 12 excluded statements + 0 partial statements.</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">cvxpy</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pycvxset.Polytope</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polytope</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pycvxset.common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_compute_project_multiple_points</span><span class="p">,</span>
+    <span class="n">convex_set_closest_point</span><span class="p">,</span>
+    <span class="n">convex_set_distance</span><span class="p">,</span>
+    <span class="n">convex_set_extreme</span><span class="p">,</span>
+    <span class="n">convex_set_minimum_volume_circumscribing_rectangle</span><span class="p">,</span>
+    <span class="n">convex_set_project</span><span class="p">,</span>
+    <span class="n">convex_set_projection</span><span class="p">,</span>
+    <span class="n">convex_set_slice</span><span class="p">,</span>
+    <span class="n">convex_set_slice_then_projection</span><span class="p">,</span>
+    <span class="n">convex_set_support</span><span class="p">,</span>
+    <span class="n">is_ellipsoid</span><span class="p">,</span>
+    <span class="n">is_polytope</span><span class="p">,</span>
+    <span class="n">minimize</span><span class="p">,</span>
+    <span class="n">plot_polytopic_approximation</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pycvxset.common.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_CVXPY_ARGS_LP</span><span class="p">,</span>
+    <span class="n">DEFAULT_CVXPY_ARGS_SDP</span><span class="p">,</span>
+    <span class="n">DEFAULT_CVXPY_ARGS_SOCP</span><span class="p">,</span>
+    <span class="n">PYCVXSET_ZERO</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pycvxset.common.polytope_approximations</span><span class="w"> </span><span class="kn">import</span> <span class="n">polytopic_inner_approximation</span><span class="p">,</span> <span class="n">polytopic_outer_approximation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pycvxset.Ellipsoid.operations_binary</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DOCSTRING_FOR_PROJECT</span><span class="p">,</span>
+    <span class="n">DOCSTRING_FOR_PROJECTION</span><span class="p">,</span>
+    <span class="n">DOCSTRING_FOR_SLICE</span><span class="p">,</span>
+    <span class="n">DOCSTRING_FOR_SLICE_THEN_PROJECTION</span><span class="p">,</span>
+    <span class="n">affine_map</span><span class="p">,</span>
+    <span class="n">contains</span><span class="p">,</span>
+    <span class="n">deflate</span><span class="p">,</span>
+    <span class="n">inflate</span><span class="p">,</span>
+    <span class="n">inflate_ball</span><span class="p">,</span>
+    <span class="n">intersection_with_affine_set</span><span class="p">,</span>
+    <span class="n">inverse_affine_map_under_invertible_matrix</span><span class="p">,</span>
+    <span class="n">plus</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Ellipsoid">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Ellipsoid</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Ellipsoid class.</span>
+
+<span class="sd">    We can define a bounded, non-empty ellipsoid :math:`\mathcal{P}` using **one** of the following combinations:</span>
+
+<span class="sd">    #. :math:`(c, Q)` for a full-dimensional ellipsoid in the **quadratic form**</span>
+<span class="sd">       :math:`\mathcal{P}=\{x \in \mathbb{R}^n\ |\  (x - c)^T Q^{-1} (x - c) \leq 1\}` with a n-dimensional</span>
+<span class="sd">       positive-definite matrix :math:`Q` and a n-dimensional vector :math:`c`. Here, pycvxset computes a n-dimensional</span>
+<span class="sd">       lower-triangular, square matrix :math:`G` that satisfies :math:`GG^T=Q`.</span>
+<span class="sd">    #. :math:`(c, G)` for a full-dimensional or a degenerate ellipsoid as an **affine transformation of a unit-ball**</span>
+<span class="sd">       :math:`\mathcal{P} = \{x \in \mathbb{R}^n\ |\ \exists u\in\mathbb{R}^N,\ x = c + G u,\ {\|u\|}_2 \leq 1\}` with a</span>
+<span class="sd">       n x N matrix :math:`G`. Here, pycvxset computes :math:`Q=GG^T`.</span>
+<span class="sd">    #. :math:`(c, r)` for a ball of radius :math:`r \geq 0`</span>
+<span class="sd">       :math:`\mathcal{P} = \{x \in \mathbb{R}^n\ |\ {\|x - c\|}_2 \leq r\}`.</span>
+<span class="sd">    #. :math:`(c)` for a singleton ellipsoid :math:`\mathcal{P} = \{c\}`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        c (Sequence[float] | numpy.ndarray): Center of the ellipsoid c. Vector of length (self.dim,)</span>
+<span class="sd">        Q (Sequence[Sequence[float]] | numpy.ndarray, optional): Shape matrix of the ellipsoid Q. Q must be a positive</span>
+<span class="sd">            definite matrix (self.dim times self.dim).</span>
+<span class="sd">            (self.dim times self.dim).</span>
+<span class="sd">        G (Sequence[Sequence[float]] | numpy.ndarray, optional): Square root of the shape matrix of the ellipsoid G that</span>
+<span class="sd">            satisfies :math:`GG^T=Q`.  Need not be a square matrix, but must have self.dim rows. If a singleton must be</span>
+<span class="sd">            specified, G must have zero columns.</span>
+<span class="sd">        r (scalar, optional): Non-negative scalar that provides the radius of the self.dim-dimensional ball.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When more than one of Q, G, r was provided</span>
+<span class="sd">        ValueError: When c or Q or G or r does not satisfy implicit properties</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        1. Empty ellipsoids are not permitted (c is a required keyword argument).</span>
+<span class="sd">        2. When provided G is such that :math:`Q=GG^T` is positive definite, we overwrite :math:`G` with a</span>
+<span class="sd">           lower-triangular, square, n-dimensional matrix  for consistency. Here, :math:`G` has strictly positive</span>
+<span class="sd">           diagonal elements, and its determinant is the product of its diagonal elements (see volume computation).</span>
+<span class="sd">        3. We use the eigenvalues of :math:`Q` to determine the radii of the maximum volume inscribing ball (Chebyshev</span>
+<span class="sd">           radius :math:`R^-`) and the minimum volume circumscribing ball :math:`R^+\geq R^-`.</span>
+
+<span class="sd">           a. The ellipsoid represents a singleton when :math:`R^+` is negligible.</span>
+<span class="sd">           b. The ellipsoid is full-dimensional when :math:`R^-` is non-trivial.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">G</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+<div class="viewcode-block" id="Ellipsoid.__init__">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor for Ellipsoid&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type_of_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Ellipsoid&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_c</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Set up c</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_c</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected c to be convertible to a 1D vector&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;c is a required argument!&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected c to be convertible into a numpy 1D array of float&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_c</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_c</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected c to be finite; got NaNs or infs.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_G</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cheby_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_approx_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="c1"># Define Q, G, cheby_radius, outer_approx_radius (when possible)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Set only one of Q, G, or r</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected only Q or G or r to be provided.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_ellipsoid_to_singleton</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected r to be finite.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected r to be a positive scalar&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">PYCVXSET_ZERO</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_ellipsoid_to_singleton</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_G</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_outer_approx_radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cheby_radius</span> <span class="o">=</span> <span class="n">r</span><span class="p">,</span> <span class="n">r</span>
+        <span class="k">elif</span> <span class="s2">&quot;Q&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s2">&quot;G&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid kwarg provided! Got </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">. Expected either Q, G, or r!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Compute Q = G @ G.T given G or Compute G = cholesky(Q) given Q</span>
+            <span class="k">if</span> <span class="s2">&quot;G&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected G to be finite; got NaNs or infs.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_set_ellipsoid_to_singleton</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected G to have </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> rows.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># &quot;Q&quot; in kwargs</span>
+                <span class="c1"># Check if Q is indeed a 2D square matrix of correct dimension</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected Q to be finite; got NaNs or infs.&quot;</span><span class="p">)</span>
+                <span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">if</span> <span class="n">n_rows</span> <span class="o">!=</span> <span class="n">n_cols</span> <span class="ow">or</span> <span class="n">n_rows</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected square Q of dimension </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected Q to be symmetric!&quot;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Expected Q to be positive definite! Use (c, G) to define degenerate ellipsoids.&quot;</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+
+            <span class="c1"># Get self._outer_approx_radius, self._cheby_radius from Q</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_radii_from_Q</span><span class="p">()</span>
+
+            <span class="c1"># For consistent behavior across (c, G), (c, Q), or (c, r)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_singleton</span><span class="p">:</span>  <span class="c1"># sqrt of all eigenvalues of Q are below PYCVXSET_ZERO</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_ellipsoid_to_singleton</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_full_dimensional</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span>  <span class="c1"># Overwrite provided G with Cholesky decomposition for consistency</span>
+
+        <span class="c1"># These attributes are used by CVXPY to solve problems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_lp</span> <span class="o">=</span> <span class="n">DEFAULT_CVXPY_ARGS_LP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_socp</span> <span class="o">=</span> <span class="n">DEFAULT_CVXPY_ARGS_SOCP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_sdp</span> <span class="o">=</span> <span class="n">DEFAULT_CVXPY_ARGS_SDP</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_ellipsoid_to_singleton</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Protected method to set G, Q, _outer_approx_radius, _cheby_radius when ellipsoid is a singleton&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_approx_radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cheby_radius</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_radii_from_Q</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Protected method to set _outer_approx_radius, _cheby_radius using the eigenvalue_Q vector, and compute the</span>
+<span class="sd">        elementwise square root of the vector&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">eigenvalue_Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">eigenvalue_error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Eigenvalue computation for Q failed!&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">eigenvalue_error</span>
+        <span class="n">eigenvalue_Q</span><span class="p">[</span><span class="n">eigenvalue_Q</span> <span class="o">&lt;=</span> <span class="n">PYCVXSET_ZERO</span><span class="o">**</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">sqrt_eigenvalue_Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigenvalue_Q</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_approx_radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cheby_radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sqrt_eigenvalue_Q</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sqrt_eigenvalue_Q</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dim</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dimension of the ellipsoid :math:`dim`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Dimension of the ellipsoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">latent_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Latent dimension of the ellipsoid :math:`dim`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Latent dimension of the ellipsoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_G</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Center of the ellipsoid :math:`c`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: Center vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_c</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Q</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape matrix of the ellipsoid :math:`Q`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: Shape matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">G</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Affine transformation matrix :math:`G` that satisfies :math:`GG^T=Q`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: Generator matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_G</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the ellipsoid is empty. Always False by construction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: Always False for ellipsoids since we require non-empty ellipsoids.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_full_dimensional</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the ellipsoid is full-dimensional.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if full-dimensional.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cheby_radius</span> <span class="o">&gt;</span> <span class="n">PYCVXSET_ZERO</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_singleton</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the ellipsoid is a singleton.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the ellipsoid is a singleton.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer_approx_radius</span> <span class="o">&lt;=</span> <span class="n">PYCVXSET_ZERO</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_bounded</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the ellipsoid is bounded. Always True by construction.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvxpy_args_lp</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;CVXPY arguments in use when solving a linear program</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: CVXPY arguments in use when solving a linear program. Defaults to dictionary in</span>
+<span class="sd">            `pycvxset.common.DEFAULT_CVXPY_ARGS_LP`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_lp</span>
+
+    <span class="nd">@cvxpy_args_lp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvxpy_args_lp</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update CVXPY arguments in use when solving a linear program</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value: Dictionary with new CVXPY arguments in use when solving a linear program.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_lp</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvxpy_args_socp</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;CVXPY arguments in use when solving a second-order cone program</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: CVXPY arguments in use when solving a second-order cone program. Defaults to dictionary in</span>
+<span class="sd">            `pycvxset.common.DEFAULT_CVXPY_ARGS_SOCP`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_socp</span>
+
+    <span class="nd">@cvxpy_args_socp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvxpy_args_socp</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update CVXPY arguments in use when solving a second-order cone program</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value: Dictionary with new CVXPY arguments in use when solving a second-order cone program.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_socp</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvxpy_args_sdp</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;CVXPY arguments in use when solving a semi-definite program</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: CVXPY arguments in use when solving a semi-definite program. Defaults to dictionary in</span>
+<span class="sd">            `pycvxset.common.DEFAULT_CVXPY_ARGS_SDP`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_sdp</span>
+
+    <span class="nd">@cvxpy_args_sdp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvxpy_args_sdp</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update CVXPY arguments in use when solving a semi-definite program</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value: Dictionary with new CVXPY arguments in use when solving a semi-definite program.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvxpy_args_sdp</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">type_of_set</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the type of set</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Type of the set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_of_set</span>
+
+    <span class="c1">##################################</span>
+    <span class="c1"># Polytope and plotting operations</span>
+    <span class="c1">##################################</span>
+    <span class="n">deflate</span> <span class="o">=</span> <span class="nb">classmethod</span><span class="p">(</span><span class="n">deflate</span><span class="p">)</span>
+    <span class="n">inflate</span> <span class="o">=</span> <span class="nb">classmethod</span><span class="p">(</span><span class="n">inflate</span><span class="p">)</span>
+    <span class="n">inflate_ball</span> <span class="o">=</span> <span class="nb">classmethod</span><span class="p">(</span><span class="n">inflate_ball</span><span class="p">)</span>
+    <span class="n">polytopic_inner_approximation</span> <span class="o">=</span> <span class="n">polytopic_inner_approximation</span>
+    <span class="n">polytopic_outer_approximation</span> <span class="o">=</span> <span class="n">polytopic_outer_approximation</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">plot_polytopic_approximation</span>
+
+    <span class="c1">###########</span>
+    <span class="c1"># Auxiliary</span>
+    <span class="c1">###########</span>
+<div class="viewcode-block" id="Ellipsoid.containment_constraints">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.containment_constraints">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">containment_constraints</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">cvxpy</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span> <span class="n">flatten_order</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">cvxpy</span><span class="o">.</span><span class="n">Constraint</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">cvxpy</span><span class="o">.</span><span class="n">Variable</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get CVXPY constraints for containment of x (a cvxpy.Variable) in an ellipsoid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (cvxpy.Variable): CVXPY variable to be optimized</span>
+<span class="sd">            flatten_order (Literal[&quot;F&quot;, &quot;C&quot;]): Order to use for flatten (choose between &quot;F&quot;, &quot;C&quot;). Defaults to &quot;F&quot;,</span>
+<span class="sd">                which implements column-major flatten. In 2D, column-major flatten results in stacking rows horizontally</span>
+<span class="sd">                to achieve a single horizontal row.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: A tuple with two items:</span>
+
+<span class="sd">            #. constraint_list (list[cvxpy.Constraint]): CVXPY constraints for the containment of x in the ellipsoid.</span>
+<span class="sd">            #. xi (cvxpy.Variable | None): CVXPY variable representing the latent dimension variable with length</span>
+<span class="sd">               G.shape[1]. It is None when the ellipsoid is a singleton.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cvxpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">reshape</span>  <span class="c1"># pyright: ignore[reportUnknownVariableType]</span>
+
+        <span class="n">x_reshaped</span> <span class="o">=</span> <span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,),</span> <span class="n">order</span><span class="o">=</span><span class="n">flatten_order</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_singleton</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">x_reshaped</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],))</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">x_reshaped</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">@</span> <span class="n">xi</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">norm</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">],</span> <span class="n">xi</span></div>
+
+
+    <span class="n">minimize</span> <span class="o">=</span> <span class="n">minimize</span>
+
+    <span class="c1">##################</span>
+    <span class="c1"># Unary operations</span>
+    <span class="c1">##################</span>
+<div class="viewcode-block" id="Ellipsoid.copy">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the ellipsoid. Copy (c, G) to preserve degenerate ellipsoids.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.quadratic_form_as_a_symmetric_matrix">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.quadratic_form_as_a_symmetric_matrix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quadratic_form_as_a_symmetric_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define a (self.dim + 1)-dimensional symmetric matrix M where self = {x | [x, 1] @ M @ [x, 1] &lt;= 0}. Here,</span>
+<span class="sd">        when Q is not positive definite, we use pseudo-inverse of Q.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: (self.dim + 1) x (self.dim + 1) symmetric matrix defining the quadratic form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="o">-</span><span class="n">F</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">@</span> <span class="n">F</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">F</span><span class="p">,</span> <span class="n">g</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">*</span><span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.affine_hull">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.affine_hull">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">affine_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the left null space of self.G to identify the affine hull. Affine hull is the entire</span>
+<span class="sd">        self.dim-dimensional space when self is full-dimensional.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (Ae, be) defining the affine set {x | Ae x = be}, or (None, None) when full-dimensional.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_full_dimensional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">null_G</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">null_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="n">PYCVXSET_ZERO</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">Ae</span><span class="p">,</span> <span class="n">be</span> <span class="o">=</span> <span class="n">null_G</span><span class="p">,</span> <span class="n">null_G</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span>
+            <span class="k">return</span> <span class="n">Ae</span><span class="p">,</span> <span class="n">be</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.volume">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.volume">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the volume of the ellipsoid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Volume of the ellipsoid.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            Volume of the ellipsoid is zero if it is not full-dimensional. For full-dimensional ellipsoid, we used the</span>
+<span class="sd">            following observations:</span>
+
+<span class="sd">                1. from [BV04]_ , the volume of an ellipsoid is proportional to :math:`det(G)`.</span>
+<span class="sd">                2. Square-root of the determinant of the shape matrix coincides with the determinant of G</span>
+<span class="sd">                3. Since G is lower-triangular, its determinant is the product of its diagonal elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_full_dimensional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.chebyshev_centering">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.chebyshev_centering">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">chebyshev_centering</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the Chebyshev center and radius of the ellipsoid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (center, radius) of the maximum volume inscribed ball.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cheby_radius</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.interior_point">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.interior_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interior_point</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute an interior point to the Ellipsoid</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: center of the ellipsoid, which is an interior point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.maximum_volume_inscribing_ellipsoid">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.maximum_volume_inscribing_ellipsoid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maximum_volume_inscribing_ellipsoid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the parameters of the maximum volume inscribing ellipsoid for a given ellipsoid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (center, Q, G) describing the ellipsoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.minimum_volume_circumscribing_ellipsoid">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.minimum_volume_circumscribing_ellipsoid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minimum_volume_circumscribing_ellipsoid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the parameters of the minimum volume circumscribing ellipsoid for a given ellipsoid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (center, Q, G) describing the ellipsoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span></div>
+
+
+<div class="viewcode-block" id="Ellipsoid.minimum_volume_circumscribing_ball">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.minimum_volume_circumscribing_ball">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minimum_volume_circumscribing_ball</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the parameters of a minimum volume circumscribing ball.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (center, radius) for the minimum-volume circumscribing ball.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer_approx_radius</span></div>
+
+
+    <span class="n">minimum_volume_circumscribing_rectangle</span> <span class="o">=</span> <span class="n">convex_set_minimum_volume_circumscribing_rectangle</span>
+
+    <span class="c1">######################</span>
+    <span class="c1"># Comparison operators</span>
+    <span class="c1">######################</span>
+    <span class="n">contains</span> <span class="o">=</span> <span class="n">contains</span>
+    <span class="fm">__contains__</span> <span class="o">=</span> <span class="n">contains</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="s2">&quot;Polytope | Ellipsoid&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overload &lt;= operator for containment. self &lt;= Q is equivalent to Q.contains(self).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_polytope</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_ellipsoid</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Q</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="s2">&quot;Sequence[float] | np.ndarray | Polytope | Ellipsoid&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overload &gt;= operator for containment. self &gt;= Q is equivalent to P.contains(Q).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_polytope</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_ellipsoid</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">Q_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+            <span class="k">if</span> <span class="n">Q_arr</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="ow">and</span> <span class="n">Q_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Q is a point ====&gt; Ellipsoid &gt;= Point case</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">Q_arr</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overload == operator with equality check. P == Q is equivalent to Q.contains(P) and P.contains(Q)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_ellipsoid</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span> <span class="o">&lt;=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span> <span class="o">&gt;=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="fm">__lt__</span> <span class="o">=</span> <span class="fm">__le__</span>
+    <span class="fm">__gt__</span> <span class="o">=</span> <span class="fm">__ge__</span>
+
+    <span class="c1">###################</span>
+    <span class="c1"># Binary operations</span>
+    <span class="c1">###################</span>
+    <span class="n">__array_ufunc__</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Allows for numpy matrix times Ellipsoid</span>
+
+    <span class="n">plus</span> <span class="o">=</span> <span class="n">plus</span>
+    <span class="fm">__add__</span> <span class="o">=</span> <span class="n">plus</span>
+    <span class="fm">__radd__</span> <span class="o">=</span> <span class="n">plus</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Implement - operator for ellipsoid,</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            y (Sequence[float] | np.ndarray): Point to subtract from ellipsoid</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: When y is not convertible into a 1D numpy array of float</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Ellipsoid: Sum of given ellipsoid :math:`\mathcal{P}` and the negation of the point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">y_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plus</span><span class="p">(</span><span class="o">-</span><span class="n">y_arr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operation: Ellipsoid - </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+
+    <span class="c1"># Ellipsoid times Matrix</span>
+    <span class="n">inverse_affine_map_under_invertible_matrix</span> <span class="o">=</span> <span class="n">inverse_affine_map_under_invertible_matrix</span>
+    <span class="fm">__matmul__</span> <span class="o">=</span> <span class="n">inverse_affine_map_under_invertible_matrix</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do not allow Ellipsoid * anything.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Right operand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            NotImplemented: Always not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Negate the ellipsoid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Ellipsoid: Negated ellipsoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">affine_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Scalar/Matrix times Ellipsoid (called when left operand does not support multiplication)</span>
+    <span class="n">affine_map</span> <span class="o">=</span> <span class="n">affine_map</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overload @ operator for affine map (matrix times Ellipsoid).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">affine_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overload * operator for multiplication with scalar.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operation: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="si">}</span><span class="s2"> * Ellipsoid!&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="k">return</span> <span class="n">affine_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+    <span class="n">closest_point</span> <span class="o">=</span> <span class="n">convex_set_closest_point</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">convex_set_distance</span>
+    <span class="n">extreme</span> <span class="o">=</span> <span class="n">convex_set_extreme</span>
+
+<div class="viewcode-block" id="Ellipsoid.project">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.project">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">convex_set_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportArgumentType]</span></div>
+
+
+    <span class="n">project</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span><span class="n">convex_set_project</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">DOCSTRING_FOR_PROJECT</span>
+
+<div class="viewcode-block" id="Ellipsoid.projection">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.projection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">project_away_dims</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">convex_set_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_away_dims</span><span class="o">=</span><span class="n">project_away_dims</span><span class="p">)</span></div>
+
+
+    <span class="n">projection</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span><span class="n">convex_set_projection</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">DOCSTRING_FOR_PROJECTION</span>
+
+<div class="viewcode-block" id="Ellipsoid.slice">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.slice">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">dims</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">constants</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">convex_set_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="n">constants</span><span class="p">)</span></div>
+
+
+    <span class="nb">slice</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span><span class="n">convex_set_slice</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">DOCSTRING_FOR_SLICE</span>
+
+<div class="viewcode-block" id="Ellipsoid.slice_then_projection">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.slice_then_projection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_then_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">dims</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">constants</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Ellipsoid</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">convex_set_slice_then_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="n">constants</span><span class="p">)</span></div>
+
+
+    <span class="n">slice_then_projection</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">convex_set_slice_then_projection</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">+</span> <span class="n">DOCSTRING_FOR_SLICE_THEN_PROJECTION</span>
+
+<div class="viewcode-block" id="Ellipsoid.support">
+<a class="viewcode-back" href="../../pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.support">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">support</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">,</span> <span class="n">eta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="c1"># Ellipsoid is non-empty by construction, so we do not need to check for empty set case.</span>
+        <span class="n">eta_arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">eta_arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected eta to be a 1D/2D numpy array&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">eta_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;eta dim. (</span><span class="si">{</span><span class="n">eta_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">), no. of columns, is different from set dimension (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># eta.ndim == 2:</span>
+            <span class="c1"># sqrt(eta^T Q eta) = ||G^T eta|| = ||eta G|| per row</span>
+            <span class="n">norm_eta_arr_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">eta_arr</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (m,)</span>
+            <span class="n">eta_arr_Q</span> <span class="o">=</span> <span class="n">eta_arr</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span>  <span class="c1"># (m, dim)</span>
+            <span class="c1"># avoid divide-by-zero (np.where evaluates both branches)</span>
+            <span class="n">support_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">eta_arr_Q</span><span class="p">)</span>
+            <span class="n">support_vector</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="c1"># eta normal to the affine hull of the ellipsoid &gt; non-trivial support vectors</span>
+            <span class="n">nonzero</span> <span class="o">=</span> <span class="n">norm_eta_arr_G</span> <span class="o">&gt;</span> <span class="n">PYCVXSET_ZERO</span>
+            <span class="k">if</span> <span class="n">nonzero</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">scaled_eta_arr_Q_by_norm_eta_arr_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+                    <span class="n">eta_arr_Q</span><span class="p">[</span><span class="n">nonzero</span><span class="p">],</span>
+                    <span class="n">norm_eta_arr_G</span><span class="p">[</span><span class="n">nonzero</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+                    <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">eta_arr_Q</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]),</span>
+                    <span class="n">where</span><span class="o">=</span><span class="n">norm_eta_arr_G</span><span class="p">[</span><span class="n">nonzero</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">PYCVXSET_ZERO</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">support_vector</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">scaled_eta_arr_Q_by_norm_eta_arr_G</span>
+            <span class="n">support_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eta_arr</span> <span class="o">*</span> <span class="n">support_vector</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (m,) | Both are arranged as rows</span>
+            <span class="k">return</span> <span class="n">support_value</span><span class="p">,</span> <span class="n">support_vector</span></div>
+
+
+    <span class="n">support</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span><span class="n">convex_set_support</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Notes:</span>
+<span class="s2">            Using duality, the support function and vector of an ellipsoid  has a closed-form expressions. For a support</span>
+<span class="s2">            direction :math:`\eta\in\mathbb</span><span class="si">{R}</span><span class="s2">^{\mathcal</span><span class="si">{P}</span><span class="s2">.\text</span><span class="si">{dim}</span><span class="s2">}` and an ellipsoid :math:`\mathcal</span><span class="si">{P}</span><span class="s2">=\{G u + c |</span>
+<span class="s2">            \| u \|_2 \leq 1 \}` with :math:`GG^T=Q`,</span>
+
+<span class="s2">            .. math ::</span>
+<span class="s2">                \rho_{\mathcal</span><span class="si">{P}</span><span class="s2">}(\eta) &amp;= \eta^\top c + \sqrt{\eta^\top Q \eta} = \eta^\top c + \|G^T \eta\|_2\\</span>
+<span class="s2">                \nu_{\mathcal</span><span class="si">{P}</span><span class="s2">}(\eta) &amp;= c + \frac{G G^\top \eta}{\|G^T \eta\|_2} = c + \frac{Q \eta}{\|G^T \eta\|_2}</span>
+
+<span class="s2">            For degenerate (not full-dimensional) ellipsoids and :math:`\eta` not in the low-dimensional affine hull</span>
+<span class="s2">            containing the ellipsoid,</span>
+
+<span class="s2">            .. math ::</span>
+<span class="s2">                \rho_{\mathcal</span><span class="si">{P}</span><span class="s2">}(\eta) &amp;= \eta^\top c \\</span>
+<span class="s2">                \nu_{\mathcal</span><span class="si">{P}</span><span class="s2">}(\eta) &amp;= c</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">_compute_project_multiple_points</span> <span class="o">=</span> <span class="n">_compute_project_multiple_points</span>
+
+    <span class="n">intersection_with_affine_set</span> <span class="o">=</span> <span class="n">intersection_with_affine_set</span>
+
+    <span class="c1">##########################</span>
+    <span class="c1"># Ellipsoid representation</span>
+    <span class="c1">##########################</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Ellipsoid in R^</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Ellipsoid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_full_dimensional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;, and the ellipsoid is full-dimensional&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_singleton</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;, and the ellipsoid is not full-dimensional (it is a singleton)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;, and the ellipsoid is not full-dimensional (it is a degenerate ellipsoid)&quot;</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2020-2026, Mitsubishi Electric Research Laboratories (MERL).
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,73 @@
+﻿pycvxset.ConstrainedZonotope
+============================
+
+.. currentmodule:: pycvxset
+
+.. autoclass:: ConstrainedZonotope
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConstrainedZonotope.__init__
+      ~ConstrainedZonotope.affine_map
+      ~ConstrainedZonotope.approximate_pontryagin_difference
+      ~ConstrainedZonotope.cartesian_product
+      ~ConstrainedZonotope.chebyshev_centering
+      ~ConstrainedZonotope.closest_point
+      ~ConstrainedZonotope.containment_constraints
+      ~ConstrainedZonotope.contains
+      ~ConstrainedZonotope.copy
+      ~ConstrainedZonotope.distance
+      ~ConstrainedZonotope.extreme
+      ~ConstrainedZonotope.interior_point
+      ~ConstrainedZonotope.intersection
+      ~ConstrainedZonotope.intersection_under_inverse_affine_map
+      ~ConstrainedZonotope.intersection_with_affine_set
+      ~ConstrainedZonotope.intersection_with_halfspaces
+      ~ConstrainedZonotope.inverse_affine_map_under_invertible_matrix
+      ~ConstrainedZonotope.maximum_volume_inscribing_ellipsoid
+      ~ConstrainedZonotope.minimize
+      ~ConstrainedZonotope.minimum_volume_circumscribing_rectangle
+      ~ConstrainedZonotope.minus
+      ~ConstrainedZonotope.plot
+      ~ConstrainedZonotope.plus
+      ~ConstrainedZonotope.polytopic_inner_approximation
+      ~ConstrainedZonotope.polytopic_outer_approximation
+      ~ConstrainedZonotope.project
+      ~ConstrainedZonotope.projection
+      ~ConstrainedZonotope.remove_redundancies
+      ~ConstrainedZonotope.slice
+      ~ConstrainedZonotope.slice_then_projection
+      ~ConstrainedZonotope.support
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ConstrainedZonotope.Ae
+      ~ConstrainedZonotope.G
+      ~ConstrainedZonotope.He
+      ~ConstrainedZonotope.be
+      ~ConstrainedZonotope.c
+      ~ConstrainedZonotope.cvxpy_args_lp
+      ~ConstrainedZonotope.cvxpy_args_socp
+      ~ConstrainedZonotope.dim
+      ~ConstrainedZonotope.is_bounded
+      ~ConstrainedZonotope.is_empty
+      ~ConstrainedZonotope.is_full_dimensional
+      ~ConstrainedZonotope.is_singleton
+      ~ConstrainedZonotope.is_zonotope
+      ~ConstrainedZonotope.latent_dim
+      ~ConstrainedZonotope.n_equalities
+      ~ConstrainedZonotope.type_of_set
+   
+   

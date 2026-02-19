@@ -1,0 +1,84 @@
+﻿pycvxset.Polytope
+=================
+
+.. currentmodule:: pycvxset
+
+.. autoclass:: Polytope
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Polytope.__init__
+      ~Polytope.affine_map
+      ~Polytope.chebyshev_centering
+      ~Polytope.closest_point
+      ~Polytope.containment_constraints
+      ~Polytope.contains
+      ~Polytope.copy
+      ~Polytope.decompose_as_affine_transform_of_polytope_without_equalities
+      ~Polytope.deflate_rectangle
+      ~Polytope.determine_H_rep
+      ~Polytope.determine_V_rep
+      ~Polytope.distance
+      ~Polytope.extreme
+      ~Polytope.interior_point
+      ~Polytope.intersection
+      ~Polytope.intersection_under_inverse_affine_map
+      ~Polytope.intersection_with_affine_set
+      ~Polytope.intersection_with_halfspaces
+      ~Polytope.inverse_affine_map_under_invertible_matrix
+      ~Polytope.maximum_volume_inscribing_ellipsoid
+      ~Polytope.minimize
+      ~Polytope.minimize_H_rep
+      ~Polytope.minimize_V_rep
+      ~Polytope.minimum_volume_circumscribing_ellipsoid
+      ~Polytope.minimum_volume_circumscribing_rectangle
+      ~Polytope.minus
+      ~Polytope.normalize
+      ~Polytope.plot
+      ~Polytope.plot2d
+      ~Polytope.plot3d
+      ~Polytope.plus
+      ~Polytope.project
+      ~Polytope.projection
+      ~Polytope.slice
+      ~Polytope.slice_then_projection
+      ~Polytope.support
+      ~Polytope.volume
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Polytope.A
+      ~Polytope.Ae
+      ~Polytope.H
+      ~Polytope.He
+      ~Polytope.V
+      ~Polytope.b
+      ~Polytope.be
+      ~Polytope.cvxpy_args_lp
+      ~Polytope.cvxpy_args_sdp
+      ~Polytope.cvxpy_args_socp
+      ~Polytope.dim
+      ~Polytope.in_H_rep
+      ~Polytope.in_V_rep
+      ~Polytope.is_bounded
+      ~Polytope.is_empty
+      ~Polytope.is_full_dimensional
+      ~Polytope.is_singleton
+      ~Polytope.n_equalities
+      ~Polytope.n_halfspaces
+      ~Polytope.n_vertices
+      ~Polytope.type_of_set
+   
+   

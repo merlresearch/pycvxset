@@ -1,0 +1,6 @@
+﻿pycvxset.common.prune\_and\_round\_vertices
+===========================================
+
+.. currentmodule:: pycvxset.common
+
+.. autofunction:: prune_and_round_vertices

@@ -1,0 +1,71 @@
+﻿pycvxset.Ellipsoid
+==================
+
+.. currentmodule:: pycvxset
+
+.. autoclass:: Ellipsoid
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Ellipsoid.__init__
+      ~Ellipsoid.affine_hull
+      ~Ellipsoid.affine_map
+      ~Ellipsoid.chebyshev_centering
+      ~Ellipsoid.closest_point
+      ~Ellipsoid.containment_constraints
+      ~Ellipsoid.contains
+      ~Ellipsoid.copy
+      ~Ellipsoid.deflate
+      ~Ellipsoid.distance
+      ~Ellipsoid.extreme
+      ~Ellipsoid.inflate
+      ~Ellipsoid.inflate_ball
+      ~Ellipsoid.interior_point
+      ~Ellipsoid.intersection_with_affine_set
+      ~Ellipsoid.inverse_affine_map_under_invertible_matrix
+      ~Ellipsoid.maximum_volume_inscribing_ellipsoid
+      ~Ellipsoid.minimize
+      ~Ellipsoid.minimum_volume_circumscribing_ball
+      ~Ellipsoid.minimum_volume_circumscribing_ellipsoid
+      ~Ellipsoid.minimum_volume_circumscribing_rectangle
+      ~Ellipsoid.plot
+      ~Ellipsoid.plus
+      ~Ellipsoid.polytopic_inner_approximation
+      ~Ellipsoid.polytopic_outer_approximation
+      ~Ellipsoid.project
+      ~Ellipsoid.projection
+      ~Ellipsoid.quadratic_form_as_a_symmetric_matrix
+      ~Ellipsoid.slice
+      ~Ellipsoid.slice_then_projection
+      ~Ellipsoid.support
+      ~Ellipsoid.volume
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Ellipsoid.G
+      ~Ellipsoid.Q
+      ~Ellipsoid.c
+      ~Ellipsoid.cvxpy_args_lp
+      ~Ellipsoid.cvxpy_args_sdp
+      ~Ellipsoid.cvxpy_args_socp
+      ~Ellipsoid.dim
+      ~Ellipsoid.is_bounded
+      ~Ellipsoid.is_empty
+      ~Ellipsoid.is_full_dimensional
+      ~Ellipsoid.is_singleton
+      ~Ellipsoid.latent_dim
+      ~Ellipsoid.type_of_set
+   
+   

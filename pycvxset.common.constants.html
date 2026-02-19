@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pycvxset.common.constants &#8212; pycvxset 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=f6a572b4" />
+    <script src="_static/documentation_options.js?v=6efca38a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials" href="tutorials/tutorials.html" />
+    <link rel="prev" title="pycvxset.common.spread_points_on_a_unit_sphere" href="api_summary/pycvxset.common.spread_points_on_a_unit_sphere.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/pycvxset_logo.png" alt="Logo of pycvxset"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">pycvxset</a></h1>
+
+
+
+<p class="blurb">A Python package for manipulation and visualization of convex sets.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=merlresearch&repo=pycvxset&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><!-- Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>Navigation</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="tutorials/tutorials.html">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="api_summary/pycvxset.Polytope.html">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="api_summary/pycvxset.Ellipsoid.html">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="api_summary/pycvxset.ConstrainedZonotope.html">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="pycvxset.common.html">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="#">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://www.merl.com/publications/docs/TR2025-086.pdf" target="_blank">Paper (ACC '25)
+            </a></li>
+    <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pycvxset-common-constants">
+<h1>pycvxset.common.constants<a class="headerlink" href="#pycvxset-common-constants" title="Link to this heading">¶</a></h1>
+<p>The following provides the default constants used in pycvxset.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)</span>
+<span class="linenos"> 2</span><span class="c1">#</span>
+<span class="linenos"> 3</span><span class="c1"># SPDX-License-Identifier: AGPL-3.0-or-later</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="c1"># Code purpose:  Specify the constants to be used with cvxpy when optimization problems as well as testing workflows</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="n">PYCVXSET_ZERO</span> <span class="o">=</span> <span class="mf">1e-6</span>  <span class="c1"># Zero threshold for numerical stability</span>
+<span class="linenos"> 8</span><span class="n">PYCVXSET_ZERO_GUROBI</span> <span class="o">=</span> <span class="mf">1e-5</span>  <span class="c1"># Zero threshold for numerical stability when using GUROBI</span>
+<span class="linenos"> 9</span><span class="c1"># Zero threshold for vertex clustering when computing polytopic inner-approximation of constrained zonotopes</span>
+<span class="linenos">10</span><span class="n">PYCVXSET_ZERO_CDD</span> <span class="o">=</span> <span class="mf">1e-5</span>
+<span class="linenos">11</span><span class="n">PLOTTING_DECIMAL_PRECISION_CDD</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="c1"># Solvers used by default</span>
+<span class="linenos">14</span><span class="n">DEFAULT_LP_SOLVER_STR</span> <span class="o">=</span> <span class="s2">&quot;CLARABEL&quot;</span>  <span class="c1"># CLARABEL, MOSEK, CVXOPT, SCS, ECOS, GUROBI, OSQP</span>
+<span class="linenos">15</span><span class="n">DEFAULT_SOCP_SOLVER_STR</span> <span class="o">=</span> <span class="s2">&quot;CLARABEL&quot;</span>  <span class="c1"># CLARABEL, MOSEK, CVXOPT, SCS, ECOS, GUROBI</span>
+<span class="linenos">16</span><span class="n">DEFAULT_SDP_SOLVER_STR</span> <span class="o">=</span> <span class="s2">&quot;SCS&quot;</span>  <span class="c1"># CLARABEL, MOSEK, CVXOPT, SCS</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1"># CVXPY args used by default (use &quot;reoptimize&quot;: True when using GUROBI)</span>
+<span class="linenos">19</span><span class="n">DEFAULT_CVXPY_ARGS_LP</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="n">DEFAULT_LP_SOLVER_STR</span><span class="p">}</span>
+<span class="linenos">20</span><span class="n">DEFAULT_CVXPY_ARGS_SOCP</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="n">DEFAULT_SOCP_SOLVER_STR</span><span class="p">}</span>
+<span class="linenos">21</span><span class="n">DEFAULT_CVXPY_ARGS_SDP</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="n">DEFAULT_SDP_SOLVER_STR</span><span class="p">}</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="c1"># Constants for spread_points_on_a_unit_sphere (SPOAUS)</span>
+<span class="linenos">24</span><span class="n">SPOAUS_SLACK_TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-8</span>
+<span class="linenos">25</span><span class="n">SPOAUS_COST_TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-5</span>
+<span class="linenos">26</span><span class="n">SPOAUS_INITIAL_TAU</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="linenos">27</span><span class="n">SPOAUS_SCALING_TAU</span> <span class="o">=</span> <span class="mf">1.1</span>
+<span class="linenos">28</span><span class="n">SPOAUS_TAU_MAX</span> <span class="o">=</span> <span class="mf">1e4</span>
+<span class="linenos">29</span><span class="n">SPOAUS_ITERATIONS_AT_TAU_MAX</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="linenos">30</span><span class="n">SPOAUS_MINIMUM_NORM_VALUE_SQR</span> <span class="o">=</span> <span class="mf">0.8</span><span class="o">**</span><span class="mi">2</span>
+<span class="linenos">31</span><span class="c1"># For SPOAUS_DIRECTIONS_PER_QUADRANT=20, we have 2D = 84, 3D = 166, 4D = 328, 5D = 650</span>
+<span class="linenos">32</span><span class="n">SPOAUS_DIRECTIONS_PER_QUADRANT</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="linenos">33</span><span class="n">SPOAUS_SAVE_POINTS_ON_A_UNIT_SPHERE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="c1"># Time limit</span>
+<span class="linenos">36</span><span class="n">TIME_LIMIT_FOR_CONSTRAINED_ZONOTOPE_CONTAINMENT_GUROBI_IN_S</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span><span class="c1"># Testing workflow constants | You could also do &quot;GUROBI&quot; in cvxpy.installed_solvers()</span>
+<span class="linenos">39</span><span class="c1"># &quot;no&quot;, &quot;minimal&quot;, &quot;full&quot; (&quot;minimal&quot;, &quot;full&quot; need GUROBI license set up / connection to a gurobi license server)</span>
+<span class="linenos">40</span><span class="c1"># &quot;full&quot; also tests spread_points_on_a_unit_sphere with SPOAUS_DIRECTIONS_PER_QUADRANT for 3D</span>
+<span class="linenos">41</span><span class="n">TESTING_STATEMENTS_INVOLVING_GUROBI</span> <span class="o">=</span> <span class="s2">&quot;minimal&quot;</span>  <span class="c1"># (Default: minimal)</span>
+<span class="linenos">42</span><span class="n">TESTING_SHOW_PLOTS</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos">43</span>
+<span class="linenos">44</span><span class="c1"># Plotting constants for polytopes</span>
+<span class="linenos">45</span><span class="n">DEFAULT_PATCH_ARGS_2D</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;facecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;skyblue&quot;</span><span class="p">}</span>
+<span class="linenos">46</span><span class="n">DEFAULT_PATCH_ARGS_3D</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;facecolor&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+<span class="linenos">47</span><span class="n">DEFAULT_VERTEX_ARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">}</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span><span class="c1"># Default constants for qhull options</span>
+<span class="linenos">50</span><span class="c1"># Be resilient to slight degeneracies by default</span>
+<span class="linenos">51</span><span class="n">DEFAULT_QHULL_OPTIONS</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="linenos">52</span><span class="c1"># Prefer QHULL over CDD for vertex-facet enumerations (plot still uses CDD)</span>
+<span class="linenos">53</span><span class="n">PREFER_QHULL_OVER_CDD</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2020-2026, Mitsubishi Electric Research Laboratories (MERL).
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/pycvxset.common.constants.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

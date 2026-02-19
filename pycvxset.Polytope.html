@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pycvxset.Polytope (API details) &#8212; pycvxset 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=f6a572b4" />
+    <script src="_static/documentation_options.js?v=6efca38a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pycvxset.Ellipsoid" href="api_summary/pycvxset.Ellipsoid.html" />
+    <link rel="prev" title="pycvxset.Polytope" href="api_summary/pycvxset.Polytope.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/pycvxset_logo.png" alt="Logo of pycvxset"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">pycvxset</a></h1>
+
+
+
+<p class="blurb">A Python package for manipulation and visualization of convex sets.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=merlresearch&repo=pycvxset&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><!-- Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Code purpose: Custom navigation side bar for documentation website -->
+
+</br>
+<h3>Navigation</h3>
+<ul>
+    <li class="toctree-l1">
+        <a class="reference internal" href="tutorials/tutorials.html">Tutorials</a>
+    </li>
+    <li class="toctree-l1" style="color: #444;font-size:120%">Set Representations</li>
+    <ul>
+        <li class="toctree-l2">
+            <a class="reference internal" href="api_summary/pycvxset.Polytope.html">Polytope</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal" href="api_summary/pycvxset.Ellipsoid.html">Ellipsoid</a>
+        </li>
+        <li class="toctree-l2">
+            <a class="reference internal"
+                href="api_summary/pycvxset.ConstrainedZonotope.html">ConstrainedZonotope
+            </a>
+        </li>
+    </ul>
+    <li class="toctree-l1"><a class="reference internal" href="pycvxset.common.html">Other useful
+            methods</a></li>
+    <li class="toctree-l1"><a class="reference internal"
+            href="pycvxset.common.constants.html">Constants</a></li>
+    <li class="toctree-l1"><a class="reference external"
+            href="https://raw.githubusercontent.com/merlresearch/pycvxset/main/MANUAL.pdf" target="_blank">Manual
+            (PDF)</a></li>
+    <li class="toctree-l1"><a class="reference external" href="https://www.merl.com/publications/docs/TR2025-086.pdf" target="_blank">Paper (ACC '25)
+            </a></li>
+    <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pycvxset-polytope-api-details">
+<h1>pycvxset.Polytope (API details)<a class="headerlink" href="#pycvxset-polytope-api-details" title="Link to this heading">¶</a></h1>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#module-pycvxset.Polytope" title="pycvxset.Polytope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pycvxset.Polytope</span></code></a></p></td>
+<td><p>Polytope class.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class" id="module-pycvxset.Polytope">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pycvxset.Polytope.</span></span><span class="sig-name descname"><span class="pre">Polytope</span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Polytope class.</p>
+<p>Polytope object construction admits <strong>one</strong> of the following combinations (as keyword arguments):</p>
+<ol class="arabic simple">
+<li><p>(A, b) for a polytope in <strong>halfspace representation (H-rep)</strong>  <span class="math notranslate nohighlight">\(\{x\ |\ Ax \leq b\}\)</span>,</p></li>
+<li><p>(A, b, Ae, be) for a polytope in <strong>halfspace representation (H-rep) with equality constraints</strong> <span class="math notranslate nohighlight">\(\{x\ |\
+Ax \leq b, A_e x = b_e\}\)</span>,</p></li>
+<li><p>V for a polytope in <strong>vertex representation (V-rep)</strong> — <span class="math notranslate nohighlight">\(\text{ConvexHull}(v_i)\)</span> where <span class="math notranslate nohighlight">\(v_i\)</span> are
+rows of matrix V,</p></li>
+<li><p>(lb, ub) for an <strong>axis-aligned cuboid</strong> with appropriate bounds <span class="math notranslate nohighlight">\(\{x\ |\ lb\leq x \leq ub\}\)</span>, and</p></li>
+<li><p>(c, h) for an <strong>axis-aligned cuboid</strong> centered at c with specified scalar/vector half-sides <span class="math notranslate nohighlight">\(h\)</span>,
+<span class="math notranslate nohighlight">\(\{x\ |\ \forall i\in\{1,\cdots,n\}, |x_i - c_i| \leq h_i\}.\)</span></p></li>
+<li><p>dim for an <strong>empty</strong> Polytope of dimension dim (no argument generates a zero-dimensional <strong>empty</strong> Polytope),</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimension of the empty polytope. If NOTHING is provided, dim=0 is assumed.</p></li>
+<li><p><strong>V</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – List of vertices of the polytope (V-Rep). The list must be
+2-dimensional with vertices arranged row-wise and the polytope dimension determined by the column count.</p></li>
+<li><p><strong>A</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – Inequality coefficient vectors (H-Rep). The vectors are
+stacked vertically with the polytope dimension determined by the column count. When A is provided, b must
+also be provided.</p></li>
+<li><p><strong>b</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – Inequality constants (H-Rep). The constants are expected to be in a
+1D numpy array.  When b is provided, A must also be provided.</p></li>
+<li><p><strong>Ae</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Equality coefficient vectors (H-Rep). The vectors are stacked
+vertically with matching number of columns as A. When Ae is provided, A, b, and be must also be provided.</p></li>
+<li><p><strong>be</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em>) – Equality coefficient constants (H-Rep). The constants are expected to be in a
+1D numpy array.  When be is provided, A, b, and Ae must also be provided.</p></li>
+<li><p><strong>lb</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – Lower bounds of the axis-aligned cuboid. Must be 1D array, and the
+polytope dimension is determined by number of elements in lb. When lb is provided, ub must also be provided.</p></li>
+<li><p><strong>ub</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – Upper bounds of the axis-aligned cuboid. Must be 1D array of length
+as same as lb.  When ub is provided, lb must also be provided.</p></li>
+<li><p><strong>c</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – Center of the axis-aligned cuboid. Must be 1D array, and the
+polytope dimension is determined by number of elements in c. When c is provided, h must also be provided.</p></li>
+<li><p><strong>h</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em><em>, </em><em>optional</em>) – Half-side length of the axis-aligned cuboid. Can be a scalar
+or a vector of length as same as c. When h is provided, c must also be provided.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When arguments provided is not one of [(A, b), (A, b, Ae, be), (lb, ub), (c, h), V, dim,
+    NOTHING]</p></li>
+<li><p><strong>ValueError</strong> – Errors raised by issues with (A, b) and (Ae, be) — mismatch in dimensions, not convertible to
+    appropriately-dimensioned numpy arrays, incompatible systems (A, b) and (Ae, be) etc.</p></li>
+<li><p><strong>ValueError</strong> – Errors raised by issues with V — not convertible to a 2-D numpy array, etc.</p></li>
+<li><p><strong>ValueError</strong> – Errors raised by issues with lb, ub — mismatch in dimensions, not convertible to
+    1D numpy arrays, etc.</p></li>
+<li><p><strong>ValueError</strong> – Errors raised by issues with c, h — mismatch in dimensions, not convertible to
+    1D numpy arrays, etc.</p></li>
+<li><p><strong>ValueError</strong> – Polytope is not bounded in any direction. We use a sufficient condition for speed, and therefore the
+    detection may not be exhaustive.</p></li>
+<li><p><strong>ValueError</strong> – Polytope is not bounded in some directions. We use a sufficient condition for speed, and therefore
+    the detection may not be exhaustive.</p></li>
+<li><p><strong>UserWarning</strong> – If some rows are removed from (A, b) due to all zeros in A or np.inf in b | (Ae, be) when all
+    zeros in Ae and be.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.deflate_rectangle">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">deflate_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set_to_be_centered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope"><span class="pre">ConstrainedZonotope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid"><span class="pre">Ellipsoid</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.deflate_rectangle" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the rectangle with the smallest volume that contains the given set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>set_to_be_centered</strong> (<a class="reference internal" href="pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope"><em>ConstrainedZonotope</em></a><em> | </em><a class="reference internal" href="pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid"><em>Ellipsoid</em></a><em> | </em><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a>) – Set to compute the.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Minimum volume circumscribing rectangle</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function is a wrapper for <a class="reference internal" href="#pycvxset.Polytope.Polytope.minimum_volume_circumscribing_rectangle" title="pycvxset.Polytope.Polytope.minimum_volume_circumscribing_rectangle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minimum_volume_circumscribing_rectangle()</span></code></a> of attr:<cite>set_to_be_centered</cite>.
+Please check that function for more details including raising exceptions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.__init__" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ae</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">be</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dd><p>Constructor for Polytope class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.affine_map">
+<span class="sig-name descname"><span class="pre">affine_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.affine_map" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the matrix times set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>M</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – A vector or array (0, 1, or 2-D) with
+self.dim columns</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When M can not be converted EXACTLY into a 2D array of float</p></li>
+<li><p><strong>ValueError</strong> – When M does not have self.dim columns</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The scaled polytope <span class="math notranslate nohighlight">\(\mathcal{R} = M \mathcal{P} = \{M x: x\in \mathcal{P}\}\)</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in V-Rep, and performs a vertex enumeration when
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is in H-Rep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.chebyshev_centering">
+<span class="sig-name descname"><span class="pre">chebyshev_centering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.chebyshev_centering" title="Link to this definition">¶</a></dt>
+<dd><p>Computes a ball with the largest radius that fits within the polytope. The ball’s center is known as the
+Chebyshev center, and its radius is the Chebyshev radius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – Unable to solve chebyshev centering problem using CVXPY</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple with two items</dt><dd><ol class="arabic simple">
+<li><p>center (numpy.ndarray): Chebyshev center of the polytope</p></li>
+<li><p>radius (float): Chebyshev radius of the polytope</p></li>
+</ol>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function is called by the constructor for non-emptiness and boundedness check. It uses limited attributes
+(dim, A, b, Ae, be). This function requires H-Rep, and will perform a halfspace enumeration when a V-Rep
+polytope is provided.</p>
+<p>We solve the LP (see Section 8.5.1 in <a class="reference internal" href="references.html#bv04" id="id1"><span>[BV04]</span></a>) for <span class="math notranslate nohighlight">\(c\)</span> (for <cite>center</cite>) and <span class="math notranslate nohighlight">\(R\)</span> (for <cite>radius</cite>),</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{maximize}     &amp;\quad R \\
+\text{subject to}   &amp;\quad A c + R ||A||_\text{row} \leq b,\\
+                    &amp;\quad A_e c = b_e, \\
+                    &amp;\quad R \geq 0,\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(||A||_\text{row}\)</span> is a vector of dimension <a class="reference internal" href="#pycvxset.Polytope.Polytope.n_halfspaces" title="pycvxset.Polytope.Polytope.n_halfspaces"><code class="xref py py-attr docutils literal notranslate"><span class="pre">n_halfspaces</span></code></a> with each element
+as <span class="math notranslate nohighlight">\(||a_i||_2\)</span>. When (Ae, be) is non-empty, then R is forced to zero post-solve. Consequently,
+chebyshev_centering also serves a method to find a feasible point in the relative interior of the polytope.</p>
+<dl class="simple">
+<dt>We can also infer the following from the Chebyshev radius R:</dt><dd><ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(R=\infty\)</span>, the polytope is unbounded. Note that, this is just a sufficient
+condition, and an unbounded polytope can have a finite Chebyshev radius. For example, consider a
+3-dimensional axis-aligned cuboid <span class="math notranslate nohighlight">\([-1, 1] \times [-1, 1] \times \mathbb{R}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(0 &lt; R &lt; \infty\)</span>, the polytope is nonempty and full-dimensional.</p></li>
+<li><p><span class="math notranslate nohighlight">\(R=0\)</span>, the polytope is nonempty and but not full-dimensional.</p></li>
+<li><p><span class="math notranslate nohighlight">\(R=-\infty\)</span>, the polytope is empty.</p></li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.closest_point">
+<span class="sig-name descname"><span class="pre">closest_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">np.ndarray</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.closest_point" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper for <a class="reference internal" href="#pycvxset.Polytope.Polytope.project" title="pycvxset.Polytope.Polytope.project"><code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code></a> to compute the point in the convex set closest to the given point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Points to project. Matrix (N times self.dim), where each row
+is a point.</p></li>
+<li><p><strong>p</strong> (<em>str</em><em> | </em><em>int</em>) – Norm-type. It can be 1, 2, or ‘inf’. Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Projection of points to the set as a 2D numpy.ndarray. These arrays have as many rows as points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For more detailed description, see documentation for <a class="reference internal" href="#pycvxset.Polytope.Polytope.project" title="pycvxset.Polytope.Polytope.project"><code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code></a> function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.containment_constraints">
+<span class="sig-name descname"><span class="pre">containment_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cvxpy.Variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'F'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'C'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'F'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">cvxpy.Constraint</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">cvxpy.Variable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.containment_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.containment_constraints" title="Link to this definition">¶</a></dt>
+<dd><p>Get CVXPY constraints for containment of x (a cvxpy.Variable) in a polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>cvxpy.Variable</em>) – CVXPY variable to be optimized</p></li>
+<li><p><strong>flatten_order</strong> (<em>Literal</em><em>[</em><em>&quot;F&quot;</em><em>, </em><em>&quot;C&quot;</em><em>]</em>) – Order to use for flatten (choose between “F”, “C”). Defaults to “F”,
+which implements column-major flatten. In 2D, column-major flatten results in stacking rows horizontally
+to achieve a single horizontal row.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When polytope is empty</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>A tuple with two items:</p>
+<ol class="arabic simple">
+<li><p>constraint_list (list): CVXPY constraints for the containment of x in the polytope.</p></li>
+<li><p>theta (cvxpy.Variable | None): CVXPY variable representing the convex combination coefficient when
+polytope is in V-Rep. It is None when the polytope is in H-Rep or empty.</p></li>
+</ol>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.contains">
+<span class="sig-name descname"><span class="pre">contains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope"><span class="pre">ConstrainedZonotope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid"><span class="pre">Ellipsoid</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.contains" title="Link to this definition">¶</a></dt>
+<dd><p>Check containment of a set <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span> (could be a polytope, an ellipsoid, or a constrained zonotope),
+or a collection of points <span class="math notranslate nohighlight">\(Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}\)</span> in the polytope
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Q</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em><em> | </em><a class="reference internal" href="pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope"><em>ConstrainedZonotope</em></a><em> | </em><a class="reference internal" href="pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid"><em>Ellipsoid</em></a><em> | </em><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a>) – Set
+or a collection of points (each row is a point) to be tested for containment within <span class="math notranslate nohighlight">\(\mathcal{P}\)</span>.
+When providing a collection of points, Q is a matrix (N times self.dim) with each row is a point.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When two polytopes | the polytope and the test point(s) are NOT of the same dimension</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>When <cite>Q</cite> is a polytope, a bool is returned which is True if and only if</dt><dd><p><span class="math notranslate nohighlight">\(Q\subseteq P\)</span>. On the other hand, if <cite>Q</cite> is a sequence or numpy array (Q is a point or a collection
+of points), then a numpy.ndarray of bool is returned, with as many elements as the number of rows in <cite>Q</cite>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool | numpy.ndarray[bool]</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><em>Containment of polytopes</em>: This function accommodates the following combinations of representations for
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> and <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span>. It eliminates the need for enumeration by comparing support
+function evaluations almost always. When P is H-Rep and Q is V-Rep, then we perform a quick check for
+containment of vertices of Q in P. Otherwise,
+* Q is empty: Return True
+* P is empty: Return False</p></li>
+<li><p><em>Containment of points</em>: This function accommodates <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in H-Rep or V-Rep. When testing
+if a point is in a polytope where only V-Rep is available for self, we solve a collection of second-order cone
+programs for each point using <a class="reference internal" href="#pycvxset.Polytope.Polytope.project" title="pycvxset.Polytope.Polytope.project"><code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code></a> (check if distance between v and <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is nearly
+zero).  Otherwise, we use the observation that for <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> with (A, b, Ae, be), then
+<span class="math notranslate nohighlight">\(v\in\mathcal{P}\)</span> if and only if <span class="math notranslate nohighlight">\(Av\leq b\)</span> and <span class="math notranslate nohighlight">\(A_ev=b_e\)</span>. For numerical precision
+considerations, we use <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.isclose()</span></code>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Create a copy of the polytope</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.decompose_as_affine_transform_of_polytope_without_equalities">
+<span class="sig-name descname"><span class="pre">decompose_as_affine_transform_of_polytope_without_equalities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.decompose_as_affine_transform_of_polytope_without_equalities" title="Link to this definition">¶</a></dt>
+<dd><p>Express a polytope with equality constraints as an affine transformation of a lower-dimensional polytope without
+any equality constraints (hence full-dimensional). The affine transformation is obtained via a QR decomposition.</p>
+<p>If the polytope is already full-dimensional, returns a copy of itself and the identity matrix.  Otherwise, finds an
+affine transformation that maps a lower-but-full-dimensional polytope to the original polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A tuple with three items:</dt><dd><ol class="arabic simple">
+<li><p>full_dimensional_polytope (Polytope): A full-dimensional polytope.</p></li>
+<li><p>affine_transform_offset (numpy.ndarray): The affine offset (as a vector) to map the full-dimensional
+polytope to the original polytope.</p></li>
+<li><p>affine_transform_matrix (numpy.ndarray): A matrix whose columns form an orthonormal basis for the
+nullspace of the affine equality constraints.</p></li>
+</ol>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires H-Rep, and will perform a halfspace enumeration when a V-Rep polytope is provided.
+The decomposition is such that <cite>self = M &#64; full_dim_polytope_in_relative_interior_of_self + c</cite>. The function
+uses QR decomposition to find <cite>M</cite> and <cite>c</cite>. To avoid numerical issues, this function calls
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">pycvxset.Polytope.minimize_H_rep()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.determine_H_rep">
+<span class="sig-name descname"><span class="pre">determine_H_rep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefer_qhull_over_cdd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.determine_H_rep" title="Link to this definition">¶</a></dt>
+<dd><p>Determine the halfspace representation from a given vertex representation of the polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefer_qhull_over_cdd</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, determine_H_rep uses qhull when possible. Otherwise, we use
+cdd. Default is True.</p></li>
+<li><p><strong>prune_V</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, prune vertices before halfspace enumeration. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When H-rep computation fails OR Polytope is not bounded!</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>When the set is empty, we define an empty polytope.</p></li>
+<li><p>Otherwise, we use cdd for the halfspace enumeration.</p></li>
+<li><p>The computed vertex representation need not be minimal.</p></li>
+<li><p>We do not check for bounded polytope since we have V-Rep.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.determine_V_rep">
+<span class="sig-name descname"><span class="pre">determine_V_rep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefer_qhull_over_cdd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.determine_V_rep" title="Link to this definition">¶</a></dt>
+<dd><p>Determine the vertex representation from a given halfspace representation of the polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefer_qhull_over_cdd</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, determine_V_rep uses qhull when possible. Otherwise, we use
+cdd. Default is True.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Vertex enumeration yielded rays! Possibly due to numerical issues or unbounded polytope!</p></li>
+<li><p><strong>ValueError</strong> – Polytope is not bounded!</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>We use cdd for the vertex enumeration. cdd uses the halfspace representation <span class="math notranslate nohighlight">\([b, -A]\)</span> where <span class="math notranslate nohighlight">\(b - Ax
+\geq 0  \Leftrightarrow Ax \leq b\)</span>.</p>
+<p>For a polyhedron described as</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{P} = \text{conv}(v_1, ..., v_n) + \text{nonneg}(r_1, ..., r_s),\]</div>
+<p>the V-representation matrix in cdd is [t V] where t is the column vector with n ones followed by s zeroes, and V
+is the stacked matrix of n vertex row vectors on top of s ray row vectors. <cite>pycvxset</cite> uses only bounded
+polyhedron, so we should never observe rays.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.distance">
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">np.ndarray</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.distance" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper for <a class="reference internal" href="#pycvxset.Polytope.Polytope.project" title="pycvxset.Polytope.Polytope.project"><code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code></a> to compute distance of a point to a convex set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Points to project. Matrix (N times self.dim), where each row
+is a point.</p></li>
+<li><p><strong>p</strong> (<em>int</em><em> | </em><em>str</em>) – Norm-type. It can be 1, 2, or ‘inf’. Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Distance of points to the set as a 1D numpy.ndarray. These arrays have as many rows as points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For more detailed description, see documentation for <a class="reference internal" href="#pycvxset.Polytope.Polytope.project" title="pycvxset.Polytope.Polytope.project"><code class="xref py py-meth docutils literal notranslate"><span class="pre">project()</span></code></a> function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.extreme">
+<span class="sig-name descname"><span class="pre">extreme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">np.ndarray</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.extreme" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper for <a class="reference internal" href="#pycvxset.Polytope.Polytope.support" title="pycvxset.Polytope.Polytope.support"><code class="xref py py-meth docutils literal notranslate"><span class="pre">support()</span></code></a> to compute the extreme point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eta</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Support directions. Matrix (N times self.dim), where each row is
+a support direction.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Support vector evaluation(s) as a 2D numpy.ndarray. The array has as many rows as eta.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For more detailed description, see documentation for <a class="reference internal" href="#pycvxset.Polytope.Polytope.support" title="pycvxset.Polytope.Polytope.support"><code class="xref py py-meth docutils literal notranslate"><span class="pre">support()</span></code></a> function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.interior_point">
+<span class="sig-name descname"><span class="pre">interior_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">np.ndarray</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.interior_point" title="Link to this definition">¶</a></dt>
+<dd><p>Compute a point in the interior of the polytope. When the polytope is not full-dimensional, the point may lie on
+the boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>point_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of interior point. Valid strings: {‘centroid’, ‘chebyshev’, ‘mvie’}. Defaults
+to ‘centroid’ if has V-Rep and ‘chebyshev’ if has H-Rep.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – When an invalid point_type is provided.</p></li>
+<li><p><strong>ValueError</strong> – When the polytope provided is empty.</p></li>
+<li><p><strong>ValueError</strong> – When the polytope provided is not bounded.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A feasible point in the polytope in the interior as a 1D array</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>point_type is ‘centroid’: Computes the average of the vertices. The function requires the polytope to be in
+V-Rep, and a vertex enumeration is performed if the polytope is in H-Rep.</p></li>
+<li><p>point_type is ‘chebyshev’: Computes the Chebyshev center. The function requires the polytope to be in H-Rep,
+and a halfspace enumeration is performed if the polytope is in V-Rep.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.intersection">
+<span class="sig-name descname"><span class="pre">intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.intersection" title="Link to this definition">¶</a></dt>
+<dd><p>Intersect the polytope <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> with another polytope <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Q</strong> (<a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a>) – Polytope to be intersected with self</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Q is not a polytope | Mismatch in dimensions</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The intersection of <cite>P</cite> and <cite>Q</cite></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> and Q to be of the same dimension and in H-Rep, and performs
+halfspace enumerations when P or Q are in V-Rep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.intersection_under_inverse_affine_map">
+<span class="sig-name descname"><span class="pre">intersection_under_inverse_affine_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.intersection_under_inverse_affine_map" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the intersection of constrained zonotope under an inverse affine map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Q</strong> (<a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a>) – Set to intersect with</p></li>
+<li><p><strong>R</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Matrix of dimension Y.dim times self.dim</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When Q is not a Polytope</p></li>
+<li><p><strong>ValueError</strong> – When R is not of correct dimension</p></li>
+<li><p><strong>ValueError</strong> – When self is not bounded</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The intersection of a polytope with another polytope under an inverse affine map. Specifically, given
+polytopes <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> (self) and <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span>, and a matrix <span class="math notranslate nohighlight">\(R\)</span>, we compute the set
+<span class="math notranslate nohighlight">\(\{x \in \mathcal{P}| Rx \in \mathcal{Q}\}\)</span>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires both polytopes to be in H-Rep. Halfspace enumeration is performed when necessary.</p>
+<p>Unlike <a class="reference internal" href="#pycvxset.Polytope.Polytope.inverse_affine_map_under_invertible_matrix" title="pycvxset.Polytope.Polytope.inverse_affine_map_under_invertible_matrix"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inverse_affine_map_under_invertible_matrix()</span></code></a>, this function does not require R to be invertible or
+square and also accommodates Q to be an unbounded polytope. However, self must be a bounded set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.intersection_with_affine_set">
+<span class="sig-name descname"><span class="pre">intersection_with_affine_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ae</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">be</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.intersection_with_affine_set" title="Link to this definition">¶</a></dt>
+<dd><p>Intersect the polytope with an affine set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Ae</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Equality coefficient vectors (H-Rep). The vectors are stacked
+vertically.</p></li>
+<li><p><strong>be</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em>) – Equality constants (H-Rep). The constants are expected to be in a 1D numpy
+array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Mismatch in dimensions | (Ae, be) is not a valid collection of equality constraints.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The intersection of <span class="math notranslate nohighlight">\(P\)</span> and <span class="math notranslate nohighlight">\(\{x:A_e x = b_e\}\)</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires <span class="math notranslate nohighlight">\(\mathcal{P}.\text{dim}\)</span> = <cite>Ae.shape[1]</cite> and <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> should be in
+H-Rep, and performs halfspace enumeration if <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in V-Rep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.intersection_with_halfspaces">
+<span class="sig-name descname"><span class="pre">intersection_with_halfspaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.intersection_with_halfspaces" title="Link to this definition">¶</a></dt>
+<dd><p>Intersect the polytope with a collection of halfspaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Inequality coefficient vectors (H-Rep). The vectors are stacked
+vertically.</p></li>
+<li><p><strong>b</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em>) – Inequality constants (H-Rep). The constants are expected to be in a 1D numpy
+array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Mismatch in dimensions | (A, b) is not a valid collection of halfspaces</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The intersection of <span class="math notranslate nohighlight">\(P\)</span> and <span class="math notranslate nohighlight">\(\{x\in\mathbb{R}^n\ |\ Ax\leq b\}\)</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires <span class="math notranslate nohighlight">\(\mathcal{P}.\text{dim}\)</span> = <cite>A.shape[1]</cite> and <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> should be in H-Rep,
+and performs halfspace enumeration if <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in V-Rep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.inverse_affine_map_under_invertible_matrix">
+<span class="sig-name descname"><span class="pre">inverse_affine_map_under_invertible_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.inverse_affine_map_under_invertible_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the set times matrix, the inverse affine map of the set under an invertible matrix M.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>M</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – An invertible array of size self.dim times self.dim</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When self is empty</p></li>
+<li><p><strong>TypeError</strong> – When M is not convertible into a 2D numpy array of float</p></li>
+<li><p><strong>ValueError</strong> – When M is not a square matrix</p></li>
+<li><p><strong>ValueError</strong> – When M is not invertible</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The inverse-scaled polytope <span class="math notranslate nohighlight">\(\mathcal{R} = \mathcal{P} \times M = \{x: M x\in \mathcal{P}\}\)</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function accommodates <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in H-Rep or in V-Rep. When <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is in
+H-Rep, <span class="math notranslate nohighlight">\(\mathcal{P} M=\{x|Mx\in\mathcal{P}\}=\{x|AMx\leq b, A_eMx = b_e\}\)</span>. On the other hand, when
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is in V-Rep, <span class="math notranslate nohighlight">\(\mathcal{P} M=ConvexHull(M^{-1}v_i)\)</span>.</p></li>
+<li><p>We require M to be invertible in order to ensure that the resulting set is representable as a polytope.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.maximum_volume_inscribing_ellipsoid">
+<span class="sig-name descname"><span class="pre">maximum_volume_inscribing_ellipsoid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.maximum_volume_inscribing_ellipsoid" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the maximum volume ellipsoid that fits within the given polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – When polytope is empty or has non-empty (Ae, be)</p></li>
+<li><p><strong>NotImplementedError</strong> – Unable to solve convex problem using CVXPY</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple with three items:</dt><dd><ol class="arabic simple">
+<li><p>center (numpy.ndarray): Maximum volume inscribed ellipsoid’s center</p></li>
+<li><p>shape_matrix (numpy.ndarray): Maximum volume inscribed ellipsoid’s shape matrix.</p></li>
+<li><p>sqrt_shape_matrix (numpy.ndarray): Maximum volume inscribed ellipsoid’s square root of shape matrix.
+Returns np.zeros((self.dim, 0)) if the polytope is a singleton.</p></li>
+</ol>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires H-Rep, and will perform a vertex enumeration when a V-Rep polytope is provided.</p>
+<p>When the polytope is full-dimensional, we can solve a second-order cone program (SOCP). Consider the
+full-dimensional ellipsoid <span class="math notranslate nohighlight">\(\{Gu + c| {\|u\|}_2 \leq 1\}\)</span>, where <span class="math notranslate nohighlight">\(G\)</span> is a square, lower-triangular
+matrix with positive diagonal entries. Then, we solve the following (equivalent) optimization problem:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{minimize}   &amp;\quad \text{geomean}(G) \\
+\text{subject to} &amp;\quad \text{diag}(G) \geq 0\\
+                  &amp;\quad \|G^T a_i\|_2 + a_i^T d \leq b_i,\end{split}\]</div>
+<p>with decision variables <span class="math notranslate nohighlight">\(G\)</span> and <span class="math notranslate nohighlight">\(c\)</span>.  Here, we use the observation that <span class="math notranslate nohighlight">\(\text{geomean}(G)\)</span> is
+a monotone function of <span class="math notranslate nohighlight">\(\log\det(GG^T)\)</span> (which is proportional to the volume of the ellipsoid).</p>
+<p>When the polytope is not full-dimensional, we first compute the relative interior and then solve the SDP for a
+positive definite matrix <span class="math notranslate nohighlight">\(B\in\mathbb{S}^n_{++}\)</span> and <span class="math notranslate nohighlight">\(d\in\mathbb{R}^n\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{maximize}   &amp;\quad \log \text{det} B \\
+\text{subject to} &amp;\quad \|B a_i\|_2 + a_i^T d \leq b_i,\\
+                  &amp;\quad A_e d = b_e,\\
+                  &amp;\quad B A_e^\top  = 0,\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\((a_i,b_i)\)</span> is the set of hyperplanes characterizing <span class="math notranslate nohighlight">\(\mathcal{P}\)</span>, and the inscribing
+ellipsoid is given by <span class="math notranslate nohighlight">\(\{Bu + d| {||u||}_2 \leq 1\}\)</span>. The center of the ellipsoid is given by <span class="math notranslate nohighlight">\(c =
+d\)</span>, and the shape matrix is given by <span class="math notranslate nohighlight">\(Q = (B B)^{-1}\)</span>. See <a class="reference internal" href="references.html#ellipsoidaltbx-min-verticesolell" id="id2"><span>[EllipsoidalTbx-Min_verticesolEll]</span></a> and Section
+8.4.2 in <a class="reference internal" href="references.html#bv04" id="id3"><span>[BV04]</span></a> for more details. The last two constraints arise from requiring the inscribing ellipsoid to lie
+in the affine set <span class="math notranslate nohighlight">\(\{A_e x = b_e\}\)</span>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.minimize">
+<span class="sig-name descname"><span class="pre">minimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cvxpy.Variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective_to_minimize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cvxpy.Expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cvxpy_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.minimize" title="Link to this definition">¶</a></dt>
+<dd><p>Solve a convex program with CVXPY objective subject to containment constraints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>cvxpy.Variable</em>) – CVXPY variable to be optimized</p></li>
+<li><p><strong>objective_to_minimize</strong> (<em>cvxpy.Expression</em>) – CVXPY expression to be minimized</p></li>
+<li><p><strong>cvxpy_args</strong> (<em>dict</em>) – CVXPY arguments to be passed to the solver</p></li>
+<li><p><strong>task_str</strong> (<em>str</em><em>, </em><em>optional</em>) – Task string to be used in error messages. Defaults to ‘’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – Unable to solve problem using CVXPY</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A tuple with three items:</dt><dd><ol class="arabic simple">
+<li><p>x.value (numpy.ndarray): Optimal value of x. np.nan * np.ones((self.dim,)) if the problem is not solved.</p></li>
+<li><p>problem.value (float): Optimal value of the convex program. np.inf if the problem is infeasible, -np.inf
+if problem is unbounded, and finite otherwise.</p></li>
+<li><p>problem_status (str): Status of the problem</p></li>
+</ol>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function uses <a class="reference internal" href="#pycvxset.Polytope.Polytope.containment_constraints" title="pycvxset.Polytope.Polytope.containment_constraints"><code class="xref py py-meth docutils literal notranslate"><span class="pre">containment_constraints()</span></code></a> to obtain the list of CVXPY expressions that form the
+containment constraints on x.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Please pay attention to the NotImplementedError generated by this function. It may be possible to get CVXPY to
+solve the same problem by switching the solver. For example, consider the following code block.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pycvxset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polytope</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">Polytope</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">b</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">P</span><span class="o">.</span><span class="n">cvxpy_args_lp</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;solver&#39;</span><span class="p">:</span> <span class="s1">&#39;CLARABEL&#39;</span><span class="p">}</span>    <span class="c1"># Default solver used in pycvxset</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Is polytope bounded?&#39;</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">is_bounded</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+<span class="n">P</span><span class="o">.</span><span class="n">cvxpy_args_lp</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;solver&#39;</span><span class="p">:</span> <span class="s1">&#39;OSQP&#39;</span><span class="p">}</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Is polytope bounded?&#39;</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">is_bounded</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This code block produces the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Unable to solve the task (support function evaluation of the set at eta = [-0. -1.]). CVXPY returned error:
+Solver &#39;CLARABEL&#39; failed. Try another solver, or solve with verbose=True for more information.
+
+Is polytope bounded? False
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.minimize_H_rep">
+<span class="sig-name descname"><span class="pre">minimize_H_rep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.minimize_H_rep" title="Link to this definition">¶</a></dt>
+<dd><p>Remove any redundant inequalities from the halfspace representation of the polytope using cdd.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – When minimal H-Rep computation fails OR polytope is not bounded!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.minimize_V_rep">
+<span class="sig-name descname"><span class="pre">minimize_V_rep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefer_qhull_over_cdd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.minimize_V_rep" title="Link to this definition">¶</a></dt>
+<dd><p>Remove any redundant vertices from the vertex representation of the polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefer_qhull_over_cdd</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, minimize_V_rep uses qhull when possible. Otherwise, we use
+cdd. Default is True.</p></li>
+<li><p><strong>prune_V</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, prune vertices before minimizing. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When minimal V-Rep computation fails!</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Use cdd or qhull for the reduction of vertices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.minimum_volume_circumscribing_ellipsoid">
+<span class="sig-name descname"><span class="pre">minimum_volume_circumscribing_ellipsoid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.minimum_volume_circumscribing_ellipsoid" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the minimum volume ellipsoid that covers the given polytope (also known as Lowner-John Ellipsoid).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – When polytope is empty</p></li>
+<li><p><strong>NotImplementedError</strong> – Unable to solve convex problem using CVXPY</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple with three items:</dt><dd><ol class="arabic simple">
+<li><p>center (numpy.ndarray): Minimum volume circumscribed ellipsoid’s center</p></li>
+<li><p>shape_matrix (numpy.ndarray): Minimum volume circumscribed ellipsoid’s shape matrix</p></li>
+<li><p>sqrt_shape_matrix (numpy.ndarray): Minimum volume circumscribed ellipsoid’s square root of shape matrix.
+Returns None if the polytope is not full-dimensional.</p></li>
+</ol>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires V-Rep, and will perform a vertex enumeration when a H-Rep polytope is provided.</p>
+<p>We solve the SDP for a positive definite matrix <span class="math notranslate nohighlight">\(A\in\mathbb{S}^n_{++}\)</span> and <span class="math notranslate nohighlight">\(b\in\mathbb{R}^n\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{maximize}   &amp;\quad \log \text{det} A^{-1} \\
+\text{subject to} &amp;\quad \|Av_i + b\|_2 \leq 1,\ \forall \text{ vertices } v_i \text{ of } \mathcal{P}\end{split}\]</div>
+<p>where the circumscribing ellipsoid is given by <span class="math notranslate nohighlight">\(\{x| {||A x + b||}_2 \leq 1\}\)</span>, and we use the observation
+that <span class="math notranslate nohighlight">\(\log \text{det} A^{-1}= -\log \text{det} A\)</span>. The center of the ellipsoid is given by <span class="math notranslate nohighlight">\(c =
+-A^{-1}b\)</span>, and the shape matrix is given by <span class="math notranslate nohighlight">\(Q = (A^T A)^{-1}\)</span>. See <a class="reference internal" href="references.html#ellipsoidaltbx-min-verticesolell" id="id4"><span>[EllipsoidalTbx-Min_verticesolEll]</span></a>
+and Section 8.4.1 in <a class="reference internal" href="references.html#bv04" id="id5"><span>[BV04]</span></a> for more details.</p>
+<p>When the polytope is full-dimensional, we can instead solve a second-order cone program (SOCP). Consider the
+full-dimensional ellipsoid <span class="math notranslate nohighlight">\(\{Lu + c| {\|u\|}_2 \leq 1\}\)</span>, where <span class="math notranslate nohighlight">\(G\)</span> is a square, lower-triangular
+matrix with positive diagonal entries. Then, we solve the following (equivalent) optimization problem:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{minimize}   &amp;\quad \text{geomean}(L) \\
+\text{subject to} &amp;\quad \text{diag}(L) &gt; 0\\
+                  &amp;\quad v_i = Lu_i + c,\ \forall \text{ vertices } v_i \text{ of } \mathcal{P},\\
+                  &amp;\quad u_i\in\mathbb{R}^,\ \|u_i\|_2 \leq 1,\end{split}\]</div>
+<p>with decision variables <span class="math notranslate nohighlight">\(G\)</span>, <span class="math notranslate nohighlight">\(c\)</span>, and <span class="math notranslate nohighlight">\(u_i\)</span>, and <span class="math notranslate nohighlight">\(\text{geomean}\)</span> is the geometric mean
+of the diagonal elements of <span class="math notranslate nohighlight">\(G\)</span>. Here, we use the observation that <span class="math notranslate nohighlight">\(\text{geomean}(L)\)</span> is a monotone
+function of <span class="math notranslate nohighlight">\(\log\det(GG^T)\)</span> (the volume of the ellipsoid). For the sake of convexity, we solve the
+following equivalent optimization problem after a change of variables <span class="math notranslate nohighlight">\(L_\text{inv}=L^{-1}\)</span> and
+<span class="math notranslate nohighlight">\(c_{L_\text{inv}}=L^{-1}c\)</span>, and substituting for the variables <span class="math notranslate nohighlight">\(u_i\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{maximize}   &amp;\quad \text{geomean}(L_\text{inv}) \\
+\text{subject to} &amp;\quad \text{diag}(L_\text{inv}) &gt; 0\\
+                  &amp;\quad \|L_\text{inv}v_i - c_{L_\text{inv}}\|_2 \leq 1,\ \forall \text{ vertices } v_i\end{split}\]</div>
+<p>The center of the ellipsoid is <span class="math notranslate nohighlight">\(c = Lc_{L_\text{inv}}\)</span>, and the shape matrix is <span class="math notranslate nohighlight">\(Q = GG^T\)</span>, where
+<span class="math notranslate nohighlight">\(L=L_\text{inv}^{-1}\)</span>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.minimum_volume_circumscribing_rectangle">
+<span class="sig-name descname"><span class="pre">minimum_volume_circumscribing_rectangle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.minimum_volume_circumscribing_rectangle" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the minimum volume circumscribing rectangle for a given polytope</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – When polytope is empty</p></li>
+<li><p><strong>ValueError</strong> – When polytope is unbounded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple of two items</dt><dd><ol class="arabic simple">
+<li><p>lb (numpy.ndarray): Lower bound <span class="math notranslate nohighlight">\(l\)</span> on the polytope,
+<span class="math notranslate nohighlight">\(\mathcal{P}\subseteq\{l\}\oplus\mathbb{R}_{\geq 0}\)</span>.</p></li>
+<li><p>ub (numpy.ndarray): Upper bound <span class="math notranslate nohighlight">\(u\)</span> on the polytope,
+<span class="math notranslate nohighlight">\(\mathcal{P}\subseteq\{u\}\oplus(-\mathbb{R}_{\geq 0})\)</span>.</p></li>
+</ol>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function accommodates H-Rep and V-Rep. The lower/upper bound for V-Rep is given by an element-wise
+minimization/maximization operation, while the lower/upper bound for H-Rep is given by an element-wise support
+computation (2 * self.dim linear programs). For a H-Rep polytope, the function uses <a class="reference internal" href="#pycvxset.Polytope.Polytope.support" title="pycvxset.Polytope.Polytope.support"><code class="xref py py-meth docutils literal notranslate"><span class="pre">support()</span></code></a> and is a
+wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">pycvxset.common.minimum_volume_circumscribing_rectangle()</span></code>.</p>
+<p>This function is called to check for boundedness of a polytope.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.minus">
+<span class="sig-name descname"><span class="pre">minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope"><span class="pre">ConstrainedZonotope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid"><span class="pre">Ellipsoid</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.minus" title="Link to this definition">¶</a></dt>
+<dd><p>Implement - operation (Pontryagin difference when Q is a polytope, translation by -Q when Q is a point)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Q</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em><em> | </em><a class="reference internal" href="pycvxset.ConstrainedZonotope.html#pycvxset.ConstrainedZonotope.ConstrainedZonotope" title="pycvxset.ConstrainedZonotope.ConstrainedZonotope"><em>ConstrainedZonotope</em></a><em> | </em><a class="reference internal" href="pycvxset.Ellipsoid.html#pycvxset.Ellipsoid.Ellipsoid" title="pycvxset.Ellipsoid.Ellipsoid"><em>Ellipsoid</em></a><em> | </em><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a>) – Polytope to be subtracted in Pontryagin difference sense from self or a vector for negative translation of
+the polytope</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – When Q is neither a Polytope or a point</p></li>
+<li><p><strong>ValueError</strong> – When Q is not of the same dimension as self</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The polytope <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> that is the Pontryagin difference of <cite>P</cite> and <cite>Q</cite> or a negative
+translation of <cite>P</cite> by <cite>Q</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><em>Subtraction with a point</em>: This function accommodates <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in H-Rep and V-Rep. See
+<a class="reference internal" href="#pycvxset.Polytope.Polytope.plus" title="pycvxset.Polytope.Polytope.plus"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plus()</span></code></a> for more details.</p></li>
+<li><p><em>Subtraction with a polytope</em>: This function requires <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> and Q to be of the same dimension
+and :math:mathcal{P} in H-Rep, and performs halfspace enumerations when <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is in V-Rep. The
+H-rep of the polytope <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> is, <span class="math notranslate nohighlight">\(H_{\mathcal{R}} = [\mathcal{P}.A, \mathcal{P}.b - \rho_{
+\mathcal{Q}}(\mathcal{P}.A)]\)</span> where <span class="math notranslate nohighlight">\(\rho_{\mathcal{Q}}\)</span> is the support function (see
+<a class="reference internal" href="#pycvxset.Polytope.Polytope.support" title="pycvxset.Polytope.Polytope.support"><code class="xref py py-meth docutils literal notranslate"><span class="pre">support()</span></code></a>). <a class="reference internal" href="references.html#kg98" id="id6"><span>[KG98]</span></a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.normalize" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize a H-Rep such that each row of A has unit <span class="math notranslate nohighlight">\(\ell_2\)</span>-norm.</p>
+<p class="rubric">Notes</p>
+<p>This function requires P to be in H-Rep. If P is in V-Rep, a halfspace enumeration is performed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Axes3D</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoscale_enable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decimal_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.plot" title="Link to this definition">¶</a></dt>
+<dd><p>Plot a 2D or 3D polytope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em><em> | </em><em>Axes3D</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – Axis on which the patch is to be plotted</p></li>
+<li><p><strong>patch_args</strong> (<em>dict</em><em>, </em><em>optional</em>) – Arguments to pass for plotting faces and edges. See <a class="reference internal" href="references.html#matplotlib-patch" id="id7"><span>[Matplotlib-patch]</span></a> for options
+for patch_args for 2D and <a class="reference internal" href="references.html#matplotlib-line3dcollection" id="id8"><span>[Matplotlib-Line3DCollection]</span></a> for options for patch_args for 3D. Defaults to
+None, in which case we set edgecolor to black, and facecolor to skyblue.</p></li>
+<li><p><strong>vertex_args</strong> (<em>dict</em><em>, </em><em>optional</em>) – Arguments to pass for plotting vertices. See <a class="reference internal" href="references.html#matplotlib-scatter" id="id9"><span>[Matplotlib-scatter]</span></a> for
+options for vertex_args for 2D and <a class="reference internal" href="references.html#matplotlib-axes3d-scatter" id="id10"><span>[Matplotlib-Axes3D.scatter]</span></a> for options for vertex_args for 3D. Defaults
+to None, in which case we skip plotting the vertices.</p></li>
+<li><p><strong>autoscale_enable</strong> (<em>bool</em><em>, </em><em>optional</em>) – When set to True, matplotlib adjusts axes to view full polytope. Defaults
+to True.</p></li>
+<li><p><strong>decimal_precision</strong> (<em>int</em><em>, </em><em>optional</em>) – When plotting a 3D polytope that is in V-Rep and not in H-Rep, we round
+vertex to the specified precision to avoid numerical issues. Defaults to PLOTTING_DECIMAL_PRECISION_CDD
+specified in pycvxset.common.constants.</p></li>
+<li><p><strong>enable_warning</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enables the UserWarning. May be turned off if expected. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When an incorrect axes is provided.</p></li>
+<li><p><strong>NotImplementedError</strong> – When a polytope.dim &gt;= 4 or == 1 | autoscale_enable is set to False for 3D plotting.</p></li>
+<li><p><strong>UserWarning</strong> – When an empty polytope or an unbounded polytope is provided.</p></li>
+<li><p><strong>UserWarning</strong> – In 3D plotting, when all faces have less than 3 vertices</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple with axes containing the polygon, handle for plotting patch, handle for plotting
+vertices</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(axes, handle, handle)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>plot is a wrapper for <a class="reference internal" href="#pycvxset.Polytope.Polytope.plot2d" title="pycvxset.Polytope.Polytope.plot2d"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot2d()</span></code></a> and <a class="reference internal" href="#pycvxset.Polytope.Polytope.plot3d" title="pycvxset.Polytope.Polytope.plot3d"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot3d()</span></code></a> functions. See
+their documentation for more details.</p></li>
+<li><p><em>Vertex-halfspace enumeration for 2D polytopes</em>: If a 2D polytope is in H-Rep, vertex enumeration is performed
+to plot the polytope in 2D. No vertex enumeration is performed for a 2D polytope in V-Rep. This function calls
+minimize_V_rep to simplify plotting.</p></li>
+<li><p><em>Vertex-halfspace enumeration for 3D polytopes</em>: The 3D polytope needs to have both V-Rep and H-Rep.
+Consequently, at least a halfspace/vertex enumeration is performed for a 3D polytope in single representation.</p></li>
+<li><p><em>Rounding vertices</em>: This function calls <a class="reference internal" href="pycvxset.common.html#pycvxset.common.prune_and_round_vertices" title="pycvxset.common.prune_and_round_vertices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pycvxset.common.prune_and_round_vertices()</span></code></a> when a 3D polytope
+in V-Rep is given to be plotted.</p></li>
+<li><p><em>Handle returned for the patches</em>: For 2D plot, axis handle of the single patch is returned. For 3D
+plotting, multiple patches are present, and plot returns the first patch’s axis handle. In this case, the
+order of patches are determined by the use of <a class="reference external" href="https://pycddlib.readthedocs.io/en/latest/cdd.html#cdd.copy_input_incidence">pycddlib.copy_input_incidence</a> from the from the specified
+(A, b). Also, labeling the first patch is done using Poly3DCollection.</p></li>
+<li><p><em>Disabling face colors</em>: We can plot the polytope frames without filling it by setting
+<cite>patch_args[‘facecolor’] = None</cite> or <cite>patch_args[‘fill’] = False</cite>. If visual comparison of 3D polytopes is
+desired, it may be better to plot just the polytope frames instead by setting patch_args[‘facecolor’] = None.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function may produce erroneous-looking plots when visually comparing multiple 3D sets. For more info on
+matplotlib limitations, see
+<a class="reference external" href="https://matplotlib.org/stable/api/toolkits/mplot3d/faq.html#my-3d-plot-doesn-t-look-right-at-certain-viewing-angles">https://matplotlib.org/stable/api/toolkits/mplot3d/faq.html#my-3d-plot-doesn-t-look-right-at-certain-viewing-angles</a>.
+If visual comparison is desired, it may be better to plot just the polytope frame instead by setting
+patch_args[‘facecolor’] = None.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.plot2d">
+<span class="sig-name descname"><span class="pre">plot2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Axes3D</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoscale_enable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.plot2d" title="Link to this definition">¶</a></dt>
+<dd><p>Plot a 2D polytope using matplotlib’s add_patch(Polygon()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em><em> | </em><em>Axes3D</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – Axis on which the patch is to be plotted</p></li>
+<li><p><strong>patch_args</strong> (<em>dict</em><em>, </em><em>optional</em>) – Arguments to pass for plotting faces and edges. See <a class="reference internal" href="references.html#matplotlib-patch" id="id11"><span>[Matplotlib-patch]</span></a>
+for options for patch_args. Defaults to None, in which case we set edgecolor to black, and facecolor to
+skyblue.</p></li>
+<li><p><strong>vertex_args</strong> (<em>dict</em><em>, </em><em>optional</em>) – Arguments to pass for plotting vertices. See <a class="reference internal" href="references.html#matplotlib-scatter" id="id12"><span>[Matplotlib-scatter]</span></a> for
+options for vertex_args. Defaults to None, in which case we skip plotting the vertices.</p></li>
+<li><p><strong>autoscale_enable</strong> (<em>bool</em><em>, </em><em>optional</em>) – When set to True (default), matplotlib adjusts axes to view full polytope.</p></li>
+<li><p><strong>enable_warning</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enables the UserWarning. May be turned off if expected. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When a 2D polytope is provided</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple with axes containing the polygon, handle for plotting patch, handle for plotting
+vertices</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(axes, handle, handle)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires polytope in V-Rep, and performs a vertex enumeration if the polytope is H-Rep.</p>
+<p>We sort the vertices in counter-clockwise direction with respect to the centroid, and then plot it using
+matplotlib’s Polygon. We can plot just the polytope frames without filling it by setting
+<cite>patch_args[‘facecolor’] = None</cite> or <cite>patch_args[‘fill’] = False</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.plot3d">
+<span class="sig-name descname"><span class="pre">plot3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Axes3D</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoscale_enable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decimal_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.plot3d" title="Link to this definition">¶</a></dt>
+<dd><p>Plot a 3D polytope using matplotlib’s Line3DCollection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em><em> | </em><em>Axes3D</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – Axes to plot. Defaults to None, in which case a new axes is created. The
+function assumes that the provided axes was defined with projection=’3d’.</p></li>
+<li><p><strong>patch_args</strong> (<em>dict</em><em>, </em><em>optional</em>) – Arguments to pass for plotting faces and edges. See <a class="reference internal" href="references.html#matplotlib-line3dcollection" id="id13"><span>[Matplotlib-Line3DCollection]</span></a>
+for options for patch_args. Defaults to None, in which case we set edgecolor to black, and facecolor to
+skyblue.</p></li>
+<li><p><strong>vertex_args</strong> (<em>dict</em><em>, </em><em>optional</em>) – Arguments to pass for plotting vertices. See <a class="reference internal" href="references.html#matplotlib-axes3d-scatter" id="id14"><span>[Matplotlib-Axes3D.scatter]</span></a> for
+options for vertex_args. Defaults to None, in which case we skip plotting the vertices.</p></li>
+<li><p><strong>autoscale_enable</strong> (<em>bool</em><em>, </em><em>optional</em>) – When set to True (default), matplotlib adjusts axes to view full polytope.</p></li>
+<li><p><strong>decimal_precision</strong> (<em>int</em><em>, </em><em>optional</em>) – When plotting a 3D polytope that is in V-Rep and not in H-Rep, we round
+vertex to the specified precision to avoid numerical issues. Defaults to PLOTTING_DECIMAL_PRECISION_CDD
+specified in pycvxset.common.constants.</p></li>
+<li><p><strong>enable_warning</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enables the UserWarning. May be turned off if expected. Defaults to True.</p></li>
+<li><p><strong>prune_V</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, prune vertices before plotting. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When either a non-3D polytope is provided.</p></li>
+<li><p><strong>UserWarning</strong> – When all faces have less than 3 vertices</p></li>
+<li><p><strong>NotImplementedError</strong> – autoscale_enable needs to be currently enabled for 3D plotting</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple with axes containing the polygon, handle for plotting patch, handle for plotting
+vertices</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(axes, handle, handle)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function requires polytope in H-Rep and V-Rep, and uses CDD to compute incidences, and vertices.
+Consequently, at least one halfspace/vertex enumeration is performed.</p></li>
+<li><p>Since 3D plotting involves multiple patches, the first patch’s axis handle is returned. In this case, the
+order of patches are determined by the use of <a class="reference external" href="https://pycddlib.readthedocs.io/en/latest/cdd.html#cdd.copy_input_incidence">pycddlib.copy_input_incidence</a> from the specified (A, b).</p></li>
+<li><p>This function calls <a class="reference internal" href="pycvxset.common.html#pycvxset.common.prune_and_round_vertices" title="pycvxset.common.prune_and_round_vertices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pycvxset.common.prune_and_round_vertices()</span></code></a> when a 3D polytope
+in V-Rep is given to be plotted.</p></li>
+<li><p>When label is passed in patch_args, the label is only applied to the first patch. Subsequent patches will not
+have a label. Moreover, the first patch is plotted using Poly3DCollection, while the subsequent patches are
+plotted using Line3DCollection in this case. Otherwise, when no label is provided, all patches are plotted
+using Line3DCollection.</p></li>
+<li><p>We iterate over each halfspace, rotate the halfspace about its centroid so that halfspace is now parallel to
+XY plane, and then sort the vertices based on their XY coordinates in counter-clockwise direction with respect
+to the centroid, and then plot it using matplotlib’s Line3DCollection.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function may produce erroneous-looking plots when visually comparing multiple 3D sets. For more info on
+matplotlib limitations, see
+<a class="reference external" href="https://matplotlib.org/stable/api/toolkits/mplot3d/faq.html#my-3d-plot-doesn-t-look-right-at-certain-viewing-angles">https://matplotlib.org/stable/api/toolkits/mplot3d/faq.html#my-3d-plot-doesn-t-look-right-at-certain-viewing-angles</a>.
+If visual comparison is desired, it may be better to plot just the polytope frame instead by setting
+patch_args[‘facecolor’] = None.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.plus">
+<span class="sig-name descname"><span class="pre">plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.plus" title="Link to this definition">¶</a></dt>
+<dd><p>Add a point or a set to the polytope</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Q</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em><em> | </em><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><em>Polytope</em></a>) – Point or set to add to the polytope.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When the point dimension does not match the polytope dimension.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Polytope which is the sum of self and Q.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope">Polytope</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Given a polytope <span class="math notranslate nohighlight">\(\mathcal{P}\)</span>, and a set <span class="math notranslate nohighlight">\(Q\)</span>, this function computes the Minkowski sum of Q and
+the polytope, defined as <span class="math notranslate nohighlight">\(\mathcal{R}=\{x + q|x\in\mathcal{P}, q\in\mathcal{Q}\}\)</span>. On the other hand,
+when Q is a point, this function computes the polytope <span class="math notranslate nohighlight">\(\mathcal{R}=\{x + Q|x\in\mathcal{P}\}\)</span>.</p></li>
+<li><p><em>Addition with a point</em>: This function allows for <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in V-Rep or in H-Rep. For
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in V-rep, the polytope <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> is the convex hull of the vertices of
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> shifted by <span class="math notranslate nohighlight">\(\text{point}\)</span>. Given <span class="math notranslate nohighlight">\(\{v_i\}\)</span> as the collection of vertices of
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span>, <span class="math notranslate nohighlight">\(\mathcal{R}=\mathrm{convexHull}(v_i + \text{point})\)</span>.  For <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in
+H-rep, the polytope <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> is defined by all points <span class="math notranslate nohighlight">\(r = \text{point} + x\)</span> with
+<span class="math notranslate nohighlight">\(Ax\leq b, A_ex=b_e\)</span>.  Thus, <span class="math notranslate nohighlight">\(\mathcal{R}=\{x: A x \leq b + A \text{point}, A_e x = b_e + A_e
+\text{point}\}\)</span>.</p></li>
+<li><p><em>Addition with a polytope</em>: This function requires self and Q to be in V-Rep, and performs a vertex
+enumeration when self or Q are in H-Rep.. In vertex representation, <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> is the convex hull of
+the pairwise sum of all combinations of points in <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> and <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.project" title="Link to this definition">¶</a></dt>
+<dd><p>Project a point or a collection of points on to a set.</p>
+<p>Given a set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> and a test point <span class="math notranslate nohighlight">\(y\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>, this function
+solves a convex program,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\text{minimize}    &amp;\quad  \|x - y\|_p\\
+\text{subject to}  &amp;\quad  x \in \mathcal{P}\\\end{split}\]</div>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Points to project (N times self.dim) with each row as a point.</p></li>
+<li><p><strong>p</strong> (<em>str</em><em> | </em><em>int</em>) – Norm-type. It can be 1, 2, or ‘inf’. Defaults to 2, which is the Euclidean norm.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Set is empty</p></li>
+<li><p><strong>ValueError</strong> – Dimension mismatch — no. of columns in points is different from self.dim.</p></li>
+<li><p><strong>ValueError</strong> – Points is not convertible into a 2D array</p></li>
+<li><p><strong>NotImplementedError</strong> – Unable to solve problem using CVXPY</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A tuple with two items:</dt><dd><ol class="arabic simple">
+<li><p>projected_point (numpy.ndarray): Projection point(s) as a 2D numpy.ndarray. Matrix (N times self.dim),
+where each row is a projection of the point in points to the set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span>.</p></li>
+<li><p>distance (numpy.ndarray): Distance(s) as a 1D numpy.ndarray. Vector (N,), where each row is a projection
+of the point in points to the set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span>.</p></li>
+</ol>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul>
+<li><p>This function allows for <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in V-Rep or in H-Rep.</p></li>
+<li><p>Given a polytope <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in V-Rep and a test point
+<span class="math notranslate nohighlight">\(y\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>, this function solves a convex program with decision variables
+<span class="math notranslate nohighlight">\(x\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span> and
+<span class="math notranslate nohighlight">\(\theta\in\mathbb{R}^{\mathcal{P}.\text{n\_vertices}}\)</span>,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\text{minimize}    &amp;\quad  \|x - y\|_p\\
+\text{subject to}  &amp;\quad  x = \sum_i \theta_i v_i\\
+                   &amp;\quad  \sum_i \theta_i = 1, \theta_i \geq 0\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p>Given a polytope <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in H-Rep and a test point
+<span class="math notranslate nohighlight">\(y\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>, this function solves a convex program with a decision
+variable <span class="math notranslate nohighlight">\(x\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\text{minimize}    &amp;\quad  \|x - y\|_p\\
+\text{subject to}  &amp;\quad  A x \leq b\\
+                   &amp;\quad  A_e x = b_e\end{split}\]</div>
+</div></blockquote>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.projection">
+<span class="sig-name descname"><span class="pre">projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_away_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.projection" title="Link to this definition">¶</a></dt>
+<dd><p>Orthogonal projection of a set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> after removing some user-specified dimensions.</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{R} = \{r \in \mathbb{R}^{m}\ |\  \exists v \in \mathbb{R}^{n - m},\ \text{Lift}(r,v)\in \mathcal{P}\}\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(m = \mathcal{P}.\text{dim} - \text{length}(\text{project\_away\_dim})\)</span>, and
+<span class="math notranslate nohighlight">\(\text{Lift}(r,v)\)</span> lifts (“undo”s the projection) using the appropriate components of <cite>v</cite>. This function uses
+<a class="reference internal" href="#pycvxset.Polytope.Polytope.affine_map" title="pycvxset.Polytope.Polytope.affine_map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">affine_map()</span></code></a> to implement the projection by designing an appropriate affine map <span class="math notranslate nohighlight">\(M \in
+\{0,1\}^{m\times\mathcal{P}.\text{dim}}\)</span> with each row of <span class="math notranslate nohighlight">\(M\)</span> corresponding to some standard axis vector
+<span class="math notranslate nohighlight">\(e_i\in\mathbb{R}^m\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project_away_dims</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>np.ndarray</em>) – Dimensions to projected away in integer interval
+[0, 1, …, n - 1].</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When project_away_dims are not in the integer interval | All dimensions are projected away</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>Set obtained via projection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>m-dimensional set obtained via projection.</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>Polytope</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires P to be in V-Rep, and performs a vertex enumeration when P is in H-Rep.</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.slice">
+<span class="sig-name descname"><span class="pre">slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.slice" title="Link to this definition">¶</a></dt>
+<dd><p>Slice a set restricting certain dimensions to constants.</p>
+<p>This function uses <a class="reference internal" href="#pycvxset.Polytope.Polytope.intersection_with_affine_set" title="pycvxset.Polytope.Polytope.intersection_with_affine_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">intersection_with_affine_set()</span></code></a> to implement the slicing by designing an appropriate affine
+set from dims and constants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>np.ndarray</em>) – List of dims to restrict to a constant in the integer interval
+[0, 1, …, n - 1].</p></li>
+<li><p><strong>constants</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em>) – List of constants</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – dims has entries beyond n</p></li>
+<li><p><strong>ValueError</strong> – dims and constants are not 1D arrays of same size</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>Sliced set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Polytope that has been sliced at the specified dimensions.</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>Polytope</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in H-Rep, and performs a vertex halfspace when
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is in V-Rep.</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.slice_then_projection">
+<span class="sig-name descname"><span class="pre">slice_then_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pycvxset.Polytope.Polytope" title="pycvxset.Polytope.Polytope"><span class="pre">Polytope</span></a></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.slice_then_projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.slice_then_projection" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper for <a class="reference internal" href="#pycvxset.Polytope.Polytope.slice" title="pycvxset.Polytope.Polytope.slice"><code class="xref py py-meth docutils literal notranslate"><span class="pre">slice()</span></code></a> and <a class="reference internal" href="#pycvxset.Polytope.Polytope.projection" title="pycvxset.Polytope.Polytope.projection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projection()</span></code></a>.</p>
+<p>The function first restricts a set at certain dimensions to constants, and then projects away those dimensions.
+Useful for visual inspection of higher dimensional sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>np.ndarray</em>) – List of dims to restrict to a constant in the integer interval
+[0, 1, …, dim - 1], and then project away.</p></li>
+<li><p><strong>constants</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>np.ndarray</em>) – List of constants</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – dims has entries beyond n</p></li>
+<li><p><strong>ValueError</strong> – dims and constants are not 1D arrays of same size</p></li>
+<li><p><strong>ValueError</strong> – When dims are not in the integer interval | All dimensions are projected away</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>Sliced then projected set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>m-dimensional set obtained via projection after slicing.</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>Polytope</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> to be in H-Rep, and performs a vertex halfspace when
+<span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is in V-Rep.</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.support">
+<span class="sig-name descname"><span class="pre">support</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pycvxset/Polytope.html#Polytope.support"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pycvxset.Polytope.Polytope.support" title="Link to this definition">¶</a></dt>
+<dd><p>Evaluates the support function and support vector of a set.</p>
+<p>The support function of a set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is defined as <span class="math notranslate nohighlight">\(\rho_{\mathcal{P}}(\eta) =
+\max_{x\in\mathcal{P}} \eta^\top x\)</span>. The support vector of a set <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is defined as
+<span class="math notranslate nohighlight">\(\nu_{\mathcal{P}}(\eta) = \arg\max_{x\in\mathcal{P}} \eta^\top x\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eta</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>np.ndarray</em>) – Support directions. Matrix (N times self.dim),
+where each row is a support direction.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Set is empty</p></li>
+<li><p><strong>ValueError</strong> – Mismatch in eta dimension</p></li>
+<li><p><strong>ValueError</strong> – eta is not convertible into a 2D array</p></li>
+<li><p><strong>NotImplementedError</strong> – Unable to solve problem using CVXPY</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A tuple with two items:</dt><dd><ol class="arabic simple">
+<li><p>support_function_evaluations (numpy.ndarray): Support function evaluation(s) as a 2D numpy.ndarray.
+Vector (N,) with as many rows as eta.</p></li>
+<li><p>support_vectors (numpy.ndarray): Support vectors as a 2D numpy.ndarray. Matrix N x self.dim with as many
+rows as eta.</p></li>
+</ol>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul>
+<li><p>This function allows for :math:mathcal{P} to be in V-Rep or in H-Rep.</p></li>
+<li><p>Given a polytope <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in V-Rep and a support direction
+<span class="math notranslate nohighlight">\(\eta\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>, this function solves a convex program with decision
+variables <span class="math notranslate nohighlight">\(x\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span> and
+<span class="math notranslate nohighlight">\(\theta\in\mathbb{R}^{\mathcal{P}.\text{n\_vertices}}\)</span>,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\text{maximize}    &amp;\quad  \eta^\top x\\
+\text{subject to}  &amp;\quad  x = \sum_i \theta_i v_i\\
+                   &amp;\quad  \sum_i \theta_i = 1, \theta_i \geq 0\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p>Given a polytope <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> in H-Rep and a support direction
+<span class="math notranslate nohighlight">\(\eta\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>, this function solves a convex program with a decision
+variable <span class="math notranslate nohighlight">\(x\in\mathbb{R}^{\mathcal{P}.\text{dim}}\)</span>,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\text{maximize}    &amp;\quad  \eta^\top x\\
+\text{subject to}  &amp;\quad  A x \leq b\\
+                   &amp;\quad  A_e x = b_e\end{split}\]</div>
+</div></blockquote>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.volume">
+<span class="sig-name descname"><span class="pre">volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.volume" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the volume of the polytope using QHull</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Volume of the polytope</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Works with V-representation: Yes</p></li>
+<li><p>Works with H-representation: No</p></li>
+<li><p>Performs a vertex-halfspace enumeration when H-rep is provided</p></li>
+<li><p>Returns 0 when the polytope is empty</p></li>
+<li><p>Requires polytope to be full-dimensional</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.A">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">A</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.A" title="Link to this definition">¶</a></dt>
+<dd><p>Inequality coefficient vectors <cite>A</cite> for the polytope <span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Inequality coefficient vector (H-Rep). A is np.empty((0, self.dim)) for empty polytope.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in H-Rep, and performs a halfspace enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.Ae">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Ae</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.Ae" title="Link to this definition">¶</a></dt>
+<dd><p>Equality coefficient vectors <cite>Ae</cite> for the polytope <span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Equality coefficient vector (H-Rep). Ae is np.empty((0, self.dim)) for empty or</dt><dd><p>full-dimensional polytope.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in H-Rep, and performs a halfspace enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.H">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">H</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.H" title="Link to this definition">¶</a></dt>
+<dd><p>Inequality constraints in halfspace representation <cite>H=[A, b]</cite> for the polytope
+<span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>H-Rep in [A, b]. H is np.empty((0, self.dim + 1)) for empty polytope.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in H-Rep, and performs a halfspace enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.He">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">He</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.He" title="Link to this definition">¶</a></dt>
+<dd><p>Equality constraints in halfspace representation <cite>He=[Ae, be]</cite> for the polytope
+<span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>H-Rep in [Ae, be]. He is np.empty((0, self.dim + 1)) for empty or full-dimensional polytope.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in H-Rep, and performs a halfspace enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.V">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">V</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.V" title="Link to this definition">¶</a></dt>
+<dd><p>Vertex representation (<cite>V</cite>) where the polytope is given by <span class="math notranslate nohighlight">\(\text{ConvexHull}(v_i)\)</span> with
+<span class="math notranslate nohighlight">\(v_i\)</span> as the rows of <span class="math notranslate nohighlight">\(V=[v_1;v_2;\ldots;v_{n_vertices}]\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Vertices of the polytope, arranged row-wise. V is np.empty((0, self.dim)) if polytope is
+empty.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in V-Rep, and performs a vertex enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.b">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">b</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.b" title="Link to this definition">¶</a></dt>
+<dd><p>Inequality constants <cite>b</cite> for the polytope <span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Inequality constants (H-Rep). b is np.empty((0,)) for empty polytope.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in H-Rep, and performs a halfspace enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.be">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">be</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.be" title="Link to this definition">¶</a></dt>
+<dd><p>Equality constants <cite>be</cite> for the polytope <span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Equality constants (H-Rep). be is np.empty((0,)) for empty or full-dimensional polytope.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function requires the polytope to be in H-Rep, and performs a halfspace enumeration if required.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.cvxpy_args_lp">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cvxpy_args_lp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.cvxpy_args_lp" title="Link to this definition">¶</a></dt>
+<dd><p>CVXPY arguments in use when solving a linear program</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CVXPY arguments in use when solving a linear program. Defaults to dictionary in
+<cite>pycvxset.common.DEFAULT_CVXPY_ARGS_LP</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.cvxpy_args_sdp">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cvxpy_args_sdp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.cvxpy_args_sdp" title="Link to this definition">¶</a></dt>
+<dd><p>CVXPY arguments in use when solving a semi-definite program</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CVXPY arguments in use when solving a semi-definite program. Defaults to dictionary in
+<cite>pycvxset.common.DEFAULT_CVXPY_ARGS_SDP</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.cvxpy_args_socp">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cvxpy_args_socp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.cvxpy_args_socp" title="Link to this definition">¶</a></dt>
+<dd><p>CVXPY arguments in use when solving a second-order cone program</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CVXPY arguments in use when solving a second-order cone program. Defaults to dictionary in
+<cite>pycvxset.common.DEFAULT_CVXPY_ARGS_SOCP</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.dim">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dim</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.dim" title="Link to this definition">¶</a></dt>
+<dd><p>Dimension of the polytope. In H-Rep polytope (A, b), this is the number of columns of A, while in V-Rep,
+this is the number of components of the vertices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dimension of the polytope</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.in_H_rep">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">in_H_rep</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.in_H_rep" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the polytope have a halfspace representation (H-Rep).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>When True, the polytope has halfspace representation (H-Rep). Otherwise, False.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.in_V_rep">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">in_V_rep</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.in_V_rep" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the polytope have a vertex representation (V-Rep).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>When True, the polytope has vertex representation (V-Rep). Otherwise, False.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.is_bounded">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_bounded</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.is_bounded" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the polytope is bounded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the polytope is bounded, and False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.is_empty">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_empty</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.is_empty" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the polytope is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>When True, the polytope is empty</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This property is well-defined (<cite>self.n_vertices == 0</cite>) when the polytope is in V-Rep and initialized in the
+constructor. For H-Rep, it solves a Chebyshev centering problem.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.is_full_dimensional">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_full_dimensional</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.is_full_dimensional" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the affine dimension of the polytope is the same as the polytope dimension</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True when the affine hull containing the polytope has the dimension <cite>self.dim</cite></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function can have self to be in V-Rep or H-Rep. See Sec. 2.1.3 of [BV04] for discussion on affine
+dimension.</p>
+<p>An empty polytope is full dimensional if dim=0, otherwise it is not full-dimensional.</p>
+<p>When the n-dimensional polytope is in V-rep, it is full-dimensional when its affine dimension is n. Recall
+that, the affine dimension is the dimension of the affine hull of the polytope is the linear subspace
+spanned by the vectors formed by subtracting the vertices with one of the vertices. Consequently, its
+dimension is given by the rank of the matrix P.V[1:] - P.V[0]. When there are fewer than self.dim + 1
+vertices, we know it is coplanar without checking for matrix rank (simplex needs at least self.dim + 1
+vertices and that is the polytope with the fewest vertices). For numerical stability, we zero-out all delta
+vertices below PYCVXSET_ZERO.</p>
+<p>When the n-dimensional polytope is in H-Rep, it is full-dimensional if it can fit a n-dimensional ball of
+appropriate center and radius inside it (Chebyshev radius).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.is_singleton">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_singleton</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.is_singleton" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the polytope is singleton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>When True, the polytope is singleton.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This property is well-defined (<cite>self.n_vertices == 1</cite>) when the polytope is in V-Rep and initialized in the
+constructor. For H-Rep, it solves a minimum_volume_circumscribing_rectangle problem.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.n_equalities">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_equalities</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.n_equalities" title="Link to this definition">¶</a></dt>
+<dd><p>Number of linear equality constraints used to define the polytope <span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of linear equality constraints</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>A call to this property performs a halfspace enumeration if the polytope is in V-Rep.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.n_halfspaces">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_halfspaces</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.n_halfspaces" title="Link to this definition">¶</a></dt>
+<dd><p>Number of halfspaces used to define the polytope <span class="math notranslate nohighlight">\(\{Ax \leq b, A_e x = b_e\}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of halfspaces</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>A call to this property performs a halfspace enumeration if the polytope is in V-Rep.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of vertices</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>A call to this property performs a vertex enumeration if the polytope is in H-Rep.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pycvxset.Polytope.Polytope.type_of_set">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">type_of_set</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#pycvxset.Polytope.Polytope.type_of_set" title="Link to this definition">¶</a></dt>
+<dd><p>Return the type of set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Type of the set</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2020-2026, Mitsubishi Electric Research Laboratories (MERL).
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/pycvxset.Polytope.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

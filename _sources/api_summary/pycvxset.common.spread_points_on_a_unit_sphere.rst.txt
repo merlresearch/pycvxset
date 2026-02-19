@@ -1,0 +1,6 @@
+﻿pycvxset.common.spread\_points\_on\_a\_unit\_sphere
+===================================================
+
+.. currentmodule:: pycvxset.common
+
+.. autofunction:: spread_points_on_a_unit_sphere
