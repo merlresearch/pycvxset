@@ -1,20 +1,28 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # SPDX-License-Identifier: MIT
 
 # Code purpose:  Define the plotting methods for the Polytope class
-# Coverage: This file has 5 untested statements + 1 partial to handle unexpected errors
+# Coverage: This file has 5 missing statements + 4 excluded statements + 1 partial branches.
+
+from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING, Any, Optional, cast
+
+if TYPE_CHECKING:
+    from pycvxset.Polytope import Polytope
 
 import cdd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
-from scipy.spatial.transform import Rotation
+from mpl_toolkits.mplot3d.axes3d import Axes3D
+from scipy.spatial.transform import Rotation  # pyright: ignore[reportUnknownVariableType]
 
 from pycvxset.common import prune_and_round_vertices
 from pycvxset.common.constants import (
@@ -32,18 +40,19 @@ from pycvxset.Polytope.vertex_halfspace_enumeration import (
 
 
 def plot(
-    self,
-    ax=None,
-    patch_args=None,
-    vertex_args=None,
-    autoscale_enable=True,
-    decimal_precision=PLOTTING_DECIMAL_PRECISION_CDD,
-):
+    self: "Polytope",
+    ax: Optional[Axes | Axes3D | None] = None,
+    patch_args: Optional[dict[str, Any]] = None,
+    vertex_args: Optional[dict[str, Any]] = None,
+    autoscale_enable: bool = True,
+    decimal_precision: int = PLOTTING_DECIMAL_PRECISION_CDD,
+    enable_warning: bool = True,
+) -> tuple[Any, Any, Any]:
     """
     Plot a 2D or 3D polytope.
 
     Args:
-        ax (axis object, optional): Axis on which the patch is to be plotted
+        ax (Axes | Axes3D | None, optional): Axis on which the patch is to be plotted
         patch_args (dict, optional): Arguments to pass for plotting faces and edges. See [Matplotlib-patch]_ for options
             for patch_args for 2D and [Matplotlib-Line3DCollection]_ for options for patch_args for 3D. Defaults to
             None, in which case we set edgecolor to black, and facecolor to skyblue.
@@ -55,6 +64,7 @@ def plot(
         decimal_precision (int, optional): When plotting a 3D polytope that is in V-Rep and not in H-Rep, we round
             vertex to the specified precision to avoid numerical issues. Defaults to PLOTTING_DECIMAL_PRECISION_CDD
             specified in pycvxset.common.constants.
+        enable_warning (bool, optional): Enables the UserWarning. May be turned off if expected. Defaults to True.
 
     Raises:
         ValueError: When an incorrect axes is provided.
@@ -94,21 +104,15 @@ def plot(
     """
 
     # Start plotting
-
-    if self.is_empty:
-        # Can't plot an empty polytope
-        warnings.warn("Can not plot an empty polytope!", UserWarning)
-        return plt.gca(), None, None
-
-    if not self.is_bounded:
-        # Can't plot an unbounded polytope
-        warnings.warn("Can not plot an unbounded polytope!", UserWarning)
-        return plt.gca(), None, None
-
     if self.dim == 2:
-        # Ensures that redundant vertices are removed, and if no V-rep, we will call it as well
-        self.minimize_V_rep()
-        return plot2d(self, ax=ax, patch_args=patch_args, vertex_args=vertex_args, autoscale_enable=autoscale_enable)
+        return plot2d(
+            self,
+            ax=ax,
+            patch_args=patch_args,
+            vertex_args=vertex_args,
+            autoscale_enable=autoscale_enable,
+            enable_warning=enable_warning,
+        )
     elif self.dim == 3:
         return plot3d(
             self,
@@ -117,23 +121,32 @@ def plot(
             vertex_args=vertex_args,
             autoscale_enable=autoscale_enable,
             decimal_precision=decimal_precision,
+            enable_warning=enable_warning,
         )
     else:
         raise NotImplementedError("Plot is not implemented for n >= 4 or n <= 1.")
 
 
-def plot2d(self, ax=None, patch_args=None, vertex_args=None, autoscale_enable=True):
+def plot2d(
+    self: "Polytope",
+    ax: Optional[Axes | Axes3D | None] = None,
+    patch_args: Optional[dict[str, Any]] = None,
+    vertex_args: Optional[dict[str, Any]] = None,
+    autoscale_enable: bool = True,
+    enable_warning: bool = True,
+) -> tuple[Any, Any, Any]:
     """
     Plot a 2D polytope using matplotlib's add_patch(Polygon()).
 
     Args:
-        ax (axis object, optional): Axis on which the patch is to be plotted
+        ax (Axes | Axes3D | None, optional): Axis on which the patch is to be plotted
         patch_args (dict, optional): Arguments to pass for plotting faces and edges. See [Matplotlib-patch]_
             for options for patch_args. Defaults to None, in which case we set edgecolor to black, and facecolor to
             skyblue.
         vertex_args (dict, optional): Arguments to pass for plotting vertices. See [Matplotlib-scatter]_ for
             options for vertex_args. Defaults to None, in which case we skip plotting the vertices.
         autoscale_enable (bool, optional): When set to True (default), matplotlib adjusts axes to view full polytope.
+        enable_warning (bool, optional): Enables the UserWarning. May be turned off if expected. Defaults to True.
 
     Raises:
         ValueError: When a 2D polytope is provided
@@ -153,11 +166,13 @@ def plot2d(self, ax=None, patch_args=None, vertex_args=None, autoscale_enable=Tr
         raise ValueError("Expected a 2D polytope")
     elif self.is_empty:
         # Can't plot an empty polytope
-        warnings.warn("Can not plot an empty polytope!", UserWarning)
+        if enable_warning:
+            warnings.warn("Can not plot an empty polytope!", UserWarning)
         return plt.gca(), None, None
     elif not self.is_bounded:
         # Can't plot an unbounded polytope
-        warnings.warn("Can not plot an unbounded polytope!", UserWarning)
+        if enable_warning:
+            warnings.warn("Can not plot an unbounded polytope!", UserWarning)
         return plt.gca(), None, None
 
     if not ax:
@@ -165,6 +180,9 @@ def plot2d(self, ax=None, patch_args=None, vertex_args=None, autoscale_enable=Tr
         ax = plt.gca()
 
     patch_args, vertex_args = sanitize_patch_args_and_vertex_args(patch_args, vertex_args, 2)
+
+    # Ensures that redundant vertices are removed, and if no V-rep, we will call it as well
+    self.minimize_V_rep()
 
     # Order the vertices
     c = self.interior_point(point_type="centroid")
@@ -180,18 +198,20 @@ def plot2d(self, ax=None, patch_args=None, vertex_args=None, autoscale_enable=Tr
 
 
 def plot3d(
-    self,
-    ax=None,
-    patch_args=None,
-    vertex_args=None,
-    autoscale_enable=True,
-    decimal_precision=PLOTTING_DECIMAL_PRECISION_CDD,
-):
+    self: "Polytope",
+    ax: Optional[Axes | Axes3D | None] = None,
+    patch_args: Optional[dict[str, Any]] = None,
+    vertex_args: Optional[dict[str, Any]] = None,
+    autoscale_enable: bool = True,
+    decimal_precision: int = PLOTTING_DECIMAL_PRECISION_CDD,
+    enable_warning: bool = True,
+    prune_V: bool = True,
+) -> tuple[Any, Any, Any]:
     """Plot a 3D polytope using matplotlib's Line3DCollection.
 
     Args:
-        ax (Axes, optional): Axes to plot. Defaults to None, in which case a new axes is created. The function assumes
-            that the provided axes was defined with projection='3d'.
+        ax (Axes | Axes3D | None, optional): Axes to plot. Defaults to None, in which case a new axes is created. The
+            function assumes that the provided axes was defined with projection='3d'.
         patch_args (dict, optional): Arguments to pass for plotting faces and edges. See [Matplotlib-Line3DCollection]_
             for options for patch_args. Defaults to None, in which case we set edgecolor to black, and facecolor to
             skyblue.
@@ -201,6 +221,8 @@ def plot3d(
         decimal_precision (int, optional): When plotting a 3D polytope that is in V-Rep and not in H-Rep, we round
             vertex to the specified precision to avoid numerical issues. Defaults to PLOTTING_DECIMAL_PRECISION_CDD
             specified in pycvxset.common.constants.
+        enable_warning (bool, optional): Enables the UserWarning. May be turned off if expected. Defaults to True.
+        prune_V (bool, optional): When True, prune vertices before plotting. Defaults to True.
 
     Raises:
         ValueError: When either a non-3D polytope is provided.
@@ -239,11 +261,13 @@ def plot3d(
         raise ValueError("Expected a 3D polytope")
     elif self.is_empty:
         # Can't plot an empty polytope
-        warnings.warn("Can not plot an empty polytope!", UserWarning)
+        if enable_warning:
+            warnings.warn("Can not plot an empty polytope!", UserWarning)
         return plt.gca(), None, None
     elif not self.is_bounded:
         # Can't plot an unbounded polytope
-        warnings.warn("Can not plot an unbounded polytope!", UserWarning)
+        if enable_warning:
+            warnings.warn("Can not plot an unbounded polytope!", UserWarning)
         return plt.gca(), None, None
     elif not autoscale_enable:
         raise NotImplementedError("autoscale_enable needs to be currently enabled for 3D plotting")
@@ -258,7 +282,7 @@ def plot3d(
     # If in V-Rep and not self.in_H_rep, then first filter the vertices and then perform facet enumeration
     if self.in_V_rep and not self.in_H_rep:
         V = prune_and_round_vertices(self.V, decimal_precision=decimal_precision)
-        cdd_polytope = get_cdd_polyhedron_from_V(V)
+        cdd_polytope = get_cdd_polyhedron_from_V(V, prune_V=prune_V)
         try:
             set_attributes_minimal_Ab_Aebe_from_cdd_polyhedron(self, cdd_polytope)
         except (ValueError, IndexError) as err:
@@ -280,7 +304,7 @@ def plot3d(
     cdd_polytope_vertices = self.V
 
     # Plot each face
-    h_first_patch = Line3DCollection([], **patch_args)
+    h_first_patch = Line3DCollection([], **patch_args)  # pyright: ignore[reportArgumentType]
     is_first_patch = True
     h_vert = None
     for face_vertex_indices, halfspace_direction in zip(list_incidences, cdd_polytope_A):
@@ -293,7 +317,7 @@ def plot3d(
             unit_halfspace_direction = halfspace_direction / np.linalg.norm(halfspace_direction)
             rot_axis_vector = np.cross(unit_halfspace_direction, [0, 0, 1])
             rot_angle = np.arccos(np.dot(unit_halfspace_direction, [0, 0, 1]))
-            R_matrix = Rotation.from_rotvec(rot_angle * rot_axis_vector).as_matrix()
+            R_matrix = cast(np.ndarray, Rotation.from_rotvec(rot_angle * rot_axis_vector).as_matrix())
             rotated_relative_vectors = (R_matrix @ relative_vectors.T).T
             # Compute angle subtended by relative vectors (after rotation) to a mean vec (centroid)
             mean_rotated_relative_vec = np.mean(rotated_relative_vectors, axis=0)
@@ -314,18 +338,18 @@ def plot3d(
                 if patch_args["facecolor"] is None:
                     # However, facecolor=None doesn't work if unfilled polytope is desired, so set alpha=0
                     patch_args["alpha"] = 0
-                    h = Poly3DCollection(poly_face_vertices, **patch_args)
+                    h = Poly3DCollection(poly_face_vertices, **patch_args)  # pyright: ignore[reportArgumentType]
                     # Remove label from future patches/lines and store h with label handle for future reference
                     patch_args.pop("alpha")
                 else:
-                    h = Poly3DCollection(poly_face_vertices, **patch_args)
+                    h = Poly3DCollection(poly_face_vertices, **patch_args)  # pyright: ignore[reportArgumentType]
                 patch_args.pop("label")
             else:
-                h = Line3DCollection(poly_face_vertices, **patch_args)
+                h = Line3DCollection(poly_face_vertices, **patch_args)  # pyright: ignore[reportArgumentType]
             if is_first_patch:
                 h_first_patch = h
                 is_first_patch = False
-            ax.add_collection3d(h)
+            ax.add_collection3d(h)  # pyright: ignore[reportAttributeAccessIssue]
             # Plot vertices
             h_vert = ax.scatter(poly_face_V[:, 0], poly_face_V[:, 1], poly_face_V[:, 2], **vertex_args)
     if h_vert is None:
@@ -333,7 +357,9 @@ def plot3d(
     return ax, h_first_patch, h_vert
 
 
-def sanitize_patch_args_and_vertex_args(patch_args, vertex_args, dimension):
+def sanitize_patch_args_and_vertex_args(
+    patch_args: Optional[dict[str, Any]], vertex_args: Optional[dict[str, Any]], dimension: int
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Sanitize patch_args and vertex_args
 
     Args:

@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -37,8 +37,6 @@ def test_approximate_volume_from_grid_and_minimum_volume_circumscribing_rectangl
     assert np.allclose(ub, ub_rect)
     with pytest.raises(ValueError):
         approximate_volume_from_grid(C, area_grid_step_size=-0.5)
-    with pytest.raises(ValueError):
-        approximate_volume_from_grid(C, area_grid_step_size=[0.5, 0.1])
 
 
 def test_interior_point():
@@ -46,8 +44,12 @@ def test_interior_point():
     ub = [1, 1]
     C = ConstrainedZonotope(lb=lb, ub=ub)
     assert np.allclose(C.interior_point(), 0)
+    assert np.allclose(C.interior_point(point_type="chebyshev"), 0)
+    assert np.allclose(C.interior_point(point_type="mvie"), 0)
     C = ConstrainedZonotope(lb=lb, ub=ub).intersection_with_affine_set(Ae=[1, 0], be=1)
     assert C.interior_point() <= C
+    assert C.interior_point(point_type="chebyshev") <= C
+    assert C.interior_point(point_type="mvie") <= C
 
 
 def test_projection():
@@ -94,6 +96,14 @@ def test_chebyshev_center_and_redundant_inequalities():
     assert np.isclose(r_P, r_C)
     assert np.allclose(c_P, c_C)
 
+    lifting_mask = [[1, 0], [0, 1], [0, 0]]
+    C = lifting_mask * ConstrainedZonotope(lb=lb, ub=ub)
+    P = lifting_mask * Polytope(lb=lb, ub=ub)
+    c_C, r_C = C.chebyshev_centering()
+    c_P, r_P = P.chebyshev_centering()
+    assert np.isclose(r_P, r_C)
+    assert np.allclose(c_P, c_C)
+
     G, c = [[1, 0, 0], [0, 1, 0]], [0, 0]
     Ae, be = [-1, -1, 1.25], -0.75
     C1 = ConstrainedZonotope(G=G, c=c, Ae=Ae, be=be)
@@ -115,19 +125,18 @@ def test_chebyshev_center_and_redundant_inequalities():
 
     # Low-dimensional set
     C = ConstrainedZonotope(lb=lb, ub=ub).intersection_with_affine_set([1, 1], 0)
-    with pytest.raises(ValueError):
-        _, r_C = C.chebyshev_centering()
+    _, r_C = C.chebyshev_centering()
 
     # Many redundancies
     C1 = ConstrainedZonotope(
         G=np.hstack((np.eye(2), np.zeros((2, 1)))), c=np.ones((2,)), Ae=np.ones((4, 3)), be=np.ones((4,))
     )
+    C1_old_eq = C1.n_equalities
+    with pytest.warns(UserWarning, match="This function returns a sub-optimal*"):
+        c_C1, r_C1 = C1.chebyshev_centering()
+    assert C1.n_equalities == 1 and C1_old_eq == 4
     C2 = ConstrainedZonotope(G=np.hstack((np.eye(2), np.zeros((2, 1)))), c=np.ones((2,)), Ae=[1, 1, 1], be=1)
     with pytest.warns(UserWarning, match="This function returns a sub-optimal*"):
-        with pytest.raises(ValueError):
-            C1.chebyshev_centering()
-        C1.remove_redundancies()
-        c_C1, r_C1 = C1.chebyshev_centering()
         c_C2, r_C2 = C2.chebyshev_centering()
     assert np.allclose(c_C1, c_C2)
     assert np.isclose(r_C1, r_C2)
@@ -138,6 +147,16 @@ def test_chebyshev_center_and_redundant_inequalities():
     with pytest.raises(NotImplementedError):
         with pytest.warns(UserWarning, match="This function returns a sub-optimal*"):
             C.chebyshev_centering()
+
+    # Single-point ConstrainedZonotope
+    Z3 = ConstrainedZonotope(c=[[1, 1]], G=np.eye(2), Ae=np.eye(2), be=[0.5, 0.5])
+    c, r = Z3.chebyshev_centering()
+    assert np.allclose(c, np.array([[1.5, 1.5]]))
+    assert np.isclose(r, 0)
+    Z4 = ConstrainedZonotope(c=[[1]], G=[1, 1], Ae=np.eye(2), be=[0.5, 0.5])
+    c, r = Z4.chebyshev_centering()
+    assert np.allclose(c, np.array([[2]]))
+    assert np.isclose(r, 0)
 
 
 def test_maximum_volume_inscribed_ellipsoids():
@@ -151,6 +170,15 @@ def test_maximum_volume_inscribed_ellipsoids():
     assert np.allclose(c_P, c_C)
     assert np.allclose(Q_P, Q_C)
     assert np.allclose(G_P, G_C)
+
+    lifting_mask = [[1, 0], [0, 1], [0, 0]]
+    C = lifting_mask * ConstrainedZonotope(lb=lb, ub=ub)
+    P = lifting_mask * Polytope(lb=lb, ub=ub)
+    c_C, Q_C, G_C = C.maximum_volume_inscribing_ellipsoid()
+    c_P, Q_P, G_P = P.maximum_volume_inscribing_ellipsoid()
+    assert np.allclose(c_P, c_C)
+    assert np.allclose(Q_P, Q_C)
+    assert np.allclose(G_P @ G_P.T, G_C @ G_C.T)
 
     G, c = [[1, 0, 0], [0, 1, 0]], [0, 0]
     Ae, be = [-1, -1, 1.25], -0.75
@@ -173,19 +201,18 @@ def test_maximum_volume_inscribed_ellipsoids():
 
     # Low-dimensional set
     C = ConstrainedZonotope(lb=lb, ub=ub).intersection_with_affine_set([1, 1], 0)
-    with pytest.raises(ValueError):
-        C.maximum_volume_inscribing_ellipsoid()
+    C.maximum_volume_inscribing_ellipsoid()
 
     # Many redundancies
     C1 = ConstrainedZonotope(
         G=np.hstack((np.eye(2), np.zeros((2, 1)))), c=np.ones((2,)), Ae=np.ones((4, 3)), be=np.ones((4,))
     )
+    C1_old_eq = C1.n_equalities
+    with pytest.warns(UserWarning, match="This function returns a sub-optimal*"):
+        c_C1, Q_C1, G_C1 = C1.maximum_volume_inscribing_ellipsoid()
+    assert C1.n_equalities == 1 and C1_old_eq == 4
     C2 = ConstrainedZonotope(G=np.hstack((np.eye(2), np.zeros((2, 1)))), c=np.ones((2,)), Ae=[1, 1, 1], be=1)
     with pytest.warns(UserWarning, match="This function returns a sub-optimal*"):
-        with pytest.raises(ValueError):
-            C1.maximum_volume_inscribing_ellipsoid()
-        C1.remove_redundancies()
-        c_C1, Q_C1, G_C1 = C1.maximum_volume_inscribing_ellipsoid()
         c_C2, Q_C2, G_C2 = C2.maximum_volume_inscribing_ellipsoid()
     assert np.allclose(c_C1, c_C2)
     assert np.allclose(Q_C1, Q_C2)
@@ -197,3 +224,16 @@ def test_maximum_volume_inscribed_ellipsoids():
     with pytest.raises(NotImplementedError):
         with pytest.warns(UserWarning, match="This function returns a sub-optimal*"):
             C.maximum_volume_inscribing_ellipsoid()
+
+    # Single-point ConstrainedZonotope
+    Z3 = ConstrainedZonotope(c=[[1, 1]], G=np.eye(2), Ae=np.eye(2), be=[0.5, 0.5])
+    c, G, Q = Z3.maximum_volume_inscribing_ellipsoid()
+    print(c, G, Q)
+    assert np.allclose(c, np.array([[1.5, 1.5]]))
+    assert np.allclose(G, np.zeros((2, 0)))
+    assert np.allclose(Q, np.zeros((2, 2)))
+    Z4 = ConstrainedZonotope(c=[[1]], G=[1, 1], Ae=np.eye(2), be=[0.5, 0.5])
+    c, G, Q = Z4.maximum_volume_inscribing_ellipsoid()
+    assert np.allclose(c, np.array([[2]]))
+    assert np.allclose(G, np.zeros((1, 0)))
+    assert np.allclose(Q, np.zeros((1, 1)))

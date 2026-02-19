@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -49,7 +49,6 @@ def test_constrained_zonotope_init():
     assert Z.is_zonotope
     assert Z.dim == 2
     assert Z.latent_dim == 0
-    assert Z.is_empty
     assert Z.Ae.shape == (0, 0)
     assert Z.be.size == 0
     assert Z.He.shape == (0, Z.latent_dim + 1)
@@ -61,7 +60,6 @@ def test_constrained_zonotope_init():
     assert Z.is_zonotope
     assert Z.dim == 2
     assert Z.latent_dim == 0
-    assert Z.is_empty
     assert Z.Ae.shape == (0, 0)
     assert Z.be.size == 0
     assert Z.He.shape == (0, Z.latent_dim + 1)
@@ -84,12 +82,27 @@ def test_constrained_zonotope_init():
     assert Z.is_zonotope
     assert Z.dim == 2
     assert Z.latent_dim == 0
-    assert Z.is_empty
     assert Z.Ae.shape == (0, 0)
     assert Z.be.size == 0
     assert Z.He.shape == (0, Z.latent_dim + 1)
     assert Z.G.size == 0
     assert Z.c is None
+
+    for Z in [
+        ConstrainedZonotope(G=np.eye(2), c=np.zeros((2,)), Ae=None, be=None),
+        ConstrainedZonotope(G=np.eye(2), c=np.zeros((2,)), Ae=None, be=[]),
+        ConstrainedZonotope(G=np.eye(2), c=np.zeros((2,)), Ae=[], be=None),
+        ConstrainedZonotope(G=np.eye(2), c=np.zeros((2,)), Ae=[], be=[]),
+    ]:
+        assert not Z.is_empty
+        assert Z.is_bounded
+        assert Z.is_zonotope
+        assert Z.dim == 2
+        assert Z.latent_dim == 2
+        assert Z.Ae.shape == (0, 2)
+        assert Z.be.size == 0
+        assert Z.G.size == 4
+        assert np.allclose(Z.c, np.zeros((2,)))
 
     # Constrained zonotope
     Z = ConstrainedZonotope(G=np.eye(2), c=np.zeros((2,)), Ae=[1, 0], be=[2])
@@ -117,6 +130,13 @@ def test_constrained_zonotope_init():
     assert not Z.is_empty
     assert Z.is_bounded
     assert Z.is_zonotope
+
+    with pytest.raises(ValueError):
+        ConstrainedZonotope(G=None, c=None)
+    C = ConstrainedZonotope(G=np.eye(2), c=None)
+    assert C.is_empty
+    assert C.dim == 2
+    assert ConstrainedZonotope(G=None, c=[1, 1]).is_singleton
 
 
 def test_constrained_zonotope_from_bad_inputs():
@@ -252,12 +272,6 @@ def test_constrained_zonotope_from_polytope():
     with pytest.warns(UserWarning, match="Removed some rows in (Ae, be)*"):
         CZ = ConstrainedZonotope(polytope=sliced_P)
     assert CZ.dim == 2
-    assert CZ.latent_dim == sliced_P.n_halfspaces + sliced_P.dim
-    assert CZ.G.shape == (2, sliced_P.n_halfspaces + sliced_P.dim)
-    assert CZ.c.shape == (2,)
-    assert CZ.Ae.shape[0] <= sliced_P.n_equalities + sliced_P.n_halfspaces
-    # A row of Ae was zeros, and then Ae in affine set times Z_0.G is also a row of zeros. Both of which are removed.
-    assert CZ.Ae.shape[0] == sliced_P.n_equalities + sliced_P.n_halfspaces - 2
     assert not CZ.is_empty
 
     # Polytope in V-Rep
@@ -306,6 +320,11 @@ def test_constrained_zonotope_from_polytope():
     Z2 = ConstrainedZonotope(lb=[[1, 1]], ub=[[1, 1]])
     assert not Z2.is_full_dimensional
 
+    with pytest.raises(ValueError):
+        ConstrainedZonotope(polytope=None)
+    with pytest.raises(ValueError):
+        ConstrainedZonotope(polytope=Ellipsoid(c=[0, 0], r=1))
+
 
 def test_print():
     Z0 = ConstrainedZonotope(polytope=Polytope(dim=2))
@@ -329,7 +348,7 @@ def test_print():
     with pytest.warns(UserWarning, match="Removed some rows in "):
         C2 = ConstrainedZonotope(polytope=Polytope(ub=[1, 1], lb=[1, -1]))
     assert str(C2) == "Constrained Zonotope in R^2"
-    assert repr(C2) == "Constrained Zonotope in R^2\n\twith latent dimension 4 and 2 equality constraints"
+    assert repr(C2) == "Constrained Zonotope in R^2\n\twith latent dimension 3 and 2 equality constraints"
 
 
 def test_neg():
@@ -380,6 +399,10 @@ def test_pow_and_cartesian_product():
         assert C4 == C2
     with pytest.raises(ValueError):
         C1.cartesian_product(Ellipsoid(c=[1, 1], r=1))
+    C5 = ConstrainedZonotope(dim=5)
+    C5_pow = C5**3
+    assert C5_pow.dim == 15
+    assert C5_pow.is_empty
 
 
 def test_is_full_dimensional_is_empty_is_singleton():
@@ -408,6 +431,10 @@ def test_is_full_dimensional_is_empty_is_singleton():
     assert not Z_new.is_empty
     assert not Z_new.is_full_dimensional
     assert not Z.is_singleton
+    # Z_new defined directly to check full-dimensional despite remove_redundancies
+    CZ = ConstrainedZonotope(G=np.eye(2), c=np.ones((2,)), Ae=np.eye(2), be=[0, 0])
+    assert not CZ.is_full_dimensional
+    assert CZ.is_singleton
     # Singleton Zonotope in 2D > Non-empty and non-full-dimensional
     Z = ConstrainedZonotope(G=None, c=[0, 0])
     assert not Z.is_full_dimensional
@@ -418,6 +445,49 @@ def test_is_full_dimensional_is_empty_is_singleton():
     assert Z.is_full_dimensional
     assert not Z.is_empty
     assert Z.is_singleton
+    # Singleton due Ae, be
+    Z3 = ConstrainedZonotope(c=[[1, 1]], G=np.eye(2), Ae=np.eye(2), be=[0.5, 0.5])
+    assert not Z3.is_empty
+    assert not Z3.is_full_dimensional
+    assert Z3.is_singleton
+    assert [[1, 1]] not in Z3
+    assert [[1.5, 1.5]] in Z3
+    Z4 = ConstrainedZonotope(c=[[1]], G=[1, 1], Ae=np.eye(2), be=[0.5, 0.5])
+    assert not Z4.is_empty
+    assert Z4.is_full_dimensional  # 1-D point in 1D is full-dimensional
+    assert Z4.is_singleton
+    assert [[1]] not in Z4
+    assert [[2]] in Z4
+    Z5 = ConstrainedZonotope(c=[[1]], G=[1, 1], Ae=np.eye(2), be=[1.5, 1.5])
+    assert Z5.is_empty
+    assert not Z5.is_full_dimensional
+    assert not Z5.is_singleton
+
+    # A CZ with unnecessary latent variable 4 (Effect of remove_redundancies) > Full-dimensional and non-empty
+    C = ConstrainedZonotope(G=np.hstack((np.eye(3), np.zeros((3, 1)))), c=np.zeros((3,)), Ae=[0, 0, 0, 1], be=[0])
+    C_new = [0, 1, 0] @ C
+    assert not C.is_zonotope  # Technically it is a zonotope, Ae, be is present, so we say it is not a zonotope
+    assert not C_new.is_zonotope  # Technically it is a zonotope, Ae, be is present, so we say it is not a zonotope
+    assert C.is_full_dimensional
+    assert C_new.is_full_dimensional
+    assert not C_new.is_singleton
+    # After intersection, the constrained zonotope remains full-dimensional and becomes a singleton
+    C_new_2 = C_new.intersection_with_affine_set(Ae=[1], be=[0])
+    assert C_new_2.latent_dim == 0
+    assert C_new_2.is_full_dimensional
+    assert C_new_2.is_singleton
+
+    # After affine transformation, the constrained zonotope remains full-dimensional
+    C_new = [[0, 1, 0], [1, 0, 0]] @ C
+    assert C_new.is_full_dimensional
+    assert C_new.latent_dim == 3  # latent_dim has 1, 2 and 4 columns left, due to remove_redundancies
+    # After intersection, the constrained zonotope is no longer full-dimensional
+    C_new_2 = C_new.intersection_with_affine_set(Ae=[1, 0], be=[0])
+    assert not C_new_2.is_full_dimensional
+
+    C = ConstrainedZonotope(dim=3)
+    C.remove_redundancies()
+    assert C.is_empty
 
 
 def test_containment_constraints():

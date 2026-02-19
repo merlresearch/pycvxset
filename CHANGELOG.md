@@ -1,8 +1,28 @@
 <!--
-Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 
 SPDX-License-Identifier: CC-BY-4.0
 -->
+# 1.2.0 /2026-02-10
+
+- Code refactoring/optimization (including local import) for speed and type hinting
+  - Use pyright to ensure strict type checking, which will provide improved auto-complete features
+- General changes
+  - Add github actions support for Python 3.13
+  - Add type_of_set data member to each set
+  - Rename first required argument of spread_points_on_a_unit_sphere from n_dim to dim for consistency
+  - Use CVXPY parameters for speed up support and project computation, and CVXPY is now imported locally
+- Changes to ConstrainedZonotope
+  - Add get_matrix_least_norm_solution
+- Changes to Ellipsoid
+  - Add is_bounded
+  - Refactor support computation
+- Changes to Polytope
+  - Add decompose_as_affine_transform_of_polytope_without_equalities
+  - Add is_singleton
+  - Add deflate_rectangle
+- [Bugfix] Fix issue #4 in github
+
 # 1.1.0 /2025-06-30
 
 - Update dependency to use pycddlib>=3.0.0

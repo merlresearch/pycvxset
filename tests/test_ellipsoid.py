@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from pycvxset import PYCVXSET_ZERO, ConstrainedZonotope, Ellipsoid, Polytope, spread_points_on_a_unit_sphere
-from pycvxset.common.constants import DEFAULT_CVXPY_ARGS_SOCP, TEST_3D_PLOTTING, TESTING_SHOW_PLOTS
+from pycvxset.common.constants import DEFAULT_CVXPY_ARGS_SOCP, TESTING_SHOW_PLOTS
 
 TESTING_SHOW_PLOTS = False or TESTING_SHOW_PLOTS
 
@@ -22,6 +22,7 @@ class TestEllipsoid(unittest.TestCase):
         E = Ellipsoid(c=np.zeros((2,)), Q=np.eye(2))
         assert E.is_full_dimensional
         assert not E.is_empty
+        assert E.is_bounded
         E = Ellipsoid(c=np.zeros((2,)), G=np.ones((2, 2)))
         assert not E.is_full_dimensional
         assert not E.is_empty
@@ -97,6 +98,8 @@ class TestEllipsoid(unittest.TestCase):
         assert not E3.is_singleton
         assert not E4.is_singleton
 
+        assert Ellipsoid(c=np.zeros((2,)), G=np.zeros((2, 0))).is_singleton
+
         # Can not check for containment between non-full-dimensional ellipsoids
         with pytest.raises(ValueError):
             E3 == E4
@@ -135,6 +138,18 @@ class TestEllipsoid(unittest.TestCase):
             Ellipsoid(c=np.zeros((2,)), Q=np.eye(2), G=np.eye(2))
 
         with pytest.raises(ValueError):
+            Ellipsoid(c=np.zeros((2,)), G=None)
+
+        with pytest.raises(ValueError):
+            Ellipsoid(c=np.zeros((2,)), G=[[np.inf, 0], [0, 1]])
+
+        with pytest.raises(ValueError):
+            Ellipsoid(c=np.zeros((2,)), Q=None)
+
+        with pytest.raises(ValueError):
+            Ellipsoid(c=np.zeros((2,)), Q=[[np.inf, 0], [0, 1]])
+
+        with pytest.raises(ValueError):
             Ellipsoid(c=np.zeros((2,)), A=np.eye(2))
 
         with pytest.raises(ValueError):
@@ -142,6 +157,15 @@ class TestEllipsoid(unittest.TestCase):
 
         with pytest.raises(ValueError):
             Ellipsoid(m=[1, 0])
+
+        with pytest.raises(ValueError):
+            Ellipsoid(c=np.zeros((2,)), r=np.inf)
+
+        with pytest.raises(ValueError):
+            Ellipsoid(c=[np.inf, 1], r=2)
+
+        with pytest.raises(ValueError):
+            Ellipsoid(c=[1, np.nan], r=2)
 
     def test_plotting(self):
         a = 1
@@ -163,7 +187,7 @@ class TestEllipsoid(unittest.TestCase):
         ax.set_xlim([-10, 10])
         ax.set_ylim([-10, 10])
 
-        if TEST_3D_PLOTTING:
+        if TESTING_SHOW_PLOTS:
             ell = Ellipsoid(c=(0, 0, 0), r=3)
             ell.plot(method="inner")
             ell.plot(method="outer")
@@ -172,7 +196,7 @@ class TestEllipsoid(unittest.TestCase):
         radius = 5
         sphere = Ellipsoid(c=(0, 0), r=radius)
         for support_direction in ((0, 1), (0, -1), (1, 0), (-1, 0)):
-            assert sphere.support(support_direction)[0] == radius
+            assert np.isclose(sphere.support(support_direction)[0], radius)
 
         with pytest.raises(ValueError):
             Ellipsoid(c=(0, 0), r=-1)
@@ -184,6 +208,12 @@ class TestEllipsoid(unittest.TestCase):
 
         singleton = Ellipsoid(c=(1, 0))
         assert np.isclose(singleton.support([1, -1])[1], [1, 0]).all()
+
+        sphere = Ellipsoid(c=(0, 0), r=radius)
+        with pytest.raises(ValueError):
+            sphere.support(np.array([[[1, 0]]]))
+        with pytest.raises(ValueError):
+            sphere.support(np.array([[1, 0, 0]]))
 
     def test_add(self):
         sphere_1 = Ellipsoid(c=(1, 0), r=3)
@@ -329,6 +359,8 @@ class TestEllipsoid(unittest.TestCase):
         E = Ellipsoid.deflate(P)
         assert np.allclose(E.Q, 2 * np.eye(2))
         assert np.allclose(E.c, np.zeros((2,)))
+        with pytest.raises(ValueError):
+            Ellipsoid.deflate(Polytope(dim=2))  # Empty polytope
         if TESTING_SHOW_PLOTS:
             import matplotlib.pyplot as plt
 
@@ -339,9 +371,12 @@ class TestEllipsoid(unittest.TestCase):
             plt.xlim([-2, 2])
             plt.ylim([-2, 2])
             plt.show()
+
         E2 = Ellipsoid.inflate(P)
         assert np.allclose(E2.Q, np.eye(2))
         assert np.allclose(E2.c, np.zeros((2,)))
+        with pytest.raises(ValueError):
+            Ellipsoid.inflate(Polytope(dim=2))  # Empty polytope
         if TESTING_SHOW_PLOTS:
             import matplotlib.pyplot as plt
 
@@ -356,6 +391,8 @@ class TestEllipsoid(unittest.TestCase):
         E3 = Ellipsoid.inflate_ball(P)
         assert np.allclose(E3.Q, np.eye(2))
         assert np.allclose(E3.c, np.zeros((2,)))
+        with pytest.raises(ValueError):
+            Ellipsoid.inflate_ball(Polytope(dim=2))  # Empty polytope
         if TESTING_SHOW_PLOTS:
             import matplotlib.pyplot as plt
 
@@ -472,12 +509,6 @@ class TestEllipsoid(unittest.TestCase):
         assert not E_larger <= E
         assert E == E
 
-        E = Ellipsoid(c=[0, 0], r=2)
-        with pytest.raises(ValueError):
-            E >= ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
-        with pytest.raises(ValueError):
-            E <= ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
-
         E.cvxpy_args_sdp = {"solver": "WRONG_SOLVER"}
         with pytest.raises(NotImplementedError):
             E == E
@@ -488,6 +519,33 @@ class TestEllipsoid(unittest.TestCase):
         assert not E.contains([[1, 1], [2, 1]]).all()
         assert not E.contains([2, 2])
         assert E.contains([1, 1])
+
+        # __ge__ testing (and a single)
+        with pytest.raises(TypeError):
+            assert (([[1, 2], [2, 1]] <= Ellipsoid(c=[1, 2], r=1)) == [1, 0]).all()
+        with pytest.raises(TypeError):
+            assert ((Ellipsoid(c=[1, 2], r=1) >= [[1, 2], [2, 1]]) == [1, 0]).all()
+        Ellipsoid(c=[1, 2], r=1).contains([[1, 2], [2, 1]])
+        assert [1, 2] <= Ellipsoid(c=[1, 2], r=1)
+
+        assert Ellipsoid(c=[0, 0], r=2) != Polytope(c=[0, 0], h=2)
+        assert Ellipsoid(c=[0, 0], r=0) == Polytope(V=[[0, 0]])
+        assert Ellipsoid(c=[0, 0], r=2) != Polytope(V=[[0, 0]])
+        with pytest.raises(TypeError):
+            Ellipsoid(c=[0, 0], r=0) >= ConstrainedZonotope(c=[0, 0], h=0)
+        with pytest.raises(TypeError):
+            Ellipsoid(c=[0, 0], r=0) >= ConstrainedZonotope(c=[0, 0], h=0)
+        E = Ellipsoid(c=[0, 0], r=2)
+        with pytest.raises(TypeError):
+            E >= ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
+        with pytest.raises(TypeError):
+            E <= ConstrainedZonotope(lb=[-1, -1], ub=[1, 1])
+        with pytest.raises(ValueError):
+            Ellipsoid(c=[1, 0], r=1).contains(ConstrainedZonotope(c=[1, 0], h=1))
+
+        # False because Ellipsoid CZ comparison fails!
+        assert Ellipsoid(c=[0, 0], r=0) != ConstrainedZonotope(polytope=Polytope(V=[[0, 0]]))
+        assert Ellipsoid(c=[0, 0], r=0) != (ConstrainedZonotope(dim=2) + [0, 0])
 
     def test_copy(self):
         E = Ellipsoid(c=[0, 0], r=2)

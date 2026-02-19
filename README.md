@@ -1,5 +1,5 @@
 <!--
-Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 Copyright (c) 2019 Tor Aksel N. Heirung
 
 SPDX-License-Identifier: AGPL-3.0-or-later
@@ -53,7 +53,7 @@ See the Jupyter notebooks in [examples](https://github.com/merlresearch/pycvxset
 
 ### Requirements
 
-pycvxset supports Python 3.9+ on Ubuntu, Windows, and MacOS. As described in [setup.py](https://github.com/merlresearch/pycvxset/blob/main/setup.py), pycvxset has the following core dependencies:
+pycvxset supports Python 3.9+ on Ubuntu, Windows, and MacOS. As described in [pyproject.toml](https://github.com/merlresearch/pycvxset/blob/main/pyproject.toml), pycvxset has the following core dependencies:
 1. [numpy](https://numpy.org/)
 2. [scipy](https://scipy.org/)
 3. [cvxpy](http://www.cvxpy.org/)
@@ -92,7 +92,7 @@ Refer to [.github/workflows](https://github.com/merlresearch/pycvxset/tree/main/
 The following code block is reproduced from `run_demo` function in [examples/pycvxset_diag.py](https://github.com/merlresearch/pycvxset/blob/main/examples/pycvxset_diag.py). The code block demonstrates how one can use `pycvxset` to define sets and manipulate them:
 
 ```python
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 
 import numpy as np
 from pycvxset import Ellipsoid, Polytope
@@ -138,30 +138,11 @@ ellipsoid_outside_projection = Ellipsoid.inflate(project_transformed_P_to_XY)
 
 ## Getting help
 
-Let us say that you have read the [manual](https://github.com/merlresearch/pycvxset/blob/main/MANUAL.pdf) and searched
-the [Discussion](https://github.com/merlresearch/pycvxset/discussions) and the
-[Issue](https://github.com/merlresearch/pycvxset/issues) webpages, but still need help.
+See [MANUAL.pdf](https://github.com/merlresearch/pycvxset/blob/main/MANUAL.pdf) or [https://merlresearch.github.io/pycvxset/](https://merlresearch.github.io/pycvxset/) for documentation of pycvxset.
 
-**Please start a [Discussion](https://github.com/merlresearch/pycvxset/discussions)** for...
+Please use the [Discussion page](https://github.com/merlresearch/pycvxset/discussions) or the
+[Issue page](https://github.com/merlresearch/pycvxset/issues), if you still need help.
 
-- Getting help in setting up pycvxset to work on your computer.
-- Advice on how to use pycvxset for your set manipulations problem.
-- Suggestions on documentation of the code.
-- Collecting ideas for potential new features/enhancements from the community.
-
-**Please open an [Issue](https://github.com/merlresearch/pycvxset/issues)** if you believe that fixing your problem will involve a change in the pycvxset source code. For example...
-
-- Bug reports.
-- New feature/enhancement proposals with details.
-
-**How to submit a good bug report?** When opening an [Issue](https://github.com/merlresearch/pycvxset/issues), please consider providing:
-
-- High-level description of the behavior you would expect and the actual behavior.
-- Which version of pycvxset are you using? The bleeding edge or the version number.
-- OS (Windows, Linux, Mac, or something else)
-- Can you reliably reproduce the issue?
-- Details of the bug (a stack trace can be useful).
-- A reduced test case that reproduces the issue for our development team.
 
 ## Contributing
 
@@ -173,7 +154,7 @@ pycvxset code is released under `AGPL-3.0-or-later` license, as found in the [LI
 
 All files:
 ```
-Copyright (c) 2020-2025 Mitsubishi Electric Research Laboratories (MERL).
+Copyright (c) 2020-2026 Mitsubishi Electric Research Laboratories (MERL).
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 ```
@@ -187,14 +168,13 @@ except the following files:
 1. pycvxset/Polytope/vertex_halfspace_enumeration.py
 1. pycvxset/\_\_init\_\_.py
 1. pycvxset/common/\_\_init\_\_.py
-1. setup.py
 1. tests/test\_polytope\_binary.py
 1. tests/test\_polytope\_init.py
 1. tests/test\_polytope\_vertex_facet_enum.py
 
 which have the copyright
 ```
-Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 Copyright (c) 2019 Tor Aksel N. Heirung
 
 SPDX-License-Identifier: AGPL-3.0-or-later

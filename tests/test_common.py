@@ -1,10 +1,12 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Code purpose: Test methods common to all sets
 
 import itertools
+import shutil
+from pathlib import Path
 
 import cvxpy as cp
 import matplotlib.pyplot as plt
@@ -12,14 +14,31 @@ import numpy as np
 import pytest
 
 from pycvxset import ConstrainedZonotope, Polytope
-from pycvxset.common import check_matrices_are_equal_ignoring_row_order, spread_points_on_a_unit_sphere
-from pycvxset.common.constants import DEFAULT_CVXPY_ARGS_LP, SPOAUS_DIRECTIONS_PER_QUADRANT
+from pycvxset.common import (
+    check_matrices_are_equal_ignoring_row_order,
+    make_aspect_ratio_equal,
+    sanitize_Ab,
+    sanitize_Aebe,
+    sanitize_Gc,
+    spread_points_on_a_unit_sphere,
+)
+from pycvxset.common.constants import (
+    DEFAULT_CVXPY_ARGS_LP,
+    SPOAUS_DIRECTIONS_PER_QUADRANT,
+    TESTING_SHOW_PLOTS,
+    TESTING_STATEMENTS_INVOLVING_GUROBI,
+)
 
-PLOT_SHOW = False
-PERFORM_3D_DEFAULT = False
+PLOT_SHOW = False or TESTING_SHOW_PLOTS
+PERFORM_3D_DEFAULT = TESTING_STATEMENTS_INVOLVING_GUROBI == "full"
 
 
 def test_spread_points_on_a_unit_sphere():
+    # Remove the tmp directory if it exists (created by spread_points_on_a_unit_sphere when
+    # save_points_on_a_unit_sphere=True)
+    tmp_dir = Path("tmp")
+    if tmp_dir.exists():
+        shutil.rmtree(tmp_dir)
     # 1D case
     V, min_sep, _ = spread_points_on_a_unit_sphere(1, 2)
     assert np.isclose(min_sep, 2)
@@ -32,10 +51,20 @@ def test_spread_points_on_a_unit_sphere():
     assert check_matrices_are_equal_ignoring_row_order(V, np.vstack((np.eye(3), -np.eye(3))))
     spread_points_on_a_unit_sphere(3, 6, verbose=False)
     # 3D case default no warning from pycvxset (but cvxpy warns about solution)
+    V_old, min_sep_old, W_old = spread_points_on_a_unit_sphere(
+        3, n_points=54, verbose=True, cvxpy_socp_args={"solver": "CLARABEL"}, save_points_on_a_unit_sphere=True
+    )
+    # Loading the saved points on a unit sphere (and checking the minimum separation) should work as expected
+    V, min_sep, W = spread_points_on_a_unit_sphere(
+        3, n_points=54, verbose=True, cvxpy_socp_args={"solver": "CLARABEL"}, save_points_on_a_unit_sphere=True
+    )
+    assert check_matrices_are_equal_ignoring_row_order(V, V_old)
+    assert check_matrices_are_equal_ignoring_row_order(W, W_old)
+    assert np.isclose(min_sep, min_sep_old)
     if PERFORM_3D_DEFAULT:
-        with pytest.warns(UserWarning, match="Solution may be inaccurate.*"):
-            V, min_sep, _ = spread_points_on_a_unit_sphere(3, verbose=True)
-        assert V.shape[0] == (2 * 3) + (2**3) * SPOAUS_DIRECTIONS_PER_QUADRANT
+        n_points_default = (2 * 3) + (2**3) * SPOAUS_DIRECTIONS_PER_QUADRANT
+        V, min_sep, _ = spread_points_on_a_unit_sphere(3, verbose=True, save_points_on_a_unit_sphere=True)
+        assert V.shape[0] == n_points_default
         min_sep_via_iteration = np.inf
         for i, j in itertools.combinations(range(V.shape[0]), 2):
             min_sep_via_iteration = min(np.linalg.norm(V[i] - V[j]), min_sep_via_iteration)
@@ -52,6 +81,7 @@ def test_spread_points_on_a_unit_sphere():
     n_directions = (2 * 3) + (2**3) * 2 + 1
     with pytest.warns(UserWarning, match="Invalid combination*"):
         V, min_sep, _ = spread_points_on_a_unit_sphere(3, n_directions, verbose=True)
+    V, min_sep, _ = spread_points_on_a_unit_sphere(3, n_directions, verbose=True, enable_warning=False)
     assert V.shape[0] == (2 * 3) + (2**3) * 3
     min_sep_via_iteration = np.inf
     for i, j in itertools.combinations(range(V.shape[0]), 2):
@@ -60,8 +90,8 @@ def test_spread_points_on_a_unit_sphere():
 
     with pytest.raises(ValueError):
         spread_points_on_a_unit_sphere(3, 2)
-    with pytest.raises(NotImplementedError):
-        spread_points_on_a_unit_sphere(3, cvxpy_socp_args={"solver": "WRONG_SOLVER"})
+    with pytest.raises(ValueError):
+        spread_points_on_a_unit_sphere(3, 2006, cvxpy_socp_args={"solver": "WRONG_SOLVER"})
 
     if PLOT_SHOW:
         opt_locations, _, opt_locations_first_quad = spread_points_on_a_unit_sphere(
@@ -149,3 +179,37 @@ def test_solve_convex_program_with_constrained_zonotope_and_polytope_containment
     assert problem_status == cp.INFEASIBLE  # We assign this!
 
     # Case for V-Rep (is tackled in the ConstrainedZonotope class)
+
+
+def test_make_aspect_ratio_equal():
+    # Test case where the aspect ratio is equal to 1
+    V = spread_points_on_a_unit_sphere(2, 20)[0]
+    P = [[1, 0], [0, 5]] @ Polytope(V=V)
+    lb, ub = P.minimum_volume_circumscribing_rectangle()
+    assert np.isclose(ub[1] - lb[1], 5 * (ub[0] - lb[0]))
+    normalized_P, c, M = make_aspect_ratio_equal(P)
+    assert normalized_P != P
+    lb, ub = normalized_P.minimum_volume_circumscribing_rectangle()
+    assert np.allclose(lb, -1)
+    assert np.allclose(ub, 1)
+    assert np.allclose(c, 0)
+    assert np.allclose(M, [[1, 0], [0, 5]])
+    assert (M @ normalized_P + c) == P
+
+    P = [[1, 0], [0, 5], [0, 0]] @ Polytope(V=V)
+    with pytest.raises(ValueError):
+        make_aspect_ratio_equal(P)
+
+
+def test_sanitize():
+    with pytest.raises(ValueError):
+        sanitize_Gc(G=None, c=None)
+    with pytest.raises(ValueError):
+        sanitize_Aebe(Ae=None, be=[1, 1])
+    with pytest.raises(ValueError):
+        sanitize_Aebe(Ae=np.eye(2), be=None)
+    assert sanitize_Aebe(Ae=np.zeros((0, 0)), be=np.zeros((0,))) == (None, None)
+    with pytest.raises(ValueError):
+        sanitize_Ab(A=None, b=[1, 1])
+    with pytest.raises(ValueError):
+        sanitize_Ab(A=np.eye(2), b=None)

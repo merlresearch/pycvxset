@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -30,17 +30,24 @@ SPOAUS_ITERATIONS_AT_TAU_MAX = 20
 SPOAUS_MINIMUM_NORM_VALUE_SQR = 0.8**2
 # For SPOAUS_DIRECTIONS_PER_QUADRANT=20, we have 2D = 84, 3D = 166, 4D = 328, 5D = 650
 SPOAUS_DIRECTIONS_PER_QUADRANT = 20
+SPOAUS_SAVE_POINTS_ON_A_UNIT_SPHERE = True
 
 # Time limit
 TIME_LIMIT_FOR_CONSTRAINED_ZONOTOPE_CONTAINMENT_GUROBI_IN_S = 60
 
 # Testing workflow constants | You could also do "GUROBI" in cvxpy.installed_solvers()
-# "no", "minimal" (Requires proper set up of GUROBI license OR connection to a gurobi license server), "full"
+# "no", "minimal", "full" ("minimal", "full" need GUROBI license set up / connection to a gurobi license server)
+# "full" also tests spread_points_on_a_unit_sphere with SPOAUS_DIRECTIONS_PER_QUADRANT for 3D
 TESTING_STATEMENTS_INVOLVING_GUROBI = "minimal"  # (Default: minimal)
-TEST_3D_PLOTTING = False
 TESTING_SHOW_PLOTS = False
 
 # Plotting constants for polytopes
 DEFAULT_PATCH_ARGS_2D = {"edgecolor": "k", "facecolor": "skyblue"}
 DEFAULT_PATCH_ARGS_3D = {"edgecolor": "k", "facecolor": None}
 DEFAULT_VERTEX_ARGS = {"visible": False, "s": 30, "marker": "o", "color": "k"}
+
+# Default constants for qhull options
+# Be resilient to slight degeneracies by default
+DEFAULT_QHULL_OPTIONS = ""
+# Prefer QHULL over CDD for vertex-facet enumerations (plot still uses CDD)
+PREFER_QHULL_OVER_CDD = False

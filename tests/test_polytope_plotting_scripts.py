@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -17,12 +17,14 @@ def test_print_and_plot():
     # Plotting
     with pytest.warns(UserWarning, match="Can not plot an empty polytope!"):
         Polytope(dim=2).plot()
+    Polytope(dim=2).plot(enable_warning=False)
     plt.close()
     with pytest.warns(UserWarning, match="Can not plot an empty polytope!"):
         Polytope(dim=2).plot2d()
     plt.close()
     with pytest.warns(UserWarning, match="Can not plot an empty polytope!"):
         Polytope(dim=3).plot()
+    Polytope(dim=3).plot(enable_warning=False)
     plt.close()
     with pytest.warns(UserWarning, match="Can not plot an empty polytope!"):
         Polytope(dim=3).plot3d()
@@ -39,6 +41,7 @@ def test_print_and_plot():
         P.cvxpy_args_lp = {"solver": "OSQP"}
     with pytest.warns(UserWarning, match="Can not plot an unbounded polytope!"):
         P.plot()
+    P.plot(enable_warning=False)
     plt.close()
     with pytest.warns(UserWarning, match="Can not plot an unbounded polytope!"):
         P.plot2d()
@@ -47,6 +50,7 @@ def test_print_and_plot():
     # Issues two warnings!
     with pytest.warns(UserWarning, match="bounded"):
         P3D.plot()
+    P3D.plot(enable_warning=False)
     plt.close()
     with pytest.warns(UserWarning, match="Can not plot an unbounded polytope!"):
         P3D.plot3d()

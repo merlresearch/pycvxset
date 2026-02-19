@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -26,11 +26,11 @@
   ## pycvxset.tex
   # Comment out the README TOC (Entire two-staged itemize)
   sed -i '91,148 s/^/%/' pycvxset.tex
-  # Comment out {docs/source/_static/pycvxset_diag}.png | Use the line number pointed out by latexmk
-  # Edit to the line numbers below may be needed whenever README text changes
-  sed -i '332 s/^/%/' pycvxset.tex
+  # Replace {docs/source/_static/pycvxset_diag}.png with pycvxset_diag.png
+  cp ../source/_static/pycvxset_diag.png .
+  sed -i 's/\\sphinxincludegraphics{{docs\/source\/_static\/pycvxset_diag}.png}//g' pycvxset.tex
 
   #### After edits to latex, now build
-  latexmk pycvxset.tex
+  latexmk -pdf pycvxset.tex
 )
 cp docs/build/pycvxset.pdf MANUAL.pdf

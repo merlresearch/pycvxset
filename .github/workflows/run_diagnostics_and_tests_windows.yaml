@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -19,7 +19,7 @@ jobs:
       MPLBACKEND: Agg  # https://github.com/orgs/community/discussions/26434
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout repo
@@ -34,8 +34,8 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
 
-      - name: Install scs from pip for Windows + Python 3.12
-        if: matrix.python-version == '3.12'
+      - name: Install scs from pip for Windows + Python >=3.12
+        if: matrix.python-version == '3.12' || matrix.python-version == '3.13'
         run: |
           pip install scs
 
@@ -52,7 +52,13 @@ jobs:
           pip install --editable ".[with_tests]"
 
       - name: Run coverage tests
-        continue-on-error: true
+        if: matrix.python-version == '3.9'
         run: |
-          coverage run --rcfile=tests/.coveragerc --source=pycvxset -m pytest tests -W error::UserWarning
-          coverage report --skip-covered --rcfile=tests/.coveragerc
+          coverage run --source=pycvxset -m pytest tests
+          coverage report --skip-covered
+
+      - name: Run coverage tests
+        if: matrix.python-version != '3.9'
+        run: |
+          coverage run --source=pycvxset -m pytest tests -W error::UserWarning
+          coverage report --skip-covered

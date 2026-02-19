@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -28,29 +28,45 @@ def test_plot_2D():
     MANY_POINTS = 10
     P = Polytope(V=spread_points_on_a_unit_sphere(2, 7)[0])
     C = ConstrainedZonotope(polytope=P)
+    with pytest.warns(UserWarning, match="This function returns*"):
+        ax, _, _ = C.plot(
+            method="outer", n_halfspaces=FEW_POINTS, patch_args={"alpha": 0.3, "label": "Outer-approximation"}
+        )
     ax, _, _ = C.plot(
-        method="outer", n_halfspaces=FEW_POINTS, patch_args={"alpha": 0.3, "label": "Outer-approximation"}
+        method="outer",
+        n_halfspaces=FEW_POINTS,
+        patch_args={"alpha": 0.3, "label": "Outer-approximation"},
+        enable_warning=False,
     )
     P.plot(ax=ax, patch_args={"facecolor": "lightpink", "alpha": 0.3, "label": "True polytope"})
-    C.plot(
-        method="inner",
-        ax=ax,
-        n_vertices=FEW_POINTS,
-        patch_args={"facecolor": None, "edgecolor": "k", "label": "Inner-approximation"},
-    )
+    with pytest.warns(UserWarning, match="This function returns*"):
+        C.plot(
+            method="inner",
+            ax=ax,
+            n_vertices=FEW_POINTS,
+            patch_args={"facecolor": None, "edgecolor": "k", "label": "Inner-approximation"},
+        )
     ax.set_title("2D example with few vertices")
     ax.legend()
 
+    with pytest.warns(UserWarning, match="This function returns*"):
+        ax, _, _ = C.plot(
+            method="outer", n_halfspaces=MANY_POINTS, patch_args={"alpha": 0.3, "label": "Outer-approximation"}
+        )
     ax, _, _ = C.plot(
-        method="outer", n_halfspaces=MANY_POINTS, patch_args={"alpha": 0.3, "label": "Outer-approximation"}
+        method="outer",
+        n_halfspaces=MANY_POINTS,
+        patch_args={"alpha": 0.3, "label": "Outer-approximation"},
+        enable_warning=False,
     )
     P.plot(ax=ax, patch_args={"facecolor": "lightpink", "alpha": 0.3, "label": "True polytope"})
-    C.plot(
-        method="inner",
-        ax=ax,
-        n_vertices=MANY_POINTS,
-        patch_args={"facecolor": None, "edgecolor": "k", "label": "Inner-approximation"},
-    )
+    with pytest.warns(UserWarning, match="This function returns*"):
+        C.plot(
+            method="inner",
+            ax=ax,
+            n_vertices=MANY_POINTS,
+            patch_args={"facecolor": None, "edgecolor": "k", "label": "Inner-approximation"},
+        )
     ax.set_title("2D example with many vertices")
     ax.legend()
 
@@ -67,26 +83,30 @@ def test_plot_3D():
     C = ConstrainedZonotope(polytope=P)
     patch_args_outer = {"edgecolor": "blue", "facecolor": None, "label": "Outer-approximation"}
     patch_args_inner = {"edgecolor": "k", "facecolor": None, "label": "Inner-approximation"}
-    ax, _, _ = C.plot(method="outer", n_halfspaces=FEW_POINTS, patch_args=patch_args_outer)
+    with pytest.warns(UserWarning, match="This function returns*"):
+        ax, _, _ = C.plot(method="outer", n_halfspaces=FEW_POINTS, patch_args=patch_args_outer)
     P.plot(ax=ax, patch_args={"edgecolor": "lightpink", "facecolor": None, "label": "True polytope"})
-    C.plot(method="inner", ax=ax, n_vertices=FEW_POINTS, patch_args=patch_args_inner)
+    with pytest.warns(UserWarning, match="This function returns*"):
+        C.plot(method="inner", ax=ax, n_vertices=FEW_POINTS, patch_args=patch_args_inner)
     ax.set_title("3D example with few vertices")
     ax.legend()
 
     with pytest.warns(UserWarning, match="Invalid combination of"):
-        ax, _, _ = C.plot(
-            method="outer",
-            n_halfspaces=MANY_POINTS,
-            patch_args={"edgecolor": "blue", "facecolor": None, "label": "Outer-approximation"},
-        )
+        with pytest.warns(UserWarning, match="This function returns*"):
+            ax, _, _ = C.plot(
+                method="outer",
+                n_halfspaces=MANY_POINTS,
+                patch_args={"edgecolor": "blue", "facecolor": None, "label": "Outer-approximation"},
+            )
     P.plot(ax=ax, patch_args={"edgecolor": "lightpink", "facecolor": None, "label": "True polytope"})
     with pytest.warns(UserWarning, match="Invalid combination of"):
-        C.plot(
-            method="inner",
-            ax=ax,
-            n_vertices=MANY_POINTS,
-            patch_args={"facecolor": None, "edgecolor": "k", "label": "Inner-approximation"},
-        )
+        with pytest.warns(UserWarning, match="This function returns*"):
+            C.plot(
+                method="inner",
+                ax=ax,
+                n_vertices=MANY_POINTS,
+                patch_args={"facecolor": None, "edgecolor": "k", "label": "Inner-approximation"},
+            )
     ax.set_title("3D example with many vertices")
     ax.legend()
 
@@ -101,10 +121,8 @@ def test_plotting_with_specified_dir_vectors():
     C = ConstrainedZonotope(polytope=P)
     with pytest.warns(UserWarning, match="Invalid combination of"):
         dir_vectors = spread_points_on_a_unit_sphere(3, 15)[0]
-    C.plot(method="outer", direction_vectors=dir_vectors)
-    C.plot(method="inner", direction_vectors=dir_vectors)
+    with pytest.warns(UserWarning, match="This function returns*"):
+        C.plot(method="outer", direction_vectors=dir_vectors)
+    with pytest.warns(UserWarning, match="This function returns*"):
+        C.plot(method="inner", direction_vectors=dir_vectors)
     plt.close()
-
-
-if __name__ == "__main__":
-    test_plot_3D()

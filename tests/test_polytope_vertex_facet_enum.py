@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -11,6 +11,8 @@ import pytest
 
 from pycvxset import Polytope
 from pycvxset.common import check_matrices_are_equal_ignoring_row_order
+from pycvxset.common.constants import PREFER_QHULL_OVER_CDD
+from pycvxset.Polytope.vertex_halfspace_enumeration import get_cdd_polyhedron_from_Ab_Aebe, get_cdd_polyhedron_from_V
 
 
 def test_determine_H_rep():
@@ -28,6 +30,9 @@ def test_determine_H_rep():
     P2 = Polytope(A=P1.A, b=P1.b)
     P2.determine_V_rep()
     assert check_matrices_are_equal_ignoring_row_order(P1.V, P2.V)
+    P3 = Polytope(A=P1.A, b=P1.b)
+    P3.determine_V_rep(prefer_qhull_over_cdd=not PREFER_QHULL_OVER_CDD)
+    assert check_matrices_are_equal_ignoring_row_order(P1.V, P3.V)
     P3 = Polytope(V=V1)
     assert len(P3.b) == len(P1.b)
     P4 = Polytope(dim=3)
@@ -64,6 +69,9 @@ def test_determine_V_rep():
     P2.determine_V_rep()
     P2.determine_H_rep()
     assert check_matrices_are_equal_ignoring_row_order(P1.H, P2.H)
+    P3 = Polytope(V=V_original)
+    P3.determine_H_rep(prefer_qhull_over_cdd=not PREFER_QHULL_OVER_CDD)
+    assert check_matrices_are_equal_ignoring_row_order(P1.H, P3.H)
 
     P3 = Polytope(dim=3)
     P3.determine_V_rep()
@@ -95,6 +103,12 @@ def test_minimal_V_rep():
     P.minimize_V_rep()
     assert P.n_vertices == V_minimal.shape[0]
     assert check_matrices_are_equal_ignoring_row_order(P.V, P_min.V)
+    Pa = Polytope(V=V)
+    Pa.minimize_V_rep(prefer_qhull_over_cdd=not PREFER_QHULL_OVER_CDD)
+    print(Pa.V)
+    print(P_min.V)
+    assert Pa.n_vertices == V_minimal.shape[0]
+    assert check_matrices_are_equal_ignoring_row_order(Pa.V, P_min.V)
 
     # Empty polytope
     P1 = Polytope(lb=[1, 1], ub=[-1, -1])
@@ -198,3 +212,25 @@ def test_minimize_H_rep():
     P9 = Polytope(V=[[1, 1], [1, 1]])
     P9.minimize_V_rep()
     assert P9.n_vertices == 1
+
+
+def test_get_cdd_polyhedron_from_V():
+    get_cdd_polyhedron_from_V(V=np.random.rand(5, 2), prune_V=True)
+
+
+def test_get_cdd_polyhedron_from_Ab_Aebe():
+    Polytope_A = np.array([[1, 0], [0, 1], [-1, 0], [0, -1]])
+    Polytope_b = np.array([[1], [1], [1], [1]])
+    Polytope_Ae = np.array([[1, 1], [-1, -1]])
+    Polytope_be = np.array([[0], [0]])
+    get_cdd_polyhedron_from_Ab_Aebe(A=Polytope_A, b=Polytope_b, Ae=Polytope_Ae, be=Polytope_be)
+    get_cdd_polyhedron_from_Ab_Aebe(A=Polytope_A, b=Polytope_b)
+    get_cdd_polyhedron_from_Ab_Aebe(Ae=Polytope_Ae, be=Polytope_be)
+    with pytest.raises(ValueError):
+        get_cdd_polyhedron_from_Ab_Aebe(A=Polytope_A, b=Polytope_b, Ae=Polytope_Ae, be=None)
+    with pytest.raises(ValueError):
+        get_cdd_polyhedron_from_Ab_Aebe(A=Polytope_A, b=Polytope_b, Ae=None, be=Polytope_be)
+    with pytest.raises(ValueError):
+        get_cdd_polyhedron_from_Ab_Aebe(A=Polytope_A, b=None)
+    with pytest.raises(ValueError):
+        get_cdd_polyhedron_from_Ab_Aebe(A=None, b=Polytope_b)

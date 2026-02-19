@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -13,7 +13,7 @@ from scipy.spatial.transform import Rotation
 from pycvxset import Ellipsoid, Polytope
 
 
-def run_demo(use_plot_show, save_plot):
+def run_demo(use_plot_show: bool, save_plot: bool) -> None:
     # Also seen in README.md | Do not make the code line length longer than -----|
     # Define P as the intersection of a box with different sides and a halfspace
     box_with_different_sides = Polytope(c=[0, 0, 0], h=[1, 0.5, 0.1])
@@ -62,8 +62,8 @@ def run_demo(use_plot_show, save_plot):
     ax_2d.set_xlabel("x")
     ax_2d.set_ylabel("y")
     ax_2d.grid()
-    ax_2d.set_xlim([3.5, 6.5])
-    ax_2d.set_ylim([2.85, 5.85])
+    ax_2d.set_xlim(3.5, 6.5)
+    ax_2d.set_ylim(2.85, 5.85)
     ax_2d.legend(loc="best")
     plt.subplots_adjust(left=0.026, bottom=0.15, right=0.95, top=0.88, wspace=0.41, hspace=0.2)
     if save_plot:

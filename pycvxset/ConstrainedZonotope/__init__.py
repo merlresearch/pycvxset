@@ -1,15 +1,22 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Code purpose:  Define the ConstrainedZonotope class
 
-import cvxpy as cp
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal, Optional, Sequence, cast, overload
+
+if TYPE_CHECKING:
+    from pycvxset.Polytope import Polytope
+    import cvxpy
+
 import numpy as np
 
 from pycvxset.common import (
-    _compute_project_single_point,
-    _compute_support_function_single_eta,
+    _compute_project_multiple_points,
+    _compute_support_function_multiple_eta,
     convex_set_closest_point,
     convex_set_distance,
     convex_set_extreme,
@@ -19,10 +26,11 @@ from pycvxset.common import (
     convex_set_slice,
     convex_set_slice_then_projection,
     convex_set_support,
+    is_constrained_zonotope,
+    is_polytope,
     minimize,
-    plot,
+    plot_polytopic_approximation,
     sanitize_Aebe,
-    sanitize_and_identify_Aebe,
     sanitize_Gc,
 )
 from pycvxset.common.constants import DEFAULT_CVXPY_ARGS_LP, DEFAULT_CVXPY_ARGS_SOCP, PYCVXSET_ZERO
@@ -101,22 +109,25 @@ class ConstrainedZonotope:
 
     Args:
         dim (int, optional): Dimension of the empty constrained zonotope. If NOTHING is provided, dim=0 is assumed.
-        c (array_like, optional): Affine transformation translation vector. Must be 1D array, and the constrained
-            zonotope dimension is determined by number of elements in c. When c is provided, either (G) or (G, Ae, be)
-            or (h) must be provided additionally. When h is provided, c is the centroid of the resulting zonotope.
-        G (array_like):  Affine transformation matrix. The vectors are stacked vertically with matching number of
-            rows as c. When G is provided, (c, Ae, be) OR (c) must also be provided. To define a constrained zonotope
-            with a single point, set c to the point AND G to None (do not set (Ae, be) or set them to (None, None)).
-        Ae (array_like):  Equality coefficient vectors. The vectors are stacked vertically with matching number of
-            columns as G. When Ae is provided, (G, c, be) must also be provided.
-        be (array_like):  Equality coefficient constants. The constants are expected to be in a 1D numpy array. When be
-            is provided, (G, c, Ae) must also be provided.
-        lb (array_like, optional): Lower bounds of the axis-aligned cuboid. Must be 1D array, and the constrained
-            zonotope dimension is determined by number of elements in lb. When lb is provided, ub must also be provided.
-        ub (array_like, optional): Upper bounds of the axis-aligned cuboid. Must be 1D array of length as same as lb.
-            When ub is provided, lb must also be provided.
-        h (array_like, optional): Half-side length of the axis-aligned cuboid. Can be a scalar or a vector of length as
-            same as c. When h is provided, c must also be provided.
+        c (Sequence[float] | numpy.ndarray, optional): Affine transformation translation vector. Must be 1D array, and
+            the constrained zonotope dimension is determined by number of elements in c. When c is provided, either (G)
+            or (G, Ae, be) or (h) must be provided additionally. When h is provided, c is the centroid of the resulting
+            zonotope.
+        G (Sequence[Sequence[float]] | numpy.ndarray):  Affine transformation matrix. The vectors are stacked vertically
+            with matching number of rows as c. When G is provided, (c, Ae, be) OR (c) must also be provided. To define a
+            constrained zonotope with a single point, set c to the point AND G to None (do not set (Ae, be) or set them
+            to (None, None)).
+        Ae (Sequence[Sequence[float]] | numpy.ndarray):  Equality coefficient vectors. The vectors are stacked
+            vertically with matching number of columns as G. When Ae is provided, (G, c, be) must also be provided.
+        be (Sequence[float] | numpy.ndarray):  Equality coefficient constants. The constants are expected to be in a 1D
+            numpy array. When be is provided, (G, c, Ae) must also be provided.
+        lb (Sequence[float] | numpy.ndarray, optional): Lower bounds of the axis-aligned cuboid. Must be 1D array, and
+            the constrained zonotope dimension is determined by number of elements in lb. When lb is provided, ub must
+            also be provided.
+        ub (Sequence[float] | numpy.ndarray, optional): Upper bounds of the axis-aligned cuboid. Must be 1D array of
+            length as same as lb.  When ub is provided, lb must also be provided.
+        h (float | Sequence[float] | numpy.ndarray, optional): Half-side length of the axis-aligned cuboid. Can be a
+            scalar or a vector of length as same as c. When h is provided, c must also be provided.
         polytope (Polytope, optional): Polytope to use to construct constrained zonotope.
 
     Raises:
@@ -128,10 +139,53 @@ class ConstrainedZonotope:
         UserWarning: When a row with all zeros in Ae and be.
     """
 
-    def __init__(self, **kwargs):
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(self) -> None: ...
+
+        @overload
+        def __init__(self, *, dim: int) -> None: ...
+
+        @overload
+        def __init__(
+            self, *, G: Sequence[Sequence[float]] | np.ndarray | None, c: Sequence[float] | np.ndarray
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            G: Sequence[Sequence[float]] | np.ndarray | None,
+            c: Sequence[float] | np.ndarray,
+            Ae: Sequence[Sequence[float]] | np.ndarray,
+            be: Sequence[float] | np.ndarray,
+        ) -> None: ...
+
+        @overload
+        def __init__(self, *, lb: Sequence[float] | np.ndarray, ub: Sequence[float] | np.ndarray) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            c: Sequence[float] | np.ndarray,
+            h: float | Sequence[float] | np.ndarray,
+        ) -> None: ...
+
+        @overload
+        def __init__(self, *, polytope: "Polytope") -> None: ...
+
+    def __init__(self, **kwargs: Any) -> None:
         """Constructor for ConstrainedZonotope class"""
-        self._G, self._c, self._Ae, self._be = None, None, None, None
-        self._is_full_dimensional, self._is_empty = None, None
+        self._type_of_set: str = "ConstrainedZonotope"
+        self._G: Optional[np.ndarray] = None
+        self._c: Optional[np.ndarray] = None
+        self._Ae: Optional[np.ndarray] = None
+        self._be: Optional[np.ndarray] = None
+        self._is_full_dimensional: Optional[bool] = None
+        self._is_empty: Optional[bool] = None
+        self._is_singleton: Optional[bool] = None
         # These attributes are used by CVXPY to solve problems
         self._cvxpy_args_lp = DEFAULT_CVXPY_ARGS_LP
         self._cvxpy_args_socp = DEFAULT_CVXPY_ARGS_SOCP
@@ -189,7 +243,7 @@ class ConstrainedZonotope:
                     lb = c - h * np.ones_like(c)
                     ub = c + h * np.ones_like(c)
             self._G, self._c, self._Ae, self._be, lb, ub = self._get_Gc_Aebe_from_bounds(lb, ub)
-            self._is_full_dimensional = self.dim == 1 or (np.abs(ub - lb) > PYCVXSET_ZERO).all()
+            self._is_full_dimensional = (self.dim == 1) or (np.abs(ub - lb) > PYCVXSET_ZERO).all()
             self._is_empty = self.c is None
         elif G_and_c_passed:
             # Either it is a zonotope (G, c) or a constrained zonotope (G, c, Ae, be)
@@ -197,10 +251,11 @@ class ConstrainedZonotope:
                 raise ValueError(
                     "Cannot set zonotope (G, c) or constrained zonotope (G, c, Ae, be) with other arguments"
                 )
-            self._G, self._c = sanitize_Gc(kwargs.get("G"), kwargs.get("c"))
+            G_val, c_val = sanitize_Gc(kwargs.get("G"), kwargs.get("c"))
+            self._G, self._c = G_val, c_val
             if Ae_and_be_passed:
                 sanitized_Ae, sanitized_be = sanitize_Aebe(kwargs.get("Ae"), kwargs.get("be"))
-                if self.G.size == 0 and (sanitized_Ae is not None or sanitized_be is not None):
+                if G_val.size == 0 and (sanitized_Ae is not None or sanitized_be is not None):
                     raise ValueError("When G is None and (Ae, be) was passed, then (Ae, be) must be (None, None)!")
                 else:
                     if sanitized_Ae is None:
@@ -213,18 +268,18 @@ class ConstrainedZonotope:
                                 f"{self.Ae.shape}!"
                             )
                     # ConstrainedZonotope emptiness and full-dimensionality needs to be confirmed
-                    self._is_full_dimensional, self._is_empty = None, None
             else:
-                # Set only (Ae, be) to empty | Full-dimensionality depends on rank of G
+                # Zonotope => Set only (Ae, be) to empty | Full-dimensionality needs to be confirmed
                 _, _, self._Ae, self._be = self._get_Gc_Aebe_for_empty_constrained_zonotope(self.dim, self.latent_dim)
-                if self.G.size == 0 and self.c is not None:
-                    self._is_full_dimensional, self._is_empty = (self.dim == 1), False
-                else:
-                    self._is_full_dimensional, self._is_empty = None, self.c is None
+                self._is_empty = c_val is None
+                if G_val.size == 0 and not self._is_empty:
+                    self._is_full_dimensional = self.dim == 1
         elif polytope_passed:
             if len(kwargs) != 1:
                 raise ValueError("Cannot construct constrained zonotope from polytope if other arguments are provided")
-            polytope = kwargs.get("polytope")
+            polytope: Polytope | None = kwargs.get("polytope")
+            if polytope is None or not is_polytope(polytope):
+                raise ValueError("Expected a polytope when constructing a constrained zonotope.")
             self._is_full_dimensional, self._is_empty = polytope.is_full_dimensional, polytope.is_empty
             if not polytope.is_bounded:
                 raise ValueError("Expected a convex and compact polytope!")
@@ -232,8 +287,7 @@ class ConstrainedZonotope:
                 self._G, self._c, self._Ae, self._be = self._get_Gc_Aebe_for_empty_constrained_zonotope(polytope.dim, 0)
             else:
                 if polytope.in_H_rep:
-                    # Compute zonotope Z_0 ={G \xi + c| ||\xi||_\infty \leq 1, \xi\in R^n_g} so that polytope \subseteq
-                    # Z_0.
+                    # Compute zonotope Z_0 ={G \xi + c| ||\xi||_\infty \leq 1, \xi\in R^n_g} s.t. polytope <= Z_0.
                     lb, ub = polytope.minimum_volume_circumscribing_rectangle()
                     Z_0 = self.__class__(lb=lb, ub=ub)
 
@@ -278,17 +332,30 @@ class ConstrainedZonotope:
                 "(G, c, Ae, be) or (lb, ub) or (c, h) or polytope or dim or NOTHING."
             )
 
+    @property
+    def type_of_set(self: ConstrainedZonotope) -> str:
+        """Return the type of set
+
+        Returns:
+            str: Type of the set
+        """
+        return self._type_of_set
+
     @staticmethod
-    def _get_Gc_Aebe_for_empty_constrained_zonotope(dim, latent_dim):
+    def _get_Gc_Aebe_for_empty_constrained_zonotope(
+        dim: int, latent_dim: int
+    ) -> tuple[np.ndarray, None, np.ndarray, np.ndarray]:
         return np.empty((dim, latent_dim)), None, np.empty((0, latent_dim)), np.empty((0,))
 
-    def _get_Gc_Aebe_from_bounds(self, lb, ub):
+    def _get_Gc_Aebe_from_bounds(
+        self, lb: Sequence[float] | np.ndarray, ub: Sequence[float] | np.ndarray
+    ) -> tuple[np.ndarray, Optional[np.ndarray], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         r"""Define a zonotope from bounds (lb, ub), i.e., a zonotope that is equivalent to the polytope defined from the
         bounds (lb, ub).
 
         Args:
-            lb (array_like): Lower bound of the constrained zonotope.
-            ub (array_like): Upper bound of the constrained zonotope.
+            lb (Sequence[float] | numpy.ndarray): Lower bound of the constrained zonotope.
+            ub (Sequence[float] | numpy.ndarray): Upper bound of the constrained zonotope.
 
         Raises:
             ValueError: Mismatch in lb, ub shape
@@ -309,28 +376,28 @@ class ConstrainedZonotope:
             dimension.
         """
         try:
-            lb = np.atleast_1d(np.squeeze(lb)).astype(float)
-            ub = np.atleast_1d(np.squeeze(ub)).astype(float)
+            lb_arr: np.ndarray = np.atleast_1d(np.squeeze(lb)).astype(float)
+            ub_arr: np.ndarray = np.atleast_1d(np.squeeze(ub)).astype(float)
         except (TypeError, ValueError) as err:
             raise ValueError("Expected lb, ub to convertible into 1D float numpy arrays") from err
-        if lb.shape != ub.shape or lb.ndim != 1:
+        if lb_arr.shape != ub_arr.shape or lb_arr.ndim != 1:
             raise ValueError("Expected lb, ub to 1D numpy arrays of same shape")
-        elif np.any(ub < lb):
-            return *self._get_Gc_Aebe_for_empty_constrained_zonotope(lb.shape[0], 0), lb, ub
-        elif np.allclose(lb, ub):
-            G, _, Ae, be = self._get_Gc_Aebe_for_empty_constrained_zonotope(lb.shape[0], 0)
-            c = lb
-            return G, c, Ae, be, lb, ub
+        elif np.any(ub_arr < lb_arr):
+            return *self._get_Gc_Aebe_for_empty_constrained_zonotope(lb_arr.shape[0], 0), lb_arr, ub_arr
+        elif np.allclose(lb_arr, ub_arr):
+            G, _, Ae, be = self._get_Gc_Aebe_for_empty_constrained_zonotope(lb_arr.shape[0], 0)
+            c = lb_arr
+            return G, c, Ae, be, lb_arr, ub_arr
         else:
-            dim, latent_dim = lb.shape[0], lb.shape[0]
+            dim, latent_dim = lb_arr.shape[0], lb_arr.shape[0]
             _, _, Ae, be = self._get_Gc_Aebe_for_empty_constrained_zonotope(dim, latent_dim)
-            d = (ub - lb) / 2
+            d = (ub_arr - lb_arr) / 2
             G = np.diag(d)
-            c = (lb + ub) / 2
-            return G, c, Ae, be, lb, ub
+            c = (lb_arr + ub_arr) / 2
+            return G, c, Ae, be, lb_arr, ub_arr
 
     @property
-    def dim(self):
+    def dim(self: ConstrainedZonotope) -> int:
         """Dimension of the constrained zonotope.
 
         Returns:
@@ -342,7 +409,7 @@ class ConstrainedZonotope:
         return self.G.shape[0]
 
     @property
-    def c(self):
+    def c(self: ConstrainedZonotope) -> Optional[np.ndarray]:
         """Affine transformation vector c for the constrained zonotope.
 
         Returns:
@@ -351,7 +418,7 @@ class ConstrainedZonotope:
         return self._c
 
     @property
-    def G(self):
+    def G(self: ConstrainedZonotope) -> np.ndarray:
         """Affine transformation matrix G for the constrained zonotope.
 
         Returns:
@@ -360,16 +427,16 @@ class ConstrainedZonotope:
         return self._G
 
     @property
-    def latent_dim(self):
+    def latent_dim(self: ConstrainedZonotope) -> int:
         """Latent dimension of the constrained zonotope.
 
         Returns:
             int: Latent dimension of the constrained zonotope.
         """
-        return self.G.shape[1]
+        return self.G.shape[1] if self.G.size > 0 else 0
 
     @property
-    def Ae(self):
+    def Ae(self: ConstrainedZonotope) -> np.ndarray:
         """Equality coefficient vectors Ae for the constrained zonotope.
 
         Returns:
@@ -379,7 +446,7 @@ class ConstrainedZonotope:
         return self._Ae
 
     @property
-    def be(self):
+    def be(self: ConstrainedZonotope) -> np.ndarray:
         """Equality constants be for the constrained zonotope.
 
         Returns:
@@ -388,7 +455,7 @@ class ConstrainedZonotope:
         return self._be
 
     @property
-    def He(self):
+    def He(self: ConstrainedZonotope) -> np.ndarray:
         r"""Equality constraints `He=[Ae, be]` for the constrained zonotope.
 
         Returns:
@@ -397,7 +464,7 @@ class ConstrainedZonotope:
         return np.hstack((self.Ae, np.array([self.be]).T))
 
     @property
-    def n_equalities(self):
+    def n_equalities(self: ConstrainedZonotope) -> int:
         """Number of equality constraints used when defining the constrained zonotope.
 
         Returns:
@@ -406,12 +473,12 @@ class ConstrainedZonotope:
         return self.Ae.shape[0]
 
     @property
-    def is_bounded(self):
+    def is_bounded(self: ConstrainedZonotope) -> bool:
         """Check if the constrained zonotope is bounded (which is always True)"""
         return True
 
     @property
-    def is_empty(self):
+    def is_empty(self: ConstrainedZonotope) -> bool:
         """Check if the constrained zonotope is empty
 
         Raises:
@@ -419,20 +486,35 @@ class ConstrainedZonotope:
 
         Returns:
             bool: When True, the polytope is empty
+
+        Notes:
+            This function may trigger a cvxpy feasibility problem if emptiness is not already known.
         """
         if self._is_empty is None:
-            x = cp.Variable((self.dim,))
-            _, feasibility_value, _ = self.minimize(
-                x,
-                objective_to_minimize=cp.Constant(0),
-                cvxpy_args=self.cvxpy_args_lp,
-                task_str="emptiness check for the constrained zonotope",
-            )
-            self._is_empty = feasibility_value == np.inf
+            if self.c is None:
+                # When c is None, constrained zonotope is empty by construction.
+                self._is_empty = True
+            elif self.is_singleton:
+                # is_singleton ensures that redundancies are removed, and _is_empty is populated when possible.
+                self._is_empty = False
+            elif self._is_empty is None:
+                # Do feasibility check if ConstrainedZonotope's emptiness is still not known
+                import cvxpy as cp
+
+                x = cp.Variable((self.dim,))
+                _, feasibility_value, _ = self.minimize(
+                    x,
+                    objective_to_minimize=cp.Constant(0),
+                    cvxpy_args=self.cvxpy_args_lp,
+                    task_str="emptiness check for the constrained zonotope",
+                )
+                self._is_empty = bool(feasibility_value == np.inf)
+            else:
+                pass
         return self._is_empty
 
     @property
-    def is_full_dimensional(self):
+    def is_full_dimensional(self: ConstrainedZonotope) -> bool:
         r"""
         Check if the affine dimension of the constrained zonotope is the same as the constrained zonotope dimension
 
@@ -441,39 +523,54 @@ class ConstrainedZonotope:
 
         Notes:
             An empty polytope is full dimensional if dim=0, otherwise it is not full-dimensional. See Sec. 2.1.3 of
-            [BV04] for discussion on affine dimension.
+            [BV04] for discussion on affine dimension. A non-empty zonotope is full-dimensional if and only if G has
+            full row rank. A non-empty constrained zonotope is full-dimensional if and only if [G; A] has full row rank.
 
-            A non-empty zonotope is full-dimensional if and only if G has full row rank.
-
-            A non-empty constrained zonotope is full-dimensional if and only if [G; A] has full row rank.
+            This function may trigger a cvxpy feasibility problem if emptiness is not already known.
         """
         if self._is_full_dimensional is None:
-            if self.is_empty:
-                self._is_full_dimensional = self.dim == 0
-            elif self.is_zonotope:
-                self._is_full_dimensional = np.linalg.matrix_rank(self.G) == self.dim
+            if self.is_singleton:
+                # is_singleton ensures that redundancies are removed, and _is_full_dimensional populated when possible.
+                self._is_full_dimensional = self.dim == 1
             else:
-                # Affine transformation of a ball in latent_dim remains full-dimensional
-                stacked_G_A = np.vstack((self.G, self.Ae))
-                self._is_full_dimensional = np.linalg.matrix_rank(stacked_G_A) == stacked_G_A.shape[0]
-        return self._is_full_dimensional
+                if self.is_empty:
+                    self._is_full_dimensional = self.dim == 0
+                else:
+                    stacked_G_Ae = np.vstack((self.G, self.Ae)) if self.n_equalities else self.G
+                    stacked_G_Ae_is_fat_or_sqr_matrix = stacked_G_Ae.shape[0] <= stacked_G_Ae.shape[1]
+                    stacked_G_Ae_is_full_row_rank = stacked_G_Ae.shape[0] == np.linalg.matrix_rank(stacked_G_Ae)
+                    self._is_full_dimensional = stacked_G_Ae_is_fat_or_sqr_matrix and stacked_G_Ae_is_full_row_rank
+        return cast(bool, self._is_full_dimensional)
 
     @property
-    def is_singleton(self):
-        """Check if the constrained zonotope is a singleton"""
-        if self.is_zonotope:
-            return (self.G is None or self.G.size == 0) and (self.c is not None)
-        else:
-            _, _, Aebe_status, _ = sanitize_and_identify_Aebe(self.Ae, self.be)
-            return Aebe_status == "single_point"
+    def is_singleton(self: ConstrainedZonotope) -> bool:
+        """Check if the constrained zonotope is a singleton
+
+        This function does not invoke any optimization solver, and relies on rank computations.
+
+        A non-empty constrained zonotope is a singleton if and only if latent set is empty or a singleton.
+        """
+        if self._is_singleton is None:
+            if self.n_equalities > 0:
+                # If latent set has equalities, remove_redundancies will detect if latent set is empty or singleton
+                self.remove_redundancies()
+            if self.n_equalities == 0:
+                self._is_singleton = (self.latent_dim == 0) and (self.c is not None)
+            else:
+                # Equalities remain and form a non-trivial latent set
+                self._is_singleton = False
+        return self._is_singleton
 
     @property
-    def is_zonotope(self):
+    def is_zonotope(self: ConstrainedZonotope) -> bool:
         """Check if the constrained zonotope is a zonotope"""
-        return self.n_equalities == 0
+        if self.is_singleton:
+            return True
+        else:
+            return self.n_equalities == 0
 
     @property
-    def cvxpy_args_lp(self):
+    def cvxpy_args_lp(self: ConstrainedZonotope) -> dict[str, Any]:
         """CVXPY arguments in use when solving a linear program
 
         Returns:
@@ -484,7 +581,7 @@ class ConstrainedZonotope:
         return self._cvxpy_args_lp
 
     @cvxpy_args_lp.setter
-    def cvxpy_args_lp(self, value):
+    def cvxpy_args_lp(self: ConstrainedZonotope, value: dict[str, Any]) -> None:
         """Update CVXPY arguments in use when solving a linear program
 
         Args:
@@ -493,7 +590,7 @@ class ConstrainedZonotope:
         self._cvxpy_args_lp = value
 
     @property
-    def cvxpy_args_socp(self):
+    def cvxpy_args_socp(self: ConstrainedZonotope) -> dict[str, Any]:
         """CVXPY arguments in use when solving a second-order cone program
 
         Returns:
@@ -503,7 +600,7 @@ class ConstrainedZonotope:
         return self._cvxpy_args_socp
 
     @cvxpy_args_socp.setter
-    def cvxpy_args_socp(self, value):
+    def cvxpy_args_socp(self: ConstrainedZonotope, value: dict[str, Any]) -> None:
         """Update CVXPY arguments in use when solving a second-order cone program
 
         Args:
@@ -514,21 +611,23 @@ class ConstrainedZonotope:
     ##################################
     # Plotting and polytope operations
     ##################################
-    plot = plot
+    plot = plot_polytopic_approximation
     polytopic_inner_approximation = polytopic_inner_approximation
     polytopic_outer_approximation = polytopic_outer_approximation
 
     ###########
     # Auxiliary
     ###########
-    def containment_constraints(self, x, flatten_order="F"):
+    def containment_constraints(
+        self, x: cvxpy.Variable, flatten_order: Literal["F", "C"] = "F"
+    ) -> tuple[list[cvxpy.Constraint], Optional[cvxpy.Variable]]:
         """Get CVXPY constraints for containment of x (a cvxpy.Variable) in a constrained zonotope.
 
         Args:
-            x (cvxpy.Variable): CVXPY variable to be optimized
-            flatten_order (char): Order to use for flatten (choose between "F", "C"). Defaults to "F", which
-                implements column-major flatten. In 2D, column-major flatten results in stacking rows horizontally to
-                achieve a single horizontal row.
+            x (cvxpy.Variable): CVXPY variable to be optimized.
+            flatten_order (Literal["F", "C"]): Order to use for flatten (choose between "F", "C"). Defaults to "F",
+                which implements column-major flatten. In 2D, column-major flatten results in stacking rows
+                horizontally to achieve a single horizontal row.
 
         Raises:
             ValueError: When constrained zonotope is empty
@@ -539,22 +638,27 @@ class ConstrainedZonotope:
             #. constraint_list (list): CVXPY constraints for the containment of x in the constrained zonotope.
             #. xi (cvxpy.Variable | None): CVXPY variable representing the latent dimension variable. It is None,
                when the constrained zonotope is a single point.
+
+        Notes:
+            This function imports CVXPY locally to avoid overhead.
         """
-        x = x.flatten(order=flatten_order)
+        import cvxpy as cp
+
+        x_reshaped = cp.reshape(x, (x.size,), order=flatten_order)
         if self.c is None:
             raise ValueError("Containment constraints can not be generated for an empty constrained zonotope!")
         elif self.is_singleton:
-            return [x == self.c], None
+            return [x_reshaped == self.c], None
         else:
             xi = cp.Variable((self.latent_dim,))
             if self.is_zonotope:
-                return [x == self.G @ xi + self.c, cp.norm(xi, p="inf") <= 1], xi
+                return [x_reshaped == self.G @ xi + self.c, cp.norm(xi, p="inf") <= 1], xi
             else:
-                return [x == self.G @ xi + self.c, cp.norm(xi, p="inf") <= 1, self.Ae @ xi == self.be], xi
+                return [x_reshaped == self.G @ xi + self.c, cp.norm(xi, p="inf") <= 1, self.Ae @ xi == self.be], xi
 
     minimize = minimize
 
-    def __pow__(self, power):
+    def __pow__(self: ConstrainedZonotope, power: int) -> ConstrainedZonotope:
         r"""Compute the Cartesian product with itself.
 
         Args:
@@ -563,16 +667,20 @@ class ConstrainedZonotope:
         Returns:
             Polytope: The polytope :math:`\mathcal{R}` corresponding to P`^N`.
         """
-        concatenated_G = np.kron(np.eye(power), self.G)
-        concatenated_c = np.tile(self.c, (power,))
-        concatenated_Ae = np.kron(np.eye(power), self.Ae)
-        concatenated_be = np.tile(self.be, (power,))
-        return self.__class__(G=concatenated_G, c=concatenated_c, Ae=concatenated_Ae, be=concatenated_be)
+        if self.c is None:
+            # When c is None, the constrained zonotope is empty by construction, and Cartesian product is also empty.
+            return self.__class__(dim=self.dim * power)
+        else:
+            concatenated_G = np.kron(np.eye(power), self.G)
+            concatenated_c = np.tile(self.c, (power,))
+            concatenated_Ae = np.kron(np.eye(power), self.Ae)
+            concatenated_be = np.tile(self.be, (power,))
+            return self.__class__(G=concatenated_G, c=concatenated_c, Ae=concatenated_Ae, be=concatenated_be)
 
     ##################
     # Unary operations
     ##################
-    def copy(self):
+    def copy(self: ConstrainedZonotope) -> ConstrainedZonotope:
         """Get a copy of the constrained zonotope"""
         return self.__class__(G=self.G, c=self.c, Ae=self.Ae, be=self.be)
 
@@ -588,17 +696,37 @@ class ConstrainedZonotope:
     contains = contains
     __contains__ = contains
 
-    def __le__(self, Q):
+    def __le__(self: ConstrainedZonotope, Q: "ConstrainedZonotope | Polytope") -> bool:
         """Overload <= operator for containment. self <= Q is equivalent to Q.contains(self)."""
-        return Q.contains(self)
+        if is_polytope(Q) or is_constrained_zonotope(Q):
+            return Q.contains(self)
+        else:
+            return NotImplemented
 
-    def __ge__(self, Q):
-        """Overload >= operator for containment. self >= Q is equivalent to P.contains(Q)."""
-        return self.contains(Q)
+    def __ge__(
+        self: ConstrainedZonotope,
+        Q: "Sequence[float] | np.ndarray | ConstrainedZonotope | Polytope",
+    ) -> bool:
+        """Overload >= operator for containment. self >= Q is equivalent to self.contains(Q)."""
+        if is_polytope(Q) or is_constrained_zonotope(Q):
+            return self.contains(Q)
+        else:
+            try:
+                Q_arr = np.atleast_2d(Q).astype(float)
+            except (TypeError, ValueError):
+                return NotImplemented
+            if Q_arr.size == self.dim and Q_arr.shape[0] == 1:
+                # Q is a point ====> ConstrainedZonotope >= Point case
+                return self.contains(Q_arr)
+            else:
+                return NotImplemented
 
-    def __eq__(self, Q):
+    def __eq__(self: ConstrainedZonotope, Q: object) -> bool:
         """Overload == operator with equality check. P == Q is equivalent to Q.contains(P) and P.contains(Q)"""
-        return self <= Q and self >= Q
+        if is_constrained_zonotope(Q) or is_polytope(Q):
+            return self <= cast("ConstrainedZonotope | Polytope", Q) and self >= Q
+        else:
+            return NotImplemented
 
     __lt__ = __le__
     __gt__ = __ge__
@@ -612,7 +740,7 @@ class ConstrainedZonotope:
     minus = minus
     __sub__ = minus
 
-    def __rsub__(self, Q):
+    def __rsub__(self: ConstrainedZonotope, Q: Any):
         raise TypeError(f"Unsupported operation: {type(Q)} - ConstrainedZonotope!")
 
     __array_ufunc__ = None  # Allows for numpy matrix times Polytope
@@ -622,19 +750,21 @@ class ConstrainedZonotope:
     # ConstrainedZonotope times Matrix
     __matmul__ = inverse_affine_map_under_invertible_matrix
 
-    def __mul__(self, x):
+    def __mul__(self: ConstrainedZonotope, x: Any):
         """Do not allow ConstrainedZonotope * anything"""
         return NotImplemented
 
-    def __neg__(self):
+    def __neg__(self: ConstrainedZonotope) -> ConstrainedZonotope:
         return affine_map(self, -1)
 
     # Scalar/Matrix times ConstrainedZonotope (called when left operand does not support multiplication)
-    def __rmatmul__(self, M):
+    def __rmatmul__(
+        self: ConstrainedZonotope, M: int | float | Sequence[Sequence[float]] | np.ndarray
+    ) -> ConstrainedZonotope:
         """Overload @ operator for affine map (matrix times ConstrainedZonotope)."""
         return affine_map(self, M)
 
-    def __rmul__(self, m):
+    def __rmul__(self: ConstrainedZonotope, m: int | float | Sequence[float] | np.ndarray) -> ConstrainedZonotope:
         """Overload * operator for multiplication."""
         try:
             m = np.squeeze(m).astype(float)
@@ -652,45 +782,59 @@ class ConstrainedZonotope:
     intersection_with_affine_set = intersection_with_affine_set
     intersection_under_inverse_affine_map = intersection_under_inverse_affine_map
 
-    def project(self, x, p=2):
+    def project(
+        self: ConstrainedZonotope, x: Sequence[float] | Sequence[Sequence[float]] | np.ndarray, p: int | str = 2
+    ) -> tuple[np.ndarray, np.ndarray]:
         return convex_set_project(self, x, p=p)
 
-    project.__doc__ = convex_set_project.__doc__ + DOCSTRING_FOR_PROJECT
+    project.__doc__ = (convex_set_project.__doc__ or "") + DOCSTRING_FOR_PROJECT
 
-    def projection(self, project_away_dims):
+    def projection(
+        self: ConstrainedZonotope, project_away_dims: int | Sequence[int] | np.ndarray
+    ) -> ConstrainedZonotope:
         return convex_set_projection(self, project_away_dims=project_away_dims)
 
-    projection.__doc__ = convex_set_projection.__doc__ + DOCSTRING_FOR_PROJECTION
+    projection.__doc__ = (convex_set_projection.__doc__ or "") + DOCSTRING_FOR_PROJECTION
 
-    def slice(self, dims, constants):
+    def slice(
+        self: ConstrainedZonotope,
+        dims: int | Sequence[int] | np.ndarray,
+        constants: float | Sequence[float] | np.ndarray,
+    ) -> ConstrainedZonotope:
         return convex_set_slice(self, dims, constants)
 
-    slice.__doc__ = convex_set_slice.__doc__ + DOCSTRING_FOR_SLICE
+    slice.__doc__ = (convex_set_slice.__doc__ or "") + DOCSTRING_FOR_SLICE
 
-    def slice_then_projection(self, dims, constants):
+    def slice_then_projection(
+        self, dims: int | Sequence[int] | np.ndarray, constants: float | Sequence[float] | np.ndarray
+    ) -> "ConstrainedZonotope":
         return convex_set_slice_then_projection(self, dims=dims, constants=constants)
 
-    slice_then_projection.__doc__ = convex_set_slice_then_projection.__doc__ + DOCSTRING_FOR_SLICE_THEN_PROJECTION
+    slice_then_projection.__doc__ = (
+        convex_set_slice_then_projection.__doc__ or ""
+    ) + DOCSTRING_FOR_SLICE_THEN_PROJECTION
 
-    def support(self, eta):
+    def support(
+        self: ConstrainedZonotope, eta: Sequence[float] | Sequence[Sequence[float]] | np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
         return convex_set_support(self, eta)
 
-    support.__doc__ = convex_set_support.__doc__ + DOCSTRING_FOR_SUPPORT
+    support.__doc__ = (convex_set_support.__doc__ or "") + DOCSTRING_FOR_SUPPORT
 
-    _compute_support_function_single_eta = _compute_support_function_single_eta
-    _compute_project_single_point = _compute_project_single_point
+    _compute_support_function_multiple_eta = _compute_support_function_multiple_eta
+    _compute_project_multiple_points = _compute_project_multiple_points
 
     #####################################
     # Constrained zonotope representation
     #####################################
-    def __str__(self):
+    def __str__(self: ConstrainedZonotope):
         if self.is_empty:
             short_str = f"(empty) in R^{self.dim:d}"
         else:
             short_str = f"in R^{self.dim:d}"
         return f"Constrained Zonotope {short_str:s}"
 
-    def __repr__(self):
+    def __repr__(self: ConstrainedZonotope):
         long_str = [str(self)]
         if self.is_empty:
             pass

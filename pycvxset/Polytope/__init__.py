@@ -1,19 +1,28 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # SPDX-License-Identifier: MIT
 
 # Code purpose:  Define the Polytope class
+# Coverage: This file has 2 missing statements + 46 excluded statements + 0 partial branches.
+
+from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING, Any, Literal, Optional, Sequence, cast, overload
 
-import cvxpy as cp
+from pycvxset import ConstrainedZonotope
+
+if TYPE_CHECKING:
+    import cvxpy
+    from pycvxset.Ellipsoid import Ellipsoid
+
 import numpy as np
 
 from pycvxset.common import (
-    _compute_project_single_point,
-    _compute_support_function_single_eta,
+    _compute_project_multiple_points,
+    _compute_support_function_multiple_eta,
     convex_set_closest_point,
     convex_set_distance,
     convex_set_extreme,
@@ -23,6 +32,7 @@ from pycvxset.common import (
     convex_set_slice_then_projection,
     convex_set_support,
     is_constrained_zonotope,
+    is_ellipsoid,
     is_polytope,
     minimize,
     sanitize_Ab,
@@ -52,6 +62,7 @@ from pycvxset.Polytope.operations_binary import (
 )
 from pycvxset.Polytope.operations_unary import (
     chebyshev_centering,
+    decompose_as_affine_transform_of_polytope_without_equalities,
     deflate_rectangle,
     interior_point,
     maximum_volume_inscribing_ellipsoid,
@@ -87,24 +98,25 @@ class Polytope:
 
     Args:
         dim (int, optional): Dimension of the empty polytope. If NOTHING is provided, dim=0 is assumed.
-        V (array_like, optional): List of vertices of the polytope (V-Rep). The list must be 2-dimensional with vertices
-            arranged row-wise and the polytope dimension determined by the column count.
-        A (array_like, optional): Inequality coefficient vectors (H-Rep). The vectors are stacked vertically with the
-            polytope dimension determined by the column count. When A is provided, b must also be provided.
-        b (array_like, optional): Inequality constants (H-Rep). The constants are expected to be in a 1D numpy
-            array.  When b is provided, A must also be provided.
-        Ae (array_like):  Equality coefficient vectors (H-Rep). The vectors are stacked vertically with matching number
-            of columns as A. When Ae is provided, A, b, and be must also be provided.
-        be (array_like):  Equality coefficient constants (H-Rep). The constants are expected to be in a 1D numpy
-            array.  When be is provided, A, b, and Ae must also be provided.
-        lb (array_like, optional): Lower bounds of the axis-aligned cuboid. Must be 1D array, and the polytope dimension
-            is determined by number of elements in lb. When lb is provided, ub must also be provided.
-        ub (array_like, optional): Upper bounds of the axis-aligned cuboid. Must be 1D array of length as same as lb.
-            When ub is provided, lb must also be provided.
-        c (array_like, optional): Center of the axis-aligned cuboid. Must be 1D array, and the polytope dimension is
-            determined by number of elements in c. When c is provided, h must also be provided.
-        h (array_like, optional): Half-side length of the axis-aligned cuboid. Can be a scalar or a vector of length as
-            same as c. When h is provided, c must also be provided.
+        V (Sequence[Sequence[float]] | np.ndarray, optional): List of vertices of the polytope (V-Rep). The list must be
+            2-dimensional with vertices arranged row-wise and the polytope dimension determined by the column count.
+        A (Sequence[Sequence[float]] | np.ndarray, optional): Inequality coefficient vectors (H-Rep). The vectors are
+            stacked vertically with the polytope dimension determined by the column count. When A is provided, b must
+            also be provided.
+        b (Sequence[float] | np.ndarray, optional): Inequality constants (H-Rep). The constants are expected to be in a
+            1D numpy array.  When b is provided, A must also be provided.
+        Ae (Sequence[Sequence[float]] | np.ndarray): Equality coefficient vectors (H-Rep). The vectors are stacked
+            vertically with matching number of columns as A. When Ae is provided, A, b, and be must also be provided.
+        be (Sequence[float] | np.ndarray): Equality coefficient constants (H-Rep). The constants are expected to be in a
+            1D numpy array.  When be is provided, A, b, and Ae must also be provided.
+        lb (Sequence[float] | np.ndarray, optional): Lower bounds of the axis-aligned cuboid. Must be 1D array, and the
+            polytope dimension is determined by number of elements in lb. When lb is provided, ub must also be provided.
+        ub (Sequence[float] | np.ndarray, optional): Upper bounds of the axis-aligned cuboid. Must be 1D array of length
+            as same as lb.  When ub is provided, lb must also be provided.
+        c (Sequence[float] | np.ndarray, optional): Center of the axis-aligned cuboid. Must be 1D array, and the
+            polytope dimension is determined by number of elements in c. When c is provided, h must also be provided.
+        h (float | Sequence[float] | np.ndarray, optional): Half-side length of the axis-aligned cuboid. Can be a scalar
+            or a vector of length as same as c. When h is provided, c must also be provided.
 
     Raises:
         ValueError: When arguments provided is not one of [(A, b), (A, b, Ae, be), (lb, ub), (c, h), V, dim,
@@ -124,19 +136,73 @@ class Polytope:
             zeros in Ae and be.
     """
 
-    def __init__(self, **kwargs):
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(self) -> None: ...
+
+        @overload
+        def __init__(self, *, dim: int) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            V: Sequence[Sequence[float]] | np.ndarray,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            A: Sequence[Sequence[float]] | np.ndarray,
+            b: Sequence[float] | np.ndarray,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            A: Sequence[Sequence[float]] | np.ndarray,
+            b: Sequence[float] | np.ndarray,
+            Ae: Sequence[Sequence[float]] | np.ndarray,
+            be: Sequence[float] | np.ndarray,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            lb: Sequence[float] | np.ndarray,
+            ub: Sequence[float] | np.ndarray,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            c: Sequence[float] | np.ndarray,
+            h: float | Sequence[float] | np.ndarray,
+        ) -> None: ...
+
+    def __init__(self, **kwargs: Any) -> None:
         """Constructor for Polytope class."""
         # The following attributes are accessible to the user via a getter to avoid end-user interactions
         ##########################################
         # Attributes set by _set_attributes_from_X
         ##########################################
-        self._dim = None
+        self._type_of_set: str = "Polytope"
+        self._dim: int = 0
         self._A, self._b = np.empty((0, 1)), np.empty((0,))
         self._Ae, self._be = np.empty((0, 1)), np.empty((0,))
         self._V = np.empty((0, 1))
-        self._in_H_rep, self._in_V_rep = None, None
+        self._in_H_rep: bool = False
+        self._in_V_rep: bool = False
         # These attributes are computed if necessary within _set_attributes_from_X
-        self._is_full_dimensional, self._is_empty, self._is_bounded = None, None, None
+        self._is_full_dimensional: Optional[bool] = None
+        self._is_empty: Optional[bool] = None
+        self._is_bounded: Optional[bool] = None
+        self._is_singleton: Optional[bool] = None
         # These attributes are used by CVXPY to solve problems
         self._cvxpy_args_lp = DEFAULT_CVXPY_ARGS_LP
         self._cvxpy_args_socp = DEFAULT_CVXPY_ARGS_SOCP
@@ -216,18 +282,38 @@ class Polytope:
                 "(lb, ub) or (c, h) or V or dim or NOTHING."
             )
 
-    def _set_attributes_from_Ab_Aebe(self, A, b, Ae=None, be=None, erase_V_rep=True):
+    @property
+    def type_of_set(self) -> str:
+        """Return the type of set
+
+        Returns:
+            str: Type of the set
+        """
+        return self._type_of_set
+
+    def _set_attributes_from_Ab_Aebe(
+        self,
+        A: Optional[Sequence[Sequence[float]] | np.ndarray | None] = None,
+        b: Optional[Sequence[float] | np.ndarray | None] = None,
+        Ae: Optional[Sequence[Sequence[float]] | np.ndarray | None] = None,
+        be: Optional[Sequence[float] | np.ndarray | None] = None,
+        erase_V_rep: bool = True,
+        enable_warning: bool = True,
+    ) -> None:
         r"""Protected method to set various attributes given (A, b, Ae, be) --- _dim,  _A, _b, _Ae, _be, _in_H_rep,
         _V, _in_V_rep, _is_empty, _is_full_dimensional, _is_bounded.
 
         Args:
-            A (array_like): Inequality coefficient vectors (H-Rep). The vectors are stacked vertically.
-            b (array_like): Inequality constants (H-Rep). The constants are expected to be in a 1D numpy array.
-            Ae (array_like, optional): Equality coefficient vectors (H-Rep). The vectors are stacked vertically.
-                Defaults to None.
-            be (array_like, optional): Equality constants (H-Rep). The constants are expected to be in a 1D numpy
-                array. Defaults to None.
+            A (Sequence[Sequence[float]] | np.ndarray | None, optional): Inequality coefficient vectors (H-Rep). The
+                vectors are stacked vertically.
+            b (Sequence[float] | np.ndarray | None, optional): Inequality constants (H-Rep). The constants are expected
+                to be in a 1D numpy array.
+            Ae (Sequence[Sequence[float]] | np.ndarray | None, optional): Equality coefficient vectors (H-Rep). The
+                vectors are stacked vertically.  Defaults to None.
+            be (Sequence[float] | np.ndarray | None, optional): Equality constants (H-Rep). The constants are expected
+                to be in a 1D numpy array. Defaults to None.
             erase_V_rep (bool, optional): When set to True, we erase V-rep. Defaults to True.
+            enable_warning (bool, optional): Enables the UserWarning. May be turned off if expected. Defaults to True.
 
         Raises:
             ValueError: When (A, b) and (Ae, be) are not a valid system of linear inequalities and equations
@@ -240,59 +326,77 @@ class Polytope:
             empty, a single point, or an affine set of dimension :math:`\leq \mathcal{P}.\text{dim}`.
         """
         self._in_H_rep = True  # To allow for querying self.n_equalities
-        A, b = sanitize_Ab(A, b)
-        mA, self._dim = A.shape
-        (mb,) = b.shape
+        sanitized_A, sanitized_b = sanitize_Ab(A, b)
+        sanitized_Ae, sanitized_be, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(Ae, be)
 
-        # Set up (Ae, be)
-        # Aebe_status can be 'no_Ae_be' or 'infeasible' or 'affine_set' or 'single_point'
-        if Ae is not None and be is not None:
-            sanitized_Ae, sanitized_be, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(Ae, be)
-            if sanitized_Ae is None:
-                self._Ae, self._be = np.empty((0, self.dim)), np.empty((0,))
-            else:
-                self._Ae, self._be = sanitized_Ae, sanitized_be
-                if self.Ae.shape[1] != self.dim:  # Check if (Ae, be) and (A, b) can go together?
-                    raise ValueError(
-                        f"Expected A and Ae to have same number of columns. A: {A.shape}, Ae: {self.Ae.shape}"
-                    )
+        # Set polytope dimension and check for compatibility of (A, b) and (Ae, be)
+        inequalities_present = sanitized_A is not None
+        if inequalities_present:
+            self._dim = sanitized_A.shape[1]
+        elif sanitized_Ae is not None:
+            self._dim = sanitized_Ae.shape[1]
         else:
-            self._Ae, self._be = np.empty((0, self.dim)), np.empty((0,))
-            Aebe_status = "no_Ae_be"
+            raise ValueError("Polytope is unbounded in all directions!")
 
-        # Set up (A, b) and other attributes of the polytope
-        if mb == 0 and Aebe_status == "affine_set":
-            raise ValueError("Polytope is not bounded in some directions!")
-        elif mb == 0 and Aebe_status == "no_Ae_be":  # Ensures that n.He > 0 or n.H > 0
-            raise ValueError("Polytope is not bounded in any direction!")
-        elif Aebe_status == "infeasible":
-            # sanitize_Ab ensures A.shape = (0,) and b.shape = 0 or (Ae, be) is infeasible
+        # Check for compatibility of (A, b) and (Ae, be) if both are present.
+        if inequalities_present:
+            self._A, self._b = sanitized_A, sanitized_b
+        else:
+            self._A, self._b = np.empty((0, self.dim)), np.empty((0,))
+        if Aebe_status == "no_Ae_be":
+            self._Ae, self._be = np.empty((0, self.dim)), np.empty((0,))
+        else:
+            self._Ae, self._be = cast(np.ndarray, sanitized_Ae), cast(np.ndarray, sanitized_be)
+            if self._Ae.shape[1] != self.dim:
+                raise ValueError(
+                    "Expected A and Ae to have same number of columns. A: {self._A.shape}, Ae: {self._Ae.shape}"
+                )
+
+        # Process equalities and inequalities together to check if the polytope is empty, single point, affine set, or
+        # not full-dimensional, and to set up attributes accordingly.
+        if Aebe_status == "infeasible" or (
+            Aebe_status == "single_point"
+            and inequalities_present
+            and (self._A @ solution_to_Ae_x_eq_be - self._b > PYCVXSET_ZERO).any()
+        ):
+            # Infeasible or empty with single point only if (A, b) exists and excludes the point.
             self._set_polytope_to_empty(self.dim)
         elif Aebe_status == "single_point":
-            # Single point case
-            self._is_empty, self._is_full_dimensional, self._is_bounded = False, self.dim == 1, True
+            # Single point case (either inequalities are not present or they are present but do not exclude the point)
+            self._is_empty, self._is_full_dimensional, self._is_bounded, self._is_singleton = (
+                False,
+                self.dim == 1,
+                True,
+                True,
+            )
             # Omit assignment of inequalities! They are redundant.
             self._A, self._b = np.empty((0, self.dim)), np.empty((0,))
             # Also update V-Rep
             self._V = np.array([solution_to_Ae_x_eq_be])
             self._in_V_rep = True
             erase_V_rep = False
-        else:  # Non-empty rows for (A, b) and Aebe_status in ['affine_set', 'no_Ae_be']
-            if (b == -np.inf).any():
+        elif not inequalities_present:
+            if Aebe_status == "affine_set":
+                raise ValueError("Polytope is not bounded in some directions!")
+            else:  # pragma: no cover
+                # no_Ae_be will error out, infeasible and single_point are handled above.
+                pass  # Already handled above. This is just for code clarity.
+        else:  # inequalities_present is True and Aebe_status \in ['affine_set', 'no_Ae_be'].
+            if (self._b == -np.inf).any():
                 self._set_polytope_to_empty(self.dim)
-            elif (b == np.inf).all():
-                raise ValueError("Polytope is not bounded in all directions!")
+            elif (self._b == np.inf).all():
+                raise ValueError("Polytope is not bounded in any direction!")
             else:
-                valid_rows_Ab = valid_rows_with_not_all_zeros_in_A_and_no_inf_in_b(A, b)
+                valid_rows_Ab = valid_rows_with_not_all_zeros_in_A_and_no_inf_in_b(self._A, self._b)
                 if sum(valid_rows_Ab) < 2:
                     # Expected non-singleton H-Rep polytope to have at least 2 inequalities!")
                     if Aebe_status == "no_Ae_be":
                         raise ValueError("Polytope is not bounded in any direction!")
                     else:
                         raise ValueError("Polytope is not bounded in some directions!")
-                elif sum(valid_rows_Ab) != mA:
+                elif enable_warning and sum(valid_rows_Ab) != self._A.shape[0]:
                     warnings.warn("Removed some rows in A that had all zeros | b that had np.inf!", UserWarning)
-                self._A, self._b = A[valid_rows_Ab, :], b[valid_rows_Ab]
+                self._A, self._b = self.A[valid_rows_Ab, :], self.b[valid_rows_Ab]
                 # We have not assigned self._is_empty, self._is_full_dimensional, self._is_bounded OR
                 # Keep the previous assignments
 
@@ -300,13 +404,13 @@ class Polytope:
             self._V = np.empty((0, self.dim))
             self._in_V_rep = False
 
-    def _set_attributes_from_bounds(self, lb, ub):
+    def _set_attributes_from_bounds(self: Polytope, lb: np.ndarray, ub: np.ndarray) -> None:
         """Protected method to set various attributes given (lb, ub) --- _dim,  _A, _b, _Ae, _be, _in_H_rep, _V,
         _in_V_rep, _is_empty, _is_full_dimensional, _is_bounded.
 
         Args:
-            lb (array_like): Lower bounds of the axis-aligned box
-            ub (array_like): Upper bounds of the axis-aligned box
+            lb (np.ndarray): Lower bounds of the axis-aligned box
+            ub (np.ndarray): Upper bounds of the axis-aligned box
 
         Raises:
             ValueError: When lb, ub is not 1D array
@@ -340,7 +444,12 @@ class Polytope:
                     A_bound = np.vstack((np.eye(n), -np.eye(n)))
                     b_bound = np.hstack((ub, -lb))
                     # Help _set_attributes_from_Ab_Aebe by setting discernable attributes
-                    self._is_full_dimensional, self._is_empty, self._is_bounded = True, False, True
+                    self._is_full_dimensional, self._is_empty, self._is_bounded, self._is_singleton = (
+                        True,
+                        False,
+                        True,
+                        False,
+                    )
                     self._set_attributes_from_Ab_Aebe(A_bound, b_bound, erase_V_rep=True)
                 else:
                     # Some equality and some inequality constraints
@@ -362,15 +471,20 @@ class Polytope:
                         b[A_index] = ub[dim]
                         b[n_inequalities + A_index] = -lb[dim]
                     # Help _set_attributes_from_Ab_Aebe by setting discernable attributes
-                    self._is_full_dimensional, self._is_empty, self._is_bounded = False, False, True
+                    self._is_full_dimensional, self._is_empty, self._is_bounded, self._is_singleton = (
+                        False,
+                        False,
+                        True,
+                        False,
+                    )
                     self._set_attributes_from_Ab_Aebe(A, b, Ae=Ae, be=be, erase_V_rep=True)
 
-    def _set_attributes_from_V(self, V, erase_H_rep=True):
+    def _set_attributes_from_V(self: Polytope, V: np.ndarray, erase_H_rep: bool = True) -> None:
         """Protected method to set various attributes given (V) --- _dim,  _A, _b, _Ae, _be, _in_H_rep, _V,
         _in_V_rep, _is_empty, _is_full_dimensional, _is_bounded.
 
         Args:
-            V (array_like): List of vertices of the polytope. The list must be 2-dimensional, to avoid the risk of
+            V (np.ndarray): List of vertices of the polytope. The list must be 2-dimensional, to avoid the risk of
                 mistaking 1D polytopes as a self.n_vertices-dimensional polytope with 1 vertex. The vertices are
                 arranged row-wise.
             erase_H_rep (bool): When set to True, we erase H-rep. Defaults to True.
@@ -392,22 +506,28 @@ class Polytope:
             self._V = V
             self._dim = n
             self._is_empty, self._is_bounded = False, True
+            self._is_singleton = self.n_vertices == 1
             # We have not assigned self._is_full_dimensional
         if erase_H_rep:
             self._A, self._b = np.empty((0, self.dim)), np.empty((0,))
             self._Ae, self._be = np.empty((0, self.dim)), np.empty((0,))
             self._in_H_rep = False
 
-    def _set_polytope_to_empty(self, dim):
+    def _set_polytope_to_empty(self: Polytope, dim: int) -> None:
         """Protected method to set A, b, dim, no_AbV, V members for an empty polytope"""
         self._dim = dim
         self._A, self._b = np.empty((0, self.dim)), np.empty((0,))
         self._Ae, self._be = np.empty((0, self.dim)), np.empty((0,))
         self._V = np.empty((0, self.dim))
         self._in_H_rep, self._in_V_rep = False, False
-        self._is_full_dimensional, self._is_empty, self._is_bounded = self.dim == 0, True, True
+        self._is_full_dimensional, self._is_empty, self._is_bounded, self._is_singleton = (
+            self.dim == 0,
+            True,
+            True,
+            False,
+        )
 
-    def _update_emptiness_full_dimensionality(self):
+    def _update_emptiness_full_dimensionality_for_h_rep_polytope(self) -> None:
         r"""Update self._is_empty and self._is_full_dimensional using Chebyshev centering results.
 
         Raises:
@@ -416,38 +536,38 @@ class Polytope:
         Notes:
             - When in H-Rep, we use Chebyshev_centering to determine if the polytope is nonempty and full-dimensional.
               Specifically,
-              1. Chebyshev radius == :math:`\infty`, the polytope is unbounded. Note that, this is just a sufficient
-                 condition, and an unbounded polytope can have a finite Chebyshev radius. For example, consider a
-                 3-dimensional axis-aligned cuboid :math:`[-1, 1] \times [-1, 1] \times \mathbb{R}`.
-              2. 0 < Chebyshev radius < :math:`\infty`, the polytope is always nonempty. It is full-dimensional when r >
-                 0 or dim == 1.
-              3. Chebyshev radius == 0, the polytope is nonempty and but not full-dimensional except when dim == 1
-                 (handled above).
-              4. Chebyshev radius == - :math:`infty`, the polytope is empty. In this case, it is full-dimensional, only
+              #. Chebyshev radius == - :math:`infty`, the polytope is empty. In this case, it is full-dimensional, only
                  if dim=0.
-            - When in V-Rep, vertices provide all the information necessary.
+              #. 0 <= Chebyshev radius <= :math:`\infty`, the polytope is always nonempty. It is full-dimensional when
+                 `self.n_equalities` is 0 or `self.dim` is 1.
         """
-        if self.in_V_rep:
-            self._is_full_dimensional = None
-            self._is_empty, self._is_full_dimensional, self._is_bounded = (
-                self.n_vertices == 0,
-                self.is_full_dimensional,
-                True,
-            )
+        _, chebyshev_radius = self.chebyshev_centering()
+        if chebyshev_radius == -np.inf:
+            # Set is empty chebyshev_radius < 0 when infeasible
+            self._is_empty, self._is_full_dimensional = True, self.dim == 0
         else:
-            _, chebyshev_radius = self.chebyshev_centering()
-            if chebyshev_radius == -np.inf:
-                # Set is empty chebyshev_radius < 0 when infeasible
-                self._is_empty, self._is_full_dimensional = True, self.dim == 0
-            elif chebyshev_radius < np.inf:
-                # Set is non-empty since chebyshev_radius >= 0
-                # Set is full-dimensional if chebyshev_radius > 0 or dim == 1
-                self._is_empty, self._is_full_dimensional = False, chebyshev_radius > 0 or self.dim == 1
-            else:
-                self._is_empty, self._is_full_dimensional, self._is_bounded = False, self.n_equalities == 0, False
+            # Set is non-empty since chebyshev_radius >= 0
+            # Set is full-dimensional if self.n_equalities == 0 or dim == 1
+            self._is_empty, self._is_full_dimensional = False, (chebyshev_radius > 0 or self.dim == 1)
+
+    def _update_boundedness_singleton_for_h_rep_polytope(self) -> None:
+        r"""Update self._is_empty and self._is_full_dimensional using minimum_volume_circumscribing_rectangle.
+
+        Raises:
+            ValueError: Unable to solve minimum_volume_circumscribing_rectangle using CVXPY
+        """
+        try:
+            lb, ub = self.minimum_volume_circumscribing_rectangle()
+        except ValueError as err:
+            raise ValueError(
+                "Check for is_bounded and/or is_singleton using minimum_volume_circumscribing_rectangle failed!"
+                "If the set is_bounded and/or is_singleton, try using a different solver."
+            ) from err
+        self._is_singleton = bool(np.isclose(lb, ub).all())
+        self._is_bounded = bool((np.abs(np.hstack((ub, lb))) < np.inf).all())
 
     @property
-    def dim(self):
+    def dim(self) -> int:
         """Dimension of the polytope. In H-Rep polytope (A, b), this is the number of columns of A, while in V-Rep,
         this is the number of components of the vertices.
 
@@ -457,7 +577,7 @@ class Polytope:
         return self._dim
 
     @property
-    def A(self):
+    def A(self) -> np.ndarray:
         r"""Inequality coefficient vectors `A` for the polytope :math:`\{Ax \leq b, A_e x = b_e\}`.
 
         Returns:
@@ -471,7 +591,7 @@ class Polytope:
         return self._A
 
     @property
-    def b(self):
+    def b(self) -> np.ndarray:
         r"""Inequality constants `b` for the polytope :math:`\{Ax \leq b, A_e x = b_e\}`.
 
         Returns:
@@ -482,10 +602,10 @@ class Polytope:
         """
         if not self.in_H_rep:
             self.determine_H_rep()
-        return self._b
+        return cast(np.ndarray, self._b)
 
     @property
-    def H(self):
+    def H(self) -> np.ndarray:
         r"""Inequality constraints in halfspace representation `H=[A, b]` for the polytope
         :math:`\{Ax \leq b, A_e x = b_e\}`.
 
@@ -498,7 +618,7 @@ class Polytope:
         return np.hstack((self.A, np.array([self.b]).T))
 
     @property
-    def n_halfspaces(self):
+    def n_halfspaces(self) -> int:
         r"""Number of halfspaces used to define the polytope :math:`\{Ax \leq b, A_e x = b_e\}`
 
         Returns:
@@ -510,7 +630,7 @@ class Polytope:
         return self.A.shape[0]  # determines H-rep if not determined
 
     @property
-    def Ae(self):
+    def Ae(self) -> np.ndarray:
         r"""Equality coefficient vectors `Ae` for the polytope :math:`\{Ax \leq b, A_e x = b_e\}`.
 
         Returns:
@@ -525,7 +645,7 @@ class Polytope:
         return self._Ae
 
     @property
-    def be(self):
+    def be(self) -> np.ndarray:
         r"""Equality constants `be` for the polytope :math:`\{Ax \leq b, A_e x = b_e\}`.
 
         Returns:
@@ -539,7 +659,7 @@ class Polytope:
         return self._be
 
     @property
-    def He(self):
+    def He(self) -> np.ndarray:
         r"""Equality constraints in halfspace representation `He=[Ae, be]` for the polytope
         :math:`\{Ax \leq b, A_e x = b_e\}`.
 
@@ -552,7 +672,7 @@ class Polytope:
         return np.hstack((self.Ae, np.array([self.be]).T))
 
     @property
-    def n_equalities(self):
+    def n_equalities(self) -> int:
         r"""Number of linear equality constraints used to define the polytope :math:`\{Ax \leq b, A_e x = b_e\}`
 
         Returns:
@@ -564,7 +684,7 @@ class Polytope:
         return self.Ae.shape[0]  # determines H-rep if not determined
 
     @property
-    def V(self):
+    def V(self) -> np.ndarray:
         r"""Vertex representation (`V`) where the polytope is given by :math:`\text{ConvexHull}(v_i)` with
         :math:`v_i` as the rows of :math:`V=[v_1;v_2;\ldots;v_{n_vertices}]`.
 
@@ -580,7 +700,7 @@ class Polytope:
         return self._V
 
     @property
-    def n_vertices(self):
+    def n_vertices(self) -> int:
         """Number of vertices
 
         Returns:
@@ -592,7 +712,7 @@ class Polytope:
         return self.V.shape[0]  # determines V-rep if not determined
 
     @property
-    def is_full_dimensional(self):
+    def is_full_dimensional(self) -> bool:
         """
         Check if the affine dimension of the polytope is the same as the polytope dimension
 
@@ -628,50 +748,52 @@ class Polytope:
                     delta_vertices[abs(delta_vertices) <= PYCVXSET_ZERO] = 0
                     self._is_full_dimensional = bool(np.linalg.matrix_rank(delta_vertices) == self.dim)
             else:
-                self._update_emptiness_full_dimensionality()
-        return self._is_full_dimensional
+                self._update_emptiness_full_dimensionality_for_h_rep_polytope()
+        return cast(bool, self._is_full_dimensional)
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         """Check if the polytope is empty.
 
         Returns:
             bool: When True, the polytope is empty
 
         Notes:
-            This property is well-defined when the polytope is in V-Rep, but may solve a Chebyshev centering problem
-            when the polytope is in H-Rep. "may" because sometimes we can infer the emptiness of the polytope in H-Rep.
+            This property is well-defined (`self.n_vertices == 0`) when the polytope is in V-Rep and initialized in the
+            constructor. For H-Rep, it solves a Chebyshev centering problem.
         """
         if self._is_empty is None:
-            self._update_emptiness_full_dimensionality()
-        return self._is_empty
+            self._update_emptiness_full_dimensionality_for_h_rep_polytope()
+        return cast(bool, self._is_empty)
 
     @property
-    def is_bounded(self):
+    def is_singleton(self) -> bool:
+        """Check if the polytope is singleton.
+
+        Returns:
+            bool: When True, the polytope is singleton.
+
+        Notes:
+            This property is well-defined (`self.n_vertices == 1`) when the polytope is in V-Rep and initialized in the
+            constructor. For H-Rep, it solves a minimum_volume_circumscribing_rectangle problem.
+        """
+        if self._is_singleton is None:
+            self._update_boundedness_singleton_for_h_rep_polytope()
+        return cast(bool, self._is_singleton)
+
+    @property
+    def is_bounded(self) -> bool:
         """Check if the polytope is bounded.
 
         Returns:
             bool: True if the polytope is bounded, and False otherwise.
-
-        Notes:
-            This property is well-defined when the polytope is in V-Rep, but solves for a minimum volume circumscribing
-            rectangle to check for boundedness.
         """
         if self._is_bounded is None:
-            try:
-                lb, ub = self.minimum_volume_circumscribing_rectangle()
-            except ValueError as err:
-                raise ValueError(
-                    "Failed while checking if the set is bounded! If set is bounded, try using a different solver."
-                ) from err
-            if (np.abs(np.hstack((ub, lb))) < np.inf).all():
-                self._is_bounded = True
-            else:
-                self._is_bounded = False
-        return self._is_bounded
+            self._update_boundedness_singleton_for_h_rep_polytope()
+        return cast(bool, self._is_bounded)
 
     @property
-    def in_H_rep(self):
+    def in_H_rep(self) -> bool:
         """Check if the polytope have a halfspace representation (H-Rep).
 
         Returns:
@@ -680,7 +802,7 @@ class Polytope:
         return self._in_H_rep
 
     @property
-    def in_V_rep(self):
+    def in_V_rep(self) -> bool:
         """Check if the polytope have a vertex representation (V-Rep).
 
         Returns:
@@ -689,7 +811,7 @@ class Polytope:
         return self._in_V_rep
 
     @property
-    def cvxpy_args_lp(self):
+    def cvxpy_args_lp(self) -> dict[str, Any]:
         """CVXPY arguments in use when solving a linear program
 
         Returns:
@@ -700,7 +822,7 @@ class Polytope:
         return self._cvxpy_args_lp
 
     @cvxpy_args_lp.setter
-    def cvxpy_args_lp(self, value):
+    def cvxpy_args_lp(self: Polytope, value: dict[str, Any]) -> None:
         """Update CVXPY arguments in use when solving a linear program
 
         Args:
@@ -709,7 +831,7 @@ class Polytope:
         self._cvxpy_args_lp = value
 
     @property
-    def cvxpy_args_socp(self):
+    def cvxpy_args_socp(self: Polytope) -> dict[str, Any]:
         """CVXPY arguments in use when solving a second-order cone program
 
         Returns:
@@ -719,7 +841,7 @@ class Polytope:
         return self._cvxpy_args_socp
 
     @cvxpy_args_socp.setter
-    def cvxpy_args_socp(self, value):
+    def cvxpy_args_socp(self: Polytope, value: dict[str, Any]) -> None:
         """Update CVXPY arguments in use when solving a second-order cone program
 
         Args:
@@ -728,7 +850,7 @@ class Polytope:
         self._cvxpy_args_socp = value
 
     @property
-    def cvxpy_args_sdp(self):
+    def cvxpy_args_sdp(self: Polytope) -> dict[str, Any]:
         """CVXPY arguments in use when solving a semi-definite program
 
         Returns:
@@ -738,7 +860,7 @@ class Polytope:
         return self._cvxpy_args_sdp
 
     @cvxpy_args_sdp.setter
-    def cvxpy_args_sdp(self, value):
+    def cvxpy_args_sdp(self: Polytope, value: dict[str, Any]) -> None:
         """Update CVXPY arguments in use when solving a semi-definite program
 
         Args:
@@ -756,14 +878,16 @@ class Polytope:
     ################
     # CVXPY-focussed
     ################
-    def containment_constraints(self, x, flatten_order="F"):
+    def containment_constraints(
+        self, x: cvxpy.Variable, flatten_order: Literal["F", "C"] = "F"
+    ) -> tuple[list[cvxpy.Constraint], Optional[cvxpy.Variable]]:
         """Get CVXPY constraints for containment of x (a cvxpy.Variable) in a polytope.
 
         Args:
             x (cvxpy.Variable): CVXPY variable to be optimized
-            flatten_order (char): Order to use for flatten (choose between "F", "C"). Defaults to "F", which implements
-                column-major flatten. In 2D, column-major flatten results in stacking rows horizontally to achieve a
-                single horizontal row.
+            flatten_order (Literal["F", "C"]): Order to use for flatten (choose between "F", "C"). Defaults to "F",
+                which implements column-major flatten. In 2D, column-major flatten results in stacking rows horizontally
+                to achieve a single horizontal row.
 
         Raises:
             ValueError: When polytope is empty
@@ -775,14 +899,17 @@ class Polytope:
             #. theta (cvxpy.Variable | None): CVXPY variable representing the convex combination coefficient when
                polytope is in V-Rep. It is None when the polytope is in H-Rep or empty.
         """
-        x = x.flatten(order=flatten_order)
+        import cvxpy as cp
+
+        x_reshaped = cp.reshape(x, (x.size,), order=flatten_order)
         if self.in_V_rep:
             theta = cp.Variable((self.n_vertices,), nonneg=True)
-            return [x == self.V.T @ theta, cp.sum(theta) == 1], theta
+            constraints: list[cp.Constraint] = [x_reshaped == self.V.T @ theta, cast(cp.Constraint, cp.sum(theta) == 1)]
+            return constraints, theta
         elif self.in_H_rep:
-            polytope_containment_constraints = [self.A @ x <= self.b]
+            polytope_containment_constraints: list[cp.Constraint] = [self.A @ x_reshaped <= self.b]
             if self.n_equalities > 0:
-                polytope_containment_constraints += [self.Ae @ x == self.be]
+                polytope_containment_constraints += [self.Ae @ x_reshaped == self.be]
             return polytope_containment_constraints, None
         else:
             raise ValueError("Containment constraints can not be generated for an empty polytope!")
@@ -792,19 +919,22 @@ class Polytope:
     ##################
     # Unary operations
     ##################
-    def copy(self):
+    def copy(self) -> Polytope:
         """Create a copy of the polytope"""
         if self.in_H_rep:
-            if self.n_equalities > 0:
-                return self.__class__(A=self.A, b=self.b, Ae=self.Ae, be=self.be)
-            else:
-                return self.__class__(A=self.A, b=self.b)
+            copy_polytope = self.__class__(A=self.A, b=self.b, Ae=self.Ae, be=self.be)
+            if self.in_V_rep:
+                copy_polytope._set_attributes_from_V(V=self.V, erase_H_rep=False)
+            return copy_polytope
         elif self.in_V_rep:
             return self.__class__(V=self.V)
         else:
             return self.__class__(dim=self.dim)
 
     chebyshev_centering = chebyshev_centering
+    decompose_as_affine_transform_of_polytope_without_equalities = (
+        decompose_as_affine_transform_of_polytope_without_equalities
+    )
     interior_point = interior_point
     maximum_volume_inscribing_ellipsoid = maximum_volume_inscribing_ellipsoid
     minimum_volume_circumscribing_ellipsoid = minimum_volume_circumscribing_ellipsoid
@@ -813,7 +943,7 @@ class Polytope:
     deflate_rectangle = classmethod(deflate_rectangle)
     volume = volume
 
-    def __pow__(self, power):
+    def __pow__(self, power: int) -> Any:
         r"""Compute the Cartesian product with itself.
 
         Args:
@@ -846,7 +976,7 @@ class Polytope:
     contains = contains
     __contains__ = contains
 
-    def __le__(self, Q):
+    def __le__(self: Polytope, Q: ConstrainedZonotope | Polytope) -> Any:
         """Overload <= operator for containment. self <= Q is equivalent to Q.contains(self)."""
         if is_polytope(Q) or is_constrained_zonotope(Q):
             return Q.contains(self)
@@ -854,13 +984,27 @@ class Polytope:
             # Q is a constrained zonotope ====> Polytope <= ConstrainedZonotope case
             return NotImplemented
 
-    def __ge__(self, Q):
+    def __ge__(
+        self: Polytope,
+        Q: "Sequence[float] | np.ndarray | ConstrainedZonotope | Ellipsoid | Polytope",
+    ) -> bool:
         """Overload >= operator for containment. self >= Q is equivalent to P.contains(Q)."""
-        return self.contains(Q)
+        if is_polytope(Q) or is_constrained_zonotope(Q) or is_ellipsoid(Q):
+            return self.contains(Q)
+        else:
+            try:
+                Q_arr = np.atleast_2d(Q).astype(float)
+            except (TypeError, ValueError):
+                return NotImplemented
+            if Q_arr.size == self.dim and Q_arr.shape[0] == 1:
+                # Q is a point ====> Polytope >= Point case
+                return self.contains(Q_arr)
+            else:
+                return NotImplemented
 
-    def __eq__(self, Q):
+    def __eq__(self: Polytope, Q: object) -> Any:
         """Overload == operator with equality check. P == Q is equivalent to Q.contains(P) and P.contains(Q)"""
-        return self <= Q and self >= Q
+        return self <= cast("ConstrainedZonotope | Polytope", Q) and self >= Q
 
     __lt__ = __le__
     __gt__ = __ge__
@@ -875,7 +1019,7 @@ class Polytope:
     minus = minus
     __sub__ = minus
 
-    def __rsub__(self, Q):
+    def __rsub__(self, Q: Any):
         raise TypeError(f"Unsupported operation: {type(Q)} - Polytope!")
 
     __array_ufunc__ = None  # Allows for numpy matrix times Polytope
@@ -885,11 +1029,11 @@ class Polytope:
     # Polytope times Matrix
     __matmul__ = inverse_affine_map_under_invertible_matrix
 
-    def __mul__(self, x):
+    def __mul__(self, x: Any):
         """Do not allow Polytope * anything"""
         return NotImplemented
 
-    def __neg__(self):
+    def __neg__(self) -> Polytope:
         r"""Negation of the polytope :math:`\mathcal{R}=\{-p: p\in\mathcal{ P}\}`.
 
         Returns:
@@ -898,11 +1042,11 @@ class Polytope:
         return affine_map(self, -1)
 
     # Scalar/Matrix times Polytope (called when left operand does not support multiplication)
-    def __rmatmul__(self, M):
+    def __rmatmul__(self: Polytope, M: Sequence[float] | Sequence[Sequence[float]] | np.ndarray) -> Polytope:
         """Overload @ operator for affine map (matrix times Polytope)."""
         return affine_map(self, M)
 
-    def __rmul__(self, m):
+    def __rmul__(self: Polytope, m: int | float | Sequence[float] | np.ndarray) -> Polytope:
         """Overload * operator for multiplication."""
         try:
             m = np.squeeze(m).astype(float)
@@ -918,33 +1062,43 @@ class Polytope:
     intersection_with_affine_set = intersection_with_affine_set
     intersection_under_inverse_affine_map = intersection_under_inverse_affine_map
 
-    def project(self, x, p=2):
+    def project(
+        self: Polytope, x: Sequence[float] | Sequence[Sequence[float]] | np.ndarray, p: int | str = 2
+    ) -> tuple[np.ndarray, np.ndarray]:
         return convex_set_project(self, x, p=p)
 
-    project.__doc__ = convex_set_project.__doc__ + DOCSTRING_FOR_PROJECT
+    project.__doc__ = (convex_set_project.__doc__ or "") + DOCSTRING_FOR_PROJECT
 
-    def projection(self, project_away_dims):
+    def projection(self: Polytope, project_away_dims: int | Sequence[int] | np.ndarray) -> Polytope:
         return convex_set_projection(self, project_away_dims=project_away_dims)
 
-    projection.__doc__ = convex_set_projection.__doc__ + DOCSTRING_FOR_PROJECTION
+    projection.__doc__ = (convex_set_projection.__doc__ or "") + DOCSTRING_FOR_PROJECTION
 
-    def slice(self, dims, constants):
+    def slice(
+        self: Polytope, dims: int | Sequence[int] | np.ndarray, constants: float | Sequence[float] | np.ndarray
+    ) -> Polytope:
         return convex_set_slice(self, dims, constants)
 
-    slice.__doc__ = convex_set_slice.__doc__ + DOCSTRING_FOR_SLICE
+    slice.__doc__ = (convex_set_slice.__doc__ or "") + DOCSTRING_FOR_SLICE
 
-    def slice_then_projection(self, dims, constants):
+    def slice_then_projection(
+        self: Polytope, dims: int | Sequence[int] | np.ndarray, constants: float | Sequence[float] | np.ndarray
+    ) -> Polytope:
         return convex_set_slice_then_projection(self, dims=dims, constants=constants)
 
-    slice_then_projection.__doc__ = convex_set_slice_then_projection.__doc__ + DOCSTRING_FOR_SLICE_THEN_PROJECTION
+    slice_then_projection.__doc__ = (
+        convex_set_slice_then_projection.__doc__ or ""
+    ) + DOCSTRING_FOR_SLICE_THEN_PROJECTION
 
-    def support(self, eta):
+    def support(
+        self: Polytope, eta: Sequence[float] | Sequence[Sequence[float]] | np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
         return convex_set_support(self, eta)
 
-    support.__doc__ = convex_set_support.__doc__ + DOCSTRING_FOR_SUPPORT
+    support.__doc__ = (convex_set_support.__doc__ or "") + DOCSTRING_FOR_SUPPORT
 
-    _compute_support_function_single_eta = _compute_support_function_single_eta
-    _compute_project_single_point = _compute_project_single_point
+    _compute_support_function_multiple_eta = _compute_support_function_multiple_eta
+    _compute_project_multiple_points = _compute_project_multiple_points
 
     ###########################
     # Vertex-halfspace enumeration
@@ -957,7 +1111,7 @@ class Polytope:
     #########################
     # Polytope representation
     #########################
-    def __str__(self):
+    def __str__(self) -> str:
         if self.is_empty:
             repr_str = f"(empty) in R^{self.dim:d}"
         else:
@@ -969,7 +1123,7 @@ class Polytope:
                 repr_str = f"in R^{self.dim:d} in only V-Rep"
         return f"Polytope {repr_str:s}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         repr_str = [str(self)]
         if self.in_H_rep:
             inequality_str = f"{self.n_halfspaces:d} inequalities"

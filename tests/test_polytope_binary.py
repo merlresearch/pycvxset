@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -128,7 +128,11 @@ def test_contains():
     assert Polytope(dim=5) < Polytope(V=np.eye(5))
 
     # V-Rep (and a single)
-    assert (([[1, 2], [2, 1]] <= Polytope(c=[1, 2], h=0)) == [1, 0]).all()
+    with pytest.raises(TypeError):
+        assert (([[1, 2], [2, 1]] <= Polytope(c=[1, 2], h=0)) == [1, 0]).all()
+    with pytest.raises(TypeError):
+        assert (Polytope(c=[1, 2], h=0)) == [1, 0] >= ([[1, 2], [2, 1]]).all()
+    Polytope(c=[1, 2], h=0).contains([[1, 2], [2, 1]])
     assert [1, 2] <= Polytope(c=[1, 2], h=0)
 
     # Equality constrained polytope
@@ -136,7 +140,7 @@ def test_contains():
     PH1_3D_slice = PH1.slice(2, 0)
     assert [1, 1, 1] in PH1
     assert [1, 1, 1] not in PH1_3D_slice
-    assert ([[0, 0, 0], [1, 1, 0]] <= PH1_3D_slice).all()
+    assert PH1_3D_slice.contains([[0, 0, 0], [1, 1, 0]]).all()
 
     # A, b, Ae, be
     Pnew = Polytope(lb=[-1, 1], ub=[1, 1])
@@ -161,7 +165,7 @@ def test_contains():
         [[0, 0], [2, 2]] in Polytope(c=[1, 0], h=1)
 
     # Use <= operator instead
-    assert np.allclose([[0, 0], [2, 2]] <= Polytope(c=[1, 0], h=1), [1, 0])
+    assert np.allclose(Polytope(c=[1, 0], h=1).contains([[0, 0], [2, 2]]), [1, 0])
 
     # Singleton
     P = Polytope(A=np.eye(2), b=[3, 3], Ae=np.eye(2), be=[2, 2])
@@ -185,6 +189,30 @@ def test_contains():
     assert (
         polytope.contains(np.array([[0.5, 0.5], [1.5, 1.5], [1.5, 0.5], [0.5, 1.5]])) == [True, False, False, False]
     ).all()
+
+    # Testing from issue #4
+    # define polytope
+    p1 = [3.0, 2.4]
+    p2 = [6.0, 4.8]
+    P = Polytope(V=[p1, p2])
+    # check points
+    assert P.contains(p1)
+    assert P.contains(p2)
+    assert not P.contains([2.97, 2.376])
+    # intersect with affine set
+    P2 = P.intersection_with_affine_set(Ae=[1, 0], be=2.97)
+    assert P2.is_empty  # NEW: expected
+    # NEW: Polytope created by intersection is NOT empty, as expected. Also, P was not modified during creation of P2.
+    P3 = P.intersection_with_affine_set(Ae=[1, 0], be=3.97)
+    assert not P3.is_empty
+    assert not P3.contains(p1)
+    assert not P3.contains(p2)
+    assert P3.contains([3.97, 3.176])
+
+    with pytest.raises(TypeError):
+        assert "char" <= Polytope(c=[1, 0], h=1)
+    with pytest.raises(TypeError):
+        assert Polytope(c=[1, 0], h=1) >= "char"
 
 
 def test_intersection_and_redundant_inequalities():
@@ -222,8 +250,15 @@ def test_intersection_and_redundant_inequalities():
     P6a.minimize_H_rep()
     assert P6a.H.shape == (4, P6a.dim + 1)
 
+    P7a = P6a.intersection_with_halfspaces(A=[], b=[])
+    assert check_matrices_are_equal_ignoring_row_order(P6a.H, P7a.H)
+
     with pytest.raises(ValueError):
         P6.intersection_with_halfspaces(A=[1, 1, 1], b=[2])
+    with pytest.raises(ValueError):
+        P6.intersection_with_halfspaces(A=[1, 1], b=[])
+    with pytest.raises(ValueError):
+        P6.intersection_with_halfspaces(A=[], b=[2])
 
     P7 = Polytope(dim=2)
     P7a = P7.intersection_with_halfspaces(A=[1, 1], b=[2])
@@ -505,9 +540,13 @@ def test_slice():
         Polytope(c=[0, 0, 0], h=0.5).slice(dims=2, constants=[0.5, 1])
     with pytest.raises(ValueError):
         Polytope(c=[0, 0, 0], h=0.5).slice(dims=[2, 1], constants=0.5)
-    # Invalidself.dim
+    # Invalid self.dim
     with pytest.raises(ValueError):
         Polytope(c=[0, 0, 0], h=0.5).slice(dims=0.2, constants=0.5)
+    with pytest.raises(ValueError):
+        Polytope(c=[0, 0, 0], h=0.5).slice(dims=[2, np.inf], constants=[0.25, 0.25])
+    with pytest.raises(ValueError):
+        Polytope(c=[0, 0, 0], h=0.5).slice(dims=[2, 2.4], constants=[0.25, 0.25])
 
 
 def test_slice_then_projection():

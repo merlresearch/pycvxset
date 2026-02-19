@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -10,11 +10,14 @@ start=`date +%s`
 
 # REUSE-IgnoreStart
 COPYRIGHT_TEXT="<!--
-Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-License-Identifier: CC-BY-4.0
 -->"
 # REUSE-IgnoreEnd
+
+echo "Remove tmp directory if it exists"
+rm -r examples/tmp
 
 # List of notebooks to process
 for notebook in examples/*.ipynb; do

@@ -1,10 +1,14 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Code purpose:  Define the methods involving another set or a point used with Ellipsoid class
+# Coverage: This file has 0 missing statements + 6 excluded statements + 0 partial statements.
 
-import cvxpy as cp
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Sequence, cast
+
 import numpy as np
 import scipy as sp
 
@@ -18,7 +22,12 @@ from pycvxset.common import (
     sanitize_and_identify_Aebe,
 )
 
-DOCSTRING_FOR_PROJECT = (
+if TYPE_CHECKING:
+    from pycvxset.ConstrainedZonotope import ConstrainedZonotope
+    from pycvxset.Ellipsoid import Ellipsoid
+    from pycvxset.Polytope import Polytope
+
+DOCSTRING_FOR_PROJECT: str = (
     "\n"
     + r"""
     Notes:
@@ -34,7 +43,7 @@ DOCSTRING_FOR_PROJECT = (
     """
 )
 
-DOCSTRING_FOR_PROJECTION = (
+DOCSTRING_FOR_PROJECTION: str = (
     "\n"
     + r"""
     Returns:
@@ -43,7 +52,7 @@ DOCSTRING_FOR_PROJECTION = (
 )
 
 
-DOCSTRING_FOR_SLICE = (
+DOCSTRING_FOR_SLICE: str = (
     "\n"
     + r"""
     Returns:
@@ -54,7 +63,7 @@ DOCSTRING_FOR_SLICE = (
     """
 )
 
-DOCSTRING_FOR_SLICE_THEN_PROJECTION = (
+DOCSTRING_FOR_SLICE_THEN_PROJECTION: str = (
     "\n"
     + r"""
     Returns:
@@ -62,43 +71,13 @@ DOCSTRING_FOR_SLICE_THEN_PROJECTION = (
     """
 )
 
-DOCSTRING_FOR_SUPPORT = (
-    "\n"
-    + r"""
-    Notes:
-        Using duality, the support function and vector of an ellipsoid  has a closed-form expressions. For a support
-        direction :math:`\eta\in\mathbb{R}^{\mathcal{P}.\text{dim}}` and an ellipsoid :math:`\mathcal{P}=\{G u + c |
-        \| u \|_2 \leq 1 \}` with :math:`GG^T=Q`,
 
-        .. math ::
-            \rho_{\mathcal{P}}(\eta) &= \eta^\top c + \sqrt{\eta^\top Q \eta} = \eta^\top c + \|G^T \eta\|_2\\
-            \nu_{\mathcal{P}}(\eta) &= c + \frac{G G^\top \eta}{\|G^T \eta\|_2} = c + \frac{Q \eta}{\|G^T \eta\|_2}
-
-        For degenerate (not full-dimensional) ellipsoids and :math:`\eta` not in the low-dimensional affine hull
-        containing the ellipsoid,
-
-        .. math ::
-            \rho_{\mathcal{P}}(\eta) &= \eta^\top c \\
-            \nu_{\mathcal{P}}(\eta) &= c
-    """
-)
-
-
-def _compute_support_function_single_eta(self, eta):
-    """Private function to compute the support function"""
-    norm_scaling = np.linalg.norm(self.G.T @ eta, ord=2)
-    if norm_scaling <= PYCVXSET_ZERO:
-        support_vector = self.c
-    else:
-        support_vector = self.c + ((self.Q @ eta) / norm_scaling)
-    return eta @ support_vector, support_vector
-
-
-def affine_map(self, M):
+def affine_map(self: Ellipsoid, M: int | float | Sequence[Sequence[float]] | np.ndarray) -> Ellipsoid:
     r"""Compute the affine transformation of the given ellipsoid based on a given scalar/matrix.
 
     Args:
-        M (int | float | array_like): Scalar or matrix (m times self.dim) for the affine map.
+        M (int | float | Sequence[Sequence[float]] | np.ndarray): Scalar or matrix (m times self.dim) for the affine
+            map.
 
     Raises:
         ValueError: When M is not convertible into a 2D numpy array of float
@@ -109,30 +88,32 @@ def affine_map(self, M):
         :math:`\mathcal{R}=M\mathcal{P}=\{Mx|x\in\mathcal{P}\}`
     """
     try:
-        M = np.atleast_2d(M).astype(float)
+        M_arr: np.ndarray = np.atleast_2d(M).astype(float)
     except (ValueError, TypeError) as err:
         raise TypeError(f"Expected M to be convertible into 2D numpy array of float. Got {type(M)}!") from err
-    if M.ndim > 2:
-        raise ValueError(f"M is must be convertible into a 2D numpy.ndarray. But got {M.ndim:d}D array.")
-    elif M.shape[0] == M.shape[1] and M.shape[0] == 1:  # Scalar multiplication case
-        m = np.squeeze(M)
+    if M_arr.ndim > 2:
+        raise ValueError(f"M is must be convertible into a 2D numpy.ndarray. But got {M_arr.ndim:d}D array.")
+    elif M_arr.shape[0] == M_arr.shape[1] and M_arr.shape[0] == 1:  # Scalar multiplication case
+        m = np.squeeze(M_arr)
         # scalar * matrix is the same as (scalar * identity matrix) @ matrix
         return self.__class__(c=m * self.c, G=(m * self.G))
-    elif M.shape[1] != self.dim:
-        raise ValueError(f"Expected M to be matrix with {self.dim:d}-dim columns. Got M: {M.shape} matrix")
+    elif M_arr.shape[1] != self.dim:
+        raise ValueError(f"Expected M to be matrix with {self.dim:d}-dim columns. Got M: {M_arr.shape} matrix")
     else:
-        new_G = M @ self.G
-        new_c = M @ self.c
+        new_G = M_arr @ self.G
+        new_c = M_arr @ self.c
         return self.__class__(c=new_c, G=new_G)
 
 
-def contains(self, Q):
+def contains(
+    self: Ellipsoid, Q: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Polytope | Ellipsoid
+) -> bool | np.ndarray:
     r"""Check containment of a set or a collection of points in an ellipsoid.
 
     Args:
-        Q (array_like | Polytope | Ellipsoid): Polytope/Ellipsoid or a collection of points (each row is a point) to
-            be tested for containment. When providing a collection of points, Q is a matrix (N times self.dim) with
-            each row is a point.
+        Q (Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Polytope | Ellipsoid): Polytope/Ellipsoid or a
+            collection of points (each row is a point) to be tested for containment. When providing a collection of
+            points, Q is a matrix (N times self.dim) with each row is a point.
 
     Raises:
         ValueError: Test point(s) are NOT of the same dimension
@@ -154,19 +135,25 @@ def contains(self, Q):
           [BV04]_. This can be efficiently done via `numpy.linalg.lstsq
           <https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html>`_.
     """
+    import cvxpy as cp
+
     if is_constrained_zonotope(Q):
         raise ValueError("Checking containment of a ConstrainedZonotope in an Ellipsoid is not supported.")
     elif is_polytope(Q):
-        return self.contains(Q.V).all()
+        polytope_Q = cast("Polytope", Q)
+        return cast(np.ndarray, self.contains(polytope_Q.V)).all()
     elif is_ellipsoid(Q):
-        if Q.dim != self.dim:
-            raise ValueError(f"Containment check failed due to dimension mismatch! self.dim:{self.dim}, Q.dim:{Q.dim}")
+        ellipsoid_Q = cast("Ellipsoid", Q)
+        if ellipsoid_Q.dim != self.dim:
+            raise ValueError(
+                f"Containment check failed due to dimension mismatch! self.dim:{self.dim}, Q.dim:{ellipsoid_Q.dim}"
+            )
         # Consider all types of Q - singleton, special not full-dimensional | not full-dimensional | full-dimensional
         # self is either full-dimensional or a singleton
-        elif Q.is_singleton:
-            return self.contains(Q.c)
+        elif ellipsoid_Q.is_singleton:
+            return self.contains(ellipsoid_Q.c)
         elif not self.is_full_dimensional:
-            if not Q.is_full_dimensional:
+            if not ellipsoid_Q.is_full_dimensional:
                 raise ValueError("Checking containment between non-singleton degenerate ellipsoids is not supported!")
             else:
                 return False  # Q is full dimensional but self is not, so clearly Q can not be contained in self
@@ -174,15 +161,20 @@ def contains(self, Q):
             # self is full-dimensional | Q may or may not be full-dimensional
             # Q_Gc_mat_T ensures that the S-Procedure checks only for x belonging to the affine hull of Q
             # Also Q_Gc_mat_T searches over u in Q's latent dimension space (possibly <= Q.dim)
-            Q_Gc_mat_T = np.hstack((np.vstack((Q.G.T, Q.c)), np.vstack((np.zeros((Q.latent_dim, 1)), 1))))
+            Q_Gc_mat_T = np.hstack(
+                (
+                    np.vstack((ellipsoid_Q.G.T, ellipsoid_Q.c)),
+                    np.vstack((np.zeros((ellipsoid_Q.latent_dim, 1)), 1)),
+                )
+            )
             lhs_matrix = Q_Gc_mat_T @ self.quadratic_form_as_a_symmetric_matrix() @ Q_Gc_mat_T.T
 
             lambda_var = cp.Variable(nonneg=True)
-            const = [lhs_matrix << lambda_var * sp.linalg.block_diag(np.eye(Q.latent_dim), -1)]
+            const = [lhs_matrix << lambda_var * sp.linalg.block_diag(np.eye(ellipsoid_Q.latent_dim), -1)]
             prob = cp.Problem(cp.Minimize(lambda_var), const)
             try:
                 prob.solve(**self.cvxpy_args_sdp)
-            except cp.error.SolverError as err:
+            except cp.error.SolverError as err:  # pyright: ignore[reportAttributeAccessIssue]
                 raise NotImplementedError(
                     f"Unable to check containment of an ellipsoid in another! CVXPY returned error: {str(err)}"
                 ) from err
@@ -216,11 +208,11 @@ def contains(self, Q):
             return convex_set_contains_points(self, points)
 
 
-def deflate(cls, set_to_be_centered):
+def deflate(cls: type[Ellipsoid], cvx_set: Ellipsoid | Polytope) -> Ellipsoid:
     r"""Compute the minimum volume ellipsoid that covers the given set (also known as Lowner-John Ellipsoid).
 
     Args:
-        set_to_be_centered (Polytope | ConstrainedZonotope): Set to be circumscribed.
+       cvx_set (Ellipsoid | Polytope): Set to be circumscribed.
 
     Returns:
         Ellipsoid: Minimum volume circumscribing ellipsoid
@@ -230,15 +222,15 @@ def deflate(cls, set_to_be_centered):
         :attr:`set_to_be_centered`. Please check that function for more details including raising exceptions.
         [EllipsoidalTbx-Min_verticesolEll]_
     """
-    c, _, G = set_to_be_centered.minimum_volume_circumscribing_ellipsoid()
+    c, _, G = cvx_set.minimum_volume_circumscribing_ellipsoid()
     return cls(c=c, G=G)
 
 
-def inflate(cls, set_to_be_centered):
+def inflate(cls: type[Ellipsoid], cvx_set: ConstrainedZonotope | Ellipsoid | Polytope) -> Ellipsoid:
     r"""Compute the maximum volume ellipsoid that fits within the given set.
 
     Args:
-        set_to_be_centered (Polytope | ConstrainedZonotope): Set to be inscribed.
+        cvx_set (ConstrainedZonotope | Ellipsoid | Polytope): Set to be inscribed.
 
     Returns:
         Ellipsoid: Maximum volume inscribing ellipsoid
@@ -248,17 +240,37 @@ def inflate(cls, set_to_be_centered):
         :attr:`set_to_expand_within`. Please check that function for more details including raising exceptions.
         [EllipsoidalTbx-MinVolEll]_
     """
-    c, _, G = set_to_be_centered.maximum_volume_inscribing_ellipsoid()
+    c, _, G = cvx_set.maximum_volume_inscribing_ellipsoid()
     return cls(c=c, G=G)
 
 
-def intersection_with_affine_set(self, Ae, be):
+def inflate_ball(cls: type[Ellipsoid], cvx_set: ConstrainedZonotope | Ellipsoid | Polytope) -> Ellipsoid:
+    r"""Compute the largest ball (Chebyshev ball) of a given set.
+
+    Args:
+        cvx_set (ConstrainedZonotope | Ellipsoid | Polytope): Set to compute Chebyshev ball for.
+
+    Returns:
+        Ellipsoid: Maximum volume inscribing ellipsoid
+
+    Notes:
+        This function is a wrapper for :meth:`chebyshev_center` of attr:`set_to_be_centered`. Please check that function
+        for more details including raising exceptions.
+    """
+    c, r = cvx_set.chebyshev_centering()
+    return cls(c=c, r=r)
+
+
+def intersection_with_affine_set(
+    self: Ellipsoid, Ae: Sequence[Sequence[float]] | np.ndarray, be: Sequence[float] | np.ndarray
+) -> Ellipsoid:
     r"""Compute the intersection of an ellipsoid with an affine set.
 
     Args:
-        Ae (array_like): Equality coefficient matrix (N times self.dim) that define the affine set :math:`\{x|A_ex =
+        Ae (Sequence[Sequence[float]] | np.ndarray): Equality coefficient matrix (N times self.dim) that define the
+            affine set :math:`\{x|A_ex = b_e\}`.
+        be (Sequence[float] | np.ndarray): Equality constant vector (N,) that define the affine set :math:`\{x| A_ex =
             b_e\}`.
-        be (array_like): Equality constant vector (N,) that define the affine set :math:`\{x| A_ex = b_e\}`.
 
     Raises:
         ValueError: When the number of columns in Ae is different from self.dim
@@ -270,14 +282,17 @@ def intersection_with_affine_set(self, Ae, be):
         This function implements imposes the constraints :math:`\{A_ex = b_e\}` as constraints in the latent dimension
         of the ellipsoid --- :math:`A_e (G \xi + c) = b_e` for every feasible :math:`\xi`.
     """
-    Ae, be, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(Ae, be)
-    if Aebe_status != "no_Ae_be" and self.dim != Ae.shape[1]:
-        raise ValueError(f"Expected Ae to have {self.dim:d} columns. Got Ae with shape {Ae.shape}!")
-    elif Aebe_status == "no_Ae_be":
+    sanitized_Ae, sanitized_be, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(Ae, be)
+    if Aebe_status == "no_Ae_be":
         return self.copy()
-    elif Aebe_status == "infeasible":
+    sanitized_Ae = cast(np.ndarray, sanitized_Ae)
+    sanitized_be = cast(np.ndarray, sanitized_be)
+    if self.dim != sanitized_Ae.shape[1]:
+        raise ValueError(f"Expected Ae to have {self.dim:d} columns. Got Ae with shape {sanitized_Ae.shape}!")
+    if Aebe_status == "infeasible":
         raise ValueError("Intersection with an empty affine set!")
     elif Aebe_status == "single_point":
+        solution_to_Ae_x_eq_be = cast(np.ndarray, solution_to_Ae_x_eq_be)
         if solution_to_Ae_x_eq_be in self:
             # By the check above, solution_to_Ae_x_eq_be is in self
             return self.__class__(c=solution_to_Ae_x_eq_be)
@@ -286,7 +301,7 @@ def intersection_with_affine_set(self, Ae, be):
     else:
         # Make sure that Ae @ G is full row rank
         irredundant_Ae_G, irredundant_be_minus_Ae_c = compute_irredundant_affine_set_using_cdd(
-            Ae @ self.G, be - Ae @ self.c
+            sanitized_Ae @ self.G, sanitized_be - sanitized_Ae @ self.c
         )
         # Take QR decomposition of (Ae @ G).T
         Q, R = np.linalg.qr(irredundant_Ae_G.T, mode="complete")
@@ -314,11 +329,13 @@ def intersection_with_affine_set(self, Ae, be):
             return self.__class__(c=new_c, G=new_G)
 
 
-def inverse_affine_map_under_invertible_matrix(self, M):
+def inverse_affine_map_under_invertible_matrix(
+    self: Ellipsoid, M: int | float | Sequence[Sequence[float]] | np.ndarray
+) -> Ellipsoid:
     r"""Compute the inverse affine transformation of an ellipsoid based on a given scalar/matrix.
 
     Args:
-        M (int | float | array_like): Scalar or invertible square matrix for the affine map
+        M (int | float | Sequence[Sequence[float]] | np.ndarray): Scalar or invertible square matrix for the affine map
 
     Raises:
         TypeError: When M is not convertible into a 2D square numpy matrix
@@ -332,40 +349,23 @@ def inverse_affine_map_under_invertible_matrix(self, M):
         1. Since M is invertible, :math:`\mathcal{R}` is also a bounded ellipsoid.
     """
     try:
-        M = np.atleast_2d(M).astype(float)
+        M_arr: np.ndarray = np.atleast_2d(M).astype(float)
     except (TypeError, ValueError) as err:
         raise TypeError(f"Multiplication of Ellipsoid with {type(M)} is not supported!") from err
-    if M.shape != (self.dim, self.dim):
-        raise TypeError(f"Expected M to be a square matrix of shape ({self.dim:d},{self.dim:d}). Got {M.shape}!")
+    if M_arr.shape != (self.dim, self.dim):
+        raise TypeError(f"Expected M to be a square matrix of shape ({self.dim:d},{self.dim:d}). Got {M_arr.shape}!")
     try:
-        M_inv = np.linalg.inv(M)
+        M_inv = np.linalg.inv(M_arr)
     except np.linalg.LinAlgError as err:
         raise TypeError("Expected M to be invertible!") from err
-    return self.affine_map(M_inv)
+    return affine_map(self, M_inv)
 
 
-def inflate_ball(cls, set_to_be_centered):
-    r"""Compute the largest ball (Chebyshev ball) of a given set.
-
-    Args:
-        set_to_be_centered (Polytope | ConstrainedZonotope): Set to compute Chebyshev ball for.
-
-    Returns:
-        Ellipsoid: Maximum volume inscribing ellipsoid
-
-    Notes:
-        This function is a wrapper for :meth:`chebyshev_center` of attr:`set_to_be_centered`. Please check that function
-        for more details including raising exceptions.
-    """
-    c, r = set_to_be_centered.chebyshev_centering()
-    return cls(c=c, r=r)
-
-
-def plus(self, point):
+def plus(self: Ellipsoid, point: Sequence[float] | np.ndarray) -> Ellipsoid:
     """Add a point to an ellipsoid
 
     Args:
-        point (array_like): Vector (self.dim,) that describes the point to be added.
+        point (Sequence[float] | np.ndarray): Vector (self.dim,) that describes the point to be added.
 
     Raises:
         ValueError: point is a set (ConstrainedZonotope or Ellipsoid or Polytope)
@@ -380,12 +380,12 @@ def plus(self, point):
         raise ValueError(f"Ellipsoid and {type(point)} can not be added exactly!")
     else:
         try:
-            point = np.atleast_1d(np.squeeze(point)).astype(float)
+            point_arr: np.ndarray = np.atleast_1d(np.squeeze(point)).astype(float)
         except (TypeError, ValueError) as err:
             raise TypeError(f"Unsupported operation Ellipsoid + {type(point)}!") from err
-        if point.ndim != 1:
-            raise ValueError(f"Expected 1D array_like object. Got point with shape: {point.shape}!")
-        if point.size != self.dim:
-            raise ValueError("Expected point to be {self.dim:d}-dimensional. Got point with shape: {point.shape}!")
-        new_c = point + self.c
+        if point_arr.ndim != 1:
+            raise ValueError(f"Expected 1D sequence or numpy array. Got point with shape: {point_arr.shape}!")
+        if point_arr.size != self.dim:
+            raise ValueError(f"Expected point to be {self.dim:d}-dimensional. Got point with shape: {point_arr.shape}!")
+        new_c = point_arr + self.c
         return self.__class__(c=new_c, G=self.G)

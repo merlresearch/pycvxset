@@ -1,10 +1,10 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 name: Static code checks
 
-on:   # yamllint disable-line rule:truthy
+on:
   pull_request:
   push:
     branches:
@@ -20,7 +20,7 @@ env:
 
 jobs:
   static-code-check:
-    if: endsWith(github.event.repository.name, 'private')
+    if: endsWith(github.event.repository.name, 'private') || endsWith(github.event.repository.name, 'develop')
 
     name: Run static code checks
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.13'
           cache: 'pip'
           cache-dependency-path: '.github/workflows/requirements-dev.txt'
 

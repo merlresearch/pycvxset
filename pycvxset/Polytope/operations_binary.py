@@ -1,10 +1,14 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # SPDX-License-Identifier: MIT
 
 # Code purpose:  Define the methods involving another set or a point used with Polytope class
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Sequence, cast
 
 import numpy as np
 
@@ -17,6 +21,11 @@ from pycvxset.common import (
     sanitize_and_identify_Aebe,
 )
 from pycvxset.common.constants import PYCVXSET_ZERO
+
+if TYPE_CHECKING:
+    from pycvxset.ConstrainedZonotope import ConstrainedZonotope
+    from pycvxset.Ellipsoid import Ellipsoid
+    from pycvxset.Polytope import Polytope
 
 DOCSTRING_FOR_PROJECT = (
     "\n"
@@ -105,11 +114,12 @@ DOCSTRING_FOR_SUPPORT = (
 )
 
 
-def affine_map(self, M):
+def affine_map(self: Polytope, M: Sequence[float] | Sequence[Sequence[float]] | np.ndarray) -> Polytope:
     r"""Compute the matrix times set.
 
     Args:
-        M (array_like): A vector or array (0, 1, or 2-D numpy.ndarray-like object) with self.dim columns
+        M (Sequence[float] | Sequence[Sequence[float]] | np.ndarray): A vector or array (0, 1, or 2-D) with
+            self.dim columns
 
     Raises:
         ValueError: When M can not be converted EXACTLY into a 2D array of float
@@ -123,14 +133,14 @@ def affine_map(self, M):
         :math:`\mathcal{P}` is in H-Rep.
     """
     try:
-        M = np.atleast_2d(M).astype(float)
+        M_arr: np.ndarray = np.atleast_2d(M).astype(float)
     except (TypeError, ValueError) as err:
-        raise TypeError("Expected M to be 2D array_like that can be converted to float!") from err
-    if M.ndim > 2:
-        raise ValueError(f"M is must be convertible into a 2D numpy.ndarray. But got {M.ndim:d}D array.")
-    elif self.dim != 1 and M.shape[0] == M.shape[1] and M.shape[0] == 1:
+        raise TypeError("Expected M to be 2D sequence or numpy array that can be converted to float!") from err
+    if M_arr.ndim > 2:
+        raise ValueError(f"M is must be convertible into a 2D numpy.ndarray. But got {M_arr.ndim:d}D array.")
+    elif self.dim != 1 and M_arr.shape[0] == M_arr.shape[1] and M_arr.shape[0] == 1:
         # Scalar multiplication
-        m = M[0][0]
+        m = M_arr[0][0]
         if self.is_empty:
             return self.__class__(dim=self.dim)
         elif abs(m) <= PYCVXSET_ZERO:
@@ -147,32 +157,35 @@ def affine_map(self, M):
         else:
             # Scale the V-rep: m conv(v_1,...,v_n) = conv(m v_1, ..., m v_n)
             return self.__class__(V=(m * self.V))
-    elif M.shape[1] != self.dim:
-        raise ValueError(f"Expected M upon promotion to 2D array to have {self.dim:d} columns. M: {M.shape} matrix")
+    elif M_arr.shape[1] != self.dim:
+        raise ValueError(f"Expected M upon promotion to 2D array to have {self.dim:d} columns. M: {M_arr.shape} matrix")
     elif self.is_empty:
-        return self.__class__(dim=M.shape[0])
+        return self.__class__(dim=M_arr.shape[0])
     else:
-        transposed_new_vertices = M @ self.V.T
+        transposed_new_vertices = M_arr @ self.V.T
         return self.__class__(V=transposed_new_vertices.T)
 
 
-def contains(self, Q):
+def contains(
+    self: Polytope,
+    Q: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | ConstrainedZonotope | Ellipsoid | Polytope,
+) -> bool | np.ndarray:
     r"""Check containment of a set :math:`\mathcal{Q}` (could be a polytope, an ellipsoid, or a constrained zonotope),
     or a collection of points :math:`Q \in \mathbb{R}^{n_Q \times \mathcal{P}.\text{dim}}` in the polytope
     :math:`\mathcal{P}`.
 
     Args:
-        Q (array_like | Polytope | ConstrainedZonotope | Ellipsoid): Set or a collection of points (each row is a point)
-            to be tested for containment within :math:`\mathcal{P}`. When providing a collection of points, Q is a
-            matrix (N times self.dim) with each row is a point.
+        Q (Sequence[float] | Sequence[Sequence[float]] | np.ndarray | ConstrainedZonotope | Ellipsoid | Polytope): Set
+            or a collection of points (each row is a point) to be tested for containment within :math:`\mathcal{P}`.
+            When providing a collection of points, Q is a matrix (N times self.dim) with each row is a point.
 
     Raises:
         ValueError: When two polytopes | the polytope and the test point(s) are NOT of the same dimension
 
     Returns:
         bool | numpy.ndarray[bool]: When `Q` is a polytope, a bool is returned which is True if and only if
-        :math:`Q\subseteq P`. On the other hand, if `Q` is array_like (Q is a point or a collection of points), then an
-        numpy.ndarray of bool is returned, with as many elements as the number of rows in `Q`.
+            :math:`Q\subseteq P`. On the other hand, if `Q` is a sequence or numpy array (Q is a point or a collection
+            of points), then a numpy.ndarray of bool is returned, with as many elements as the number of rows in `Q`.
 
     Notes:
         - *Containment of polytopes*: This function accommodates the following combinations of representations for
@@ -191,26 +204,31 @@ def contains(self, Q):
     """
     if is_constrained_zonotope(Q) or is_ellipsoid(Q) or is_polytope(Q):
         # Q is a polytope or a constrained zonotope
-        if self.dim != Q.dim:
-            raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Q.dim: {Q.dim:d})")
+        Q_set = cast("ConstrainedZonotope | Ellipsoid | Polytope", Q)
+        if self.dim != Q_set.dim:
+            raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Q.dim: {Q_set.dim:d})")
         elif self.is_empty:
-            return False
-        elif Q.is_empty:
+            return Q_set.is_empty
+        elif Q_set.is_empty:
             return True
-        elif is_constrained_zonotope(Q) or is_ellipsoid(Q) or not (self.in_H_rep and Q.in_V_rep):
+        elif (
+            is_constrained_zonotope(Q_set)
+            or is_ellipsoid(Q_set)
+            or not (is_polytope(Q_set) and self.in_H_rep and cast("Polytope", Q_set).in_V_rep)
+        ):
             # Compute inclusion via support function of Q
             containment_in_Ab = True
             containment_in_Aebe = True
             if self.n_halfspaces > 0:
-                containment_in_Ab = np.all(Q.support(self.A)[0] <= self.b + PYCVXSET_ZERO)
+                containment_in_Ab = np.all(Q_set.support(self.A)[0] <= self.b + PYCVXSET_ZERO)
             if self.n_equalities > 0:
-                containment_in_Aebe = bool(np.all(Q.support(self.Ae)[0] <= self.be + PYCVXSET_ZERO)) and bool(
-                    np.all(-Q.support(-self.Ae)[0] >= self.be - PYCVXSET_ZERO)
+                containment_in_Aebe = bool(np.all(Q_set.support(self.Ae)[0] <= self.be + PYCVXSET_ZERO)) and bool(
+                    np.all(-Q_set.support(-self.Ae)[0] >= self.be - PYCVXSET_ZERO)
                 )
             return containment_in_Aebe and containment_in_Ab
         else:
             # Compute inclusion via vertices of Q, which is most useful when (self.in_H_rep and Q.in_V_rep) is True
-            containment_of_vertices = self.contains(Q.V)
+            containment_of_vertices = self.contains(cast("Polytope", Q_set).V)
             return bool(np.all(containment_of_vertices))
     else:
         # Q is a set of test_points
@@ -232,27 +250,24 @@ def contains(self, Q):
 
         if self.in_H_rep:
             # Check if A test_points <= b
-            AxT_minus_b = self.A @ test_points.T - np.tile(np.array([self.b]).T, (1, test_points.shape[0]))
-            test_points_contained_in_Ab = AxT_minus_b <= PYCVXSET_ZERO
-            if self.n_equalities > 0:
-                AexT_minus_be = self.Ae @ test_points.T - np.tile(np.array([self.be]).T, (1, test_points.shape[0]))
-                test_points_contained_in_Aebe = np.abs(AexT_minus_be) <= PYCVXSET_ZERO
-                if n_test_points > 1:
-                    return np.bitwise_and(
-                        np.all(test_points_contained_in_Ab, axis=0), np.all(test_points_contained_in_Aebe, axis=0)
-                    )
-                else:
-                    if self.n_halfspaces > 0:
-                        return test_points_contained_in_Ab[0] and test_points_contained_in_Aebe[0]
-                    else:
-                        return test_points_contained_in_Aebe[0]
+            Ax_minus_b = self.A @ test_points.T - np.tile(np.array([self.b]).T, (1, test_points.shape[0]))
+            test_points_contained_in_Ab = (Ax_minus_b <= PYCVXSET_ZERO).all(axis=0)
+            if self.n_equalities == 0:
+                containment_of_test_points = test_points_contained_in_Ab
             else:
-                return np.all(test_points_contained_in_Ab, axis=0)
+                # Check if Ae test_points <= be
+                Aex_minus_be = self.Ae @ test_points.T - np.tile(np.array([self.be]).T, (1, test_points.shape[0]))
+                test_points_contained_in_Aebe = (np.abs(Aex_minus_be) <= PYCVXSET_ZERO).all(axis=0)
+                containment_of_test_points = test_points_contained_in_Ab & test_points_contained_in_Aebe
+            if n_test_points == 1:
+                return bool(containment_of_test_points[0])
+            else:
+                return containment_of_test_points
         else:  # in_V_rep alone is available!
             return convex_set_contains_points(self, test_points)
 
 
-def intersection(self, Q):
+def intersection(self: Polytope, Q: Polytope) -> Polytope:
     r"""Intersect the polytope :math:`\mathcal{P}` with another polytope :math:`\mathcal{Q}`.
 
     Args:
@@ -290,12 +305,16 @@ def intersection(self, Q):
         return self.__class__(A=P_cap_Q_A, b=P_cap_Q_b, Ae=P_cap_Q_Ae, be=P_cap_Q_be)
 
 
-def intersection_with_halfspaces(self, A, b):
+def intersection_with_halfspaces(
+    self: Polytope, A: Sequence[Sequence[float]] | np.ndarray, b: Sequence[float] | np.ndarray
+) -> Polytope:
     r"""Intersect the polytope with a collection of halfspaces.
 
     Args:
-        A (array_like): Inequality coefficient vectors (H-Rep). The vectors are stacked vertically.
-        b (array_like): Inequality constants (H-Rep). The constants are expected to be in a 1D numpy array.
+        A (Sequence[Sequence[float]] | np.ndarray): Inequality coefficient vectors (H-Rep). The vectors are stacked
+            vertically.
+        b (Sequence[float] | np.ndarray): Inequality constants (H-Rep). The constants are expected to be in a 1D numpy
+            array.
 
     Raises:
         ValueError: Mismatch in dimensions | (A, b) is not a valid collection of halfspaces
@@ -307,25 +326,33 @@ def intersection_with_halfspaces(self, A, b):
         This function requires :math:`\mathcal{P}.\text{dim}` = `A.shape[1]` and :math:`\mathcal{P}` should be in H-Rep,
         and performs halfspace enumeration if :math:`\mathcal{P}` in V-Rep.
     """
-    A, b = sanitize_Ab(A, b)
-    if self.dim != A.shape[1]:
-        raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and A.shape[1]: {A.shape[1]:d})")
+    A_s, b_s = sanitize_Ab(A, b)
+    if A_s is None and b_s is None:
+        return self.copy()
+    A_arr: np.ndarray = A_s
+    b_arr: np.ndarray = b_s
+    if self.dim != A_arr.shape[1]:
+        raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and A.shape[1]: {A_arr.shape[1]:d})")
     elif self.is_empty:
         # The intersection of an (empty) set with any set is an empty set, so return an empty polytope.
         return self.__class__(dim=self.dim)
     else:
         # Combine the H-representation of both polytopes:
-        P_cap_Ab_A = np.vstack((self.A, A))
-        P_cap_Ab_b = np.hstack((self.b, b))
+        P_cap_Ab_A = np.vstack((self.A, A_arr))
+        P_cap_Ab_b = np.hstack((self.b, b_arr))
         return self.__class__(A=P_cap_Ab_A, b=P_cap_Ab_b, Ae=self.Ae, be=self.be)
 
 
-def intersection_with_affine_set(self, Ae, be):
+def intersection_with_affine_set(
+    self: Polytope, Ae: Sequence[Sequence[float]] | np.ndarray, be: Sequence[float] | np.ndarray
+) -> Polytope:
     r"""Intersect the polytope with an affine set.
 
     Args:
-        Ae (array_like): Equality coefficient vectors (H-Rep). The vectors are stacked vertically.
-        be (array_like): Equality constants (H-Rep). The constants are expected to be in a 1D numpy array.
+        Ae (Sequence[Sequence[float]] | np.ndarray): Equality coefficient vectors (H-Rep). The vectors are stacked
+            vertically.
+        be (Sequence[float] | np.ndarray): Equality constants (H-Rep). The constants are expected to be in a 1D numpy
+            array.
 
     Raises:
         ValueError: Mismatch in dimensions | (Ae, be) is not a valid collection of equality constraints.
@@ -337,11 +364,13 @@ def intersection_with_affine_set(self, Ae, be):
         This function requires :math:`\mathcal{P}.\text{dim}` = `Ae.shape[1]` and :math:`\mathcal{P}` should be in
         H-Rep, and performs halfspace enumeration if :math:`\mathcal{P}` in V-Rep.
     """
-    Ae, be, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(Ae, be)
-    if Aebe_status != "no_Ae_be" and self.dim != Ae.shape[1]:
-        raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Ae.shape[1]: {Ae.shape[1]:d})")
-    elif Aebe_status == "no_Ae_be":
+    Ae_s, be_s, Aebe_status, solution_to_Ae_x_eq_be = sanitize_and_identify_Aebe(Ae, be)
+    if Aebe_status == "no_Ae_be" or Ae_s is None or be_s is None:
         return self.copy()
+    Ae_arr: np.ndarray = Ae_s
+    be_arr: np.ndarray = be_s
+    if self.dim != Ae_arr.shape[1]:
+        raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Ae.shape[1]: {Ae_arr.shape[1]:d})")
     elif (
         self.is_empty
         or Aebe_status == "infeasible"
@@ -352,17 +381,19 @@ def intersection_with_affine_set(self, Ae, be):
         return self.__class__(V=np.array([solution_to_Ae_x_eq_be]))
     else:
         # Combine the H-representation of both polytopes:
-        P_cap_Ab_Ae = np.vstack((self.Ae, Ae))
-        P_cap_Ab_be = np.hstack((self.be, be))
+        P_cap_Ab_Ae = np.vstack((self.Ae, Ae_arr))
+        P_cap_Ab_be = np.hstack((self.be, be_arr))
         return self.__class__(A=self.A, b=self.b, Ae=P_cap_Ab_Ae, be=P_cap_Ab_be)
 
 
-def intersection_under_inverse_affine_map(self, Q, R):
+def intersection_under_inverse_affine_map(
+    self: Polytope, Q: Polytope, R: Sequence[Sequence[float]] | np.ndarray
+) -> Polytope:
     r"""Compute the intersection of constrained zonotope under an inverse affine map
 
     Args:
         Q (Polytope): Set to intersect with
-        R (array_like): Matrix of dimension Y.dim times self.dim
+        R (Sequence[Sequence[float]] | np.ndarray): Matrix of dimension Y.dim times self.dim
 
     Raises:
         ValueError: When Q is not a Polytope
@@ -399,11 +430,11 @@ def intersection_under_inverse_affine_map(self, Q, R):
     return self.intersection(Q_at_R)
 
 
-def inverse_affine_map_under_invertible_matrix(self, M):
+def inverse_affine_map_under_invertible_matrix(self: Polytope, M: Sequence[Sequence[float]] | np.ndarray) -> Polytope:
     r"""Compute the set times matrix, the inverse affine map of the set under an invertible matrix M.
 
     Args:
-        M (array_like): A invertible array of size self.dim times self.dim
+        M (Sequence[Sequence[float]] | np.ndarray): An invertible array of size self.dim times self.dim
 
     Raises:
         ValueError: When self is empty
@@ -424,29 +455,29 @@ def inverse_affine_map_under_invertible_matrix(self, M):
         raise ValueError("Expected polytope be non-empty!")
     else:
         try:
-            M = np.atleast_2d(M).astype(float)
+            M_arr: np.ndarray = np.atleast_2d(M).astype(float)
         except (TypeError, ValueError) as err:
             raise TypeError(f"Multiplication of Polytope with {type(M)} is not supported!") from err
-        if M.shape != (self.dim, self.dim):
-            raise ValueError("Expected M to be a square matrix of shape ({self.dim:d},{self.dim:d}). Got {M.shape}!")
+        if M_arr.shape != (self.dim, self.dim):
+            raise ValueError(f"Expected M to be square with shape ({self.dim:d},{self.dim:d}). Got {M_arr.shape}!")
         try:
-            M_inv = np.linalg.inv(M)
+            M_inv = np.linalg.inv(M_arr)
         except np.linalg.LinAlgError as err:
             raise ValueError("Expected M to be invertible!") from err
         if self.in_H_rep:
             if self.n_equalities > 0:
-                return self.__class__(A=self.A @ M, b=self.b, Ae=self.Ae @ M, be=self.be)
+                return self.__class__(A=self.A @ M_arr, b=self.b, Ae=self.Ae @ M_arr, be=self.be)
             else:
-                return self.__class__(A=self.A @ M, b=self.b)
+                return self.__class__(A=self.A @ M_arr, b=self.b)
         else:
             return affine_map(self, M_inv)
 
 
-def plus(self, Q):
+def plus(self: Polytope, Q: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Polytope) -> Polytope:
     r"""Add a point or a set to the polytope
 
     Args:
-        Q (array_like | Polytope): Point or set to add to the polytope.
+        Q (Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Polytope): Point or set to add to the polytope.
 
     Raises:
         ValueError: When the point dimension does not match the polytope dimension.
@@ -470,52 +501,57 @@ def plus(self, Q):
           the pairwise sum of all combinations of points in :math:`\mathcal{P}` and :math:`\mathcal{Q}`.
     """
     if is_polytope(Q):
-        if self.dim != Q.dim:
-            raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Q.dim: {Q.dim:d})")
-        elif Q.is_empty:
+        Q_poly = cast("Polytope", Q)
+        if self.dim != Q_poly.dim:
+            raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Q.dim: {Q_poly.dim:d})")
+        elif Q_poly.is_empty:
             return self.copy()
         elif self.is_empty:
-            return Q.copy()
+            return Q_poly.copy()
         else:  # both P.is_empty and Q.is_empty are False:
             # Vertices of the Minkowski sum:
-            minkowski_sum_V = np.array([p + q for p in self.V for q in Q.V])
+            minkowski_sum_V = np.array([p + q for p in self.V for q in Q_poly.V])
             return self.__class__(V=minkowski_sum_V)
     elif is_constrained_zonotope(Q):
         # Q is a constrained zonotope ====> Polytope + ConstrainedZonotope case
         return NotImplemented
     else:
         try:
-            Q = np.atleast_1d(np.squeeze(Q)).astype(float)
+            Q_arr: np.ndarray = np.atleast_1d(np.squeeze(Q)).astype(float)
         except (TypeError, ValueError) as err:
             raise TypeError(f"Unsupported operation Polytope + {type(Q)}!") from err
-        if Q.ndim != 1:
-            raise ValueError(f"Expected a single R^{self.dim:d} point, but got {np.array2string(np.array(Q)):s}")
-        elif Q.size != self.dim:  # ensure point is n times 1
-            raise ValueError(f"points dim. ({Q.size:d}) is different from set dim. ({self.dim:d})")
+        if Q_arr.ndim != 1:
+            raise ValueError(f"Expected a single R^{self.dim:d} point, but got {np.array2string(np.array(Q_arr)):s}")
+        elif Q_arr.size != self.dim:  # ensure point is n times 1
+            raise ValueError(f"points dim. ({Q_arr.size:d}) is different from set dim. ({self.dim:d})")
         elif self.in_V_rep:
             # V-rep: The sum is all vertices of :math:\mathcal{P} shifted by point.
-            V_shifted = self.V + np.repeat(np.array([Q]), self.n_vertices, axis=0)
+            V_shifted = self.V + np.repeat(np.array([Q_arr]), self.n_vertices, axis=0)
             return self.__class__(V=V_shifted)
         elif self.in_H_rep:
             # H-rep: Shift P.b by P.A @ point (and P.be by P.Ae @ point)
-            b_shifted = self.b + np.squeeze(self.A @ Q)
+            b_shifted = self.b + np.squeeze(self.A @ Q_arr)
             if self.n_equalities > 0:
-                be_shifted = self.be + np.squeeze(self.Ae @ Q)
+                be_shifted = self.be + np.squeeze(self.Ae @ Q_arr)
                 return self.__class__(A=self.A, b=b_shifted, Ae=self.Ae, be=be_shifted)
             else:
                 return self.__class__(A=self.A, b=b_shifted)
         else:
             # Singleton polytope at Q
-            singleton_vertex = np.atleast_2d(Q)  # skip astype since we have already converted into float
+            singleton_vertex = np.atleast_2d(Q_arr)  # skip astype since we have already converted into float
             return self.__class__(V=singleton_vertex)
 
 
-def minus(self, Q):
+def minus(
+    self: Polytope,
+    Q: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | ConstrainedZonotope | Ellipsoid | Polytope,
+) -> Polytope:
     r"""Implement - operation (Pontryagin difference when Q is a polytope, translation by -Q when Q is a point)
 
     Args:
-        Q (array_like | Polytope | ConstrainedZonotope | Ellipsoid): Polytope to be subtracted in Pontryagin
-        difference sense from self or a vector for negative translation of the polytope
+        Q (Sequence[float] | Sequence[Sequence[float]] | np.ndarray | ConstrainedZonotope | Ellipsoid | Polytope):
+            Polytope to be subtracted in Pontryagin difference sense from self or a vector for negative translation of
+            the polytope
 
     Raises:
         TypeError: When Q is neither a Polytope or a point
@@ -535,30 +571,34 @@ def minus(self, Q):
           :meth:`support`). [KG98]_
     """
     if is_polytope(Q) or is_constrained_zonotope(Q) or is_ellipsoid(Q):
-        if self.dim != Q.dim:  # Throw error if both :math:\mathcal{P} and Q are not of same dimensions
-            raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Q.dim: {Q.dim:d})")
-        elif Q.is_empty:  # Return P
+        Q_set = cast("ConstrainedZonotope | Ellipsoid | Polytope", Q)
+        if self.dim != Q_set.dim:  # Throw error if both :math:\mathcal{P} and Q are not of same dimensions
+            raise ValueError(f"Mismatch in dimensions (self.dim: {self.dim:d} and Q.dim: {Q_set.dim:d})")
+        elif Q_set.is_empty:  # Return P
             return self.copy()
         elif self.is_empty:  # P is empty
             return self.__class__(dim=self.dim)
-        elif is_polytope(Q) and self.in_H_rep and Q.in_V_rep:  # P - Q = \cap_{v \in V(Q)} (P - v)
-            P_diff_Q = self - Q.V[0, :]
-            for v in Q.V[1:, :]:
+        elif is_polytope(Q_set) and self.in_H_rep and cast("Polytope", Q_set).in_V_rep:
+            # P - Q = \cap_{v \in V(Q)} (P - v)
+            Q_set = cast("Polytope", Q_set)
+            P_diff_Q = self - Q_set.V[0, :]
+            for v in Q_set.V[1:, :]:
                 P_shifted_by_vertex = self + (-v)
                 P_diff_Q = P_diff_Q.intersection(P_shifted_by_vertex)
             return P_diff_Q
         else:  # P - Q = {P.A * x <= P.b - Q.support(A)}
             self.minimize_H_rep()
             if self.n_equalities > 0:
-                if Q.is_full_dimensional or not np.all(
-                    np.isclose(Q.support(np.vstack((self.Ae, -self.Ae)))[0], np.vstack((self.be, -self.be)))
+                if Q_set.is_full_dimensional or not np.all(
+                    np.isclose(Q_set.support(np.vstack((self.Ae, -self.Ae)))[0], np.vstack((self.be, -self.be)))
                 ):
+                    # Empty set because Q is not within the affine hull of self
                     return self.__class__(dim=self.dim)
-            P_diff_Q_b = self.b - Q.support(self.A)[0]
+            P_diff_Q_b = self.b - Q_set.support(self.A)[0]
             return self.__class__(A=self.A, b=P_diff_Q_b, Ae=self.Ae, be=self.be)
     else:
         try:
-            Q = np.atleast_1d(Q).astype(float)
+            Q_arr: np.ndarray = np.atleast_1d(Q).astype(float)
         except (TypeError, ValueError) as err:
             raise TypeError(f"Unsupported operation Polytope - {type(Q)}!") from err
-        return self.plus(-Q)
+        return self.plus(-Q_arr)

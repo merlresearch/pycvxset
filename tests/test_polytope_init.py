@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 # Copyright (c) 2019 Tor Aksel N. Heirung
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -191,24 +191,57 @@ def test___init__():
         Polytope(c=[0, 0], h="char")
 
 
-def test_is_bounded():
+def test_no_VRepHRep_enumeration_during_creation():
+    P = Polytope(lb=[-1, -1], ub=[1, 1])
+    assert P.in_H_rep
+    assert not P.in_V_rep
+    P = Polytope(c=[0, 0], h=2)
+    assert P.in_H_rep
+    assert not P.in_V_rep
+    P = Polytope(A=P.A, b=P.b, Ae=[0, 1], be=1)
+    assert P.in_H_rep
+    assert not P.in_V_rep
+    P = Polytope(V=[[1, 0], [0, 1]])
+    assert not P.in_H_rep
+    assert P.in_V_rep
+    P = Polytope(dim=5)
+    assert not P.in_H_rep
+    assert not P.in_V_rep
+
+
+def test_is_bounded_and_is_singleton():
     assert Polytope(dim=3).is_bounded
+    assert not Polytope(dim=3).is_singleton
     assert Polytope(V=[[3]]).is_bounded
+    assert Polytope(V=[[3]]).is_singleton
     with pytest.raises(ValueError):
         Polytope(A=[[]], b=[])
     P = Polytope(A=np.empty((1, 1)), b=[], Ae=[3], be=[1])
     assert P.in_V_rep
     assert np.isclose(P.V, 1 / 3)
+    assert P.is_singleton
+    assert P.is_bounded
     with pytest.raises(ValueError):
         P = Polytope(A=np.empty((0, 2)), b=np.empty((0,)), Ae=[3, 2], be=[1])
     P = Polytope(A=[[1, 0], [0, 1]], b=[2, 3])
     assert not P.is_bounded
+    assert not P.is_singleton
     P = Polytope(A=[[1, 0], [0, 1]], b=[2, 3])
     assert P.is_full_dimensional
+    assert not P.is_bounded
+    assert not P.is_singleton
     P = Polytope(A=[[1, 0], [0, 1], [0, -1]], b=[2, 3, -3])
     assert not P.is_bounded
+    assert not P.is_singleton
     P = Polytope(A=[[1, 0], [0, 1], [0, -1]], b=[2, 3, -3])
     assert not P.is_full_dimensional
+    assert not P.is_bounded
+    assert not P.is_singleton
+    P = Polytope(A=[[1, 0], [0, 1], [0, -1]], b=[2, 3, -3]).intersection_with_halfspaces(A=[-1, 0], b=[-2])
+    assert P.n_halfspaces == 4
+    assert not P.is_full_dimensional
+    assert P.is_singleton  # Order important for coverage
+    assert P.is_bounded
 
 
 def test_embedded_polytope_and_intersect_with_affine_set():
@@ -255,8 +288,12 @@ def test_embedded_polytope_and_intersect_with_affine_set():
     assert Pnew.is_empty
 
     Pnew = Polytope(A=[1], b=1, Ae=[1], be=[1])
+    assert not Pnew.is_empty
     assert Pnew.n_halfspaces == 0
     assert Pnew.n_equalities == 1
+
+    Pnew = Polytope(A=[1], b=1, Ae=[1], be=[2])
+    assert Pnew.is_empty
 
     # No He
     Pnew = Polytope(A=P.A, b=P.b, Ae=[[0, 0]], be=[0])
@@ -438,7 +475,26 @@ def test_cvxpy_args():
 
 def test_copy():
     P = Polytope(c=[0, 0], h=2).intersection_with_affine_set(Ae=[0, 1], be=1)
-    assert P.copy() == P
+    P_copy = P.copy()
+    assert P_copy == P
+    assert P_copy.in_H_rep
+    assert not P_copy.in_V_rep
+    P = Polytope(c=[0, 0], h=2).intersection_with_affine_set(Ae=[0, 1], be=1)
+    P.determine_V_rep()
+    P_copy = P.copy()
+    assert P_copy == P
+    assert P_copy.in_H_rep
+    assert P_copy.in_V_rep
+    P = Polytope(V=P_copy.V)
+    P_copy = P.copy()
+    assert P_copy == P
+    assert P_copy.in_H_rep
+    assert P_copy.in_V_rep
+    P = Polytope(dim=3)
+    P_copy = P.copy()
+    assert P_copy == P
+    assert P_copy.dim == 3
+    assert P_copy.is_empty
 
 
 def test_str_repr():

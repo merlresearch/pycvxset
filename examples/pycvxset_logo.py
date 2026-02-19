@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from pycvxset import Ellipsoid, Polytope
 
 
-def generate_logo(use_plot_show, save_plot):
+def generate_logo(use_plot_show: bool, save_plot: bool) -> None:
     V = [[-1, 0.5], [-1, 1], [1, 1], [1, -1], [0.5, -1]]
     P = Polytope(V=V)
     bounding_box = Polytope.deflate_rectangle(P)

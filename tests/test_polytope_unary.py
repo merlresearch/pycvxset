@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+# Copyright (C) 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -23,7 +23,7 @@ def test_scale_and_normalize():
     PV_sliced.normalize()
 
     factorV = 1.3
-    factorV * PV
+    assert check_matrices_are_equal_ignoring_row_order((factorV * PV).V, factorV * PV.V)
     with pytest.raises(TypeError):
         PV * factorV
 
@@ -55,9 +55,25 @@ def test_interior_point():
         P1.interior_point(point_type="centroid"),
         P1.interior_point(point_type="chebyshev"),
     )
+    assert np.allclose(
+        P1.interior_point(point_type="centroid"),
+        P1.interior_point(point_type="mvie"),
+    )
+    assert np.allclose(
+        P1.interior_point(),
+        P1.interior_point(point_type="chebyshev"),
+    )
     P2 = Polytope(V=P1.V)
     assert np.allclose(
         P2.interior_point(point_type="centroid"),
+        P2.interior_point(point_type="chebyshev"),
+    )
+    assert np.allclose(
+        P2.interior_point(point_type="centroid"),
+        P2.interior_point(point_type="mvie"),
+    )
+    assert np.allclose(
+        P2.interior_point(),
         P2.interior_point(point_type="chebyshev"),
     )
     A = np.array([[2, 1], [2, -1], [-1, 2], [-1, -2]])
@@ -195,23 +211,22 @@ def test_maximum_volume_ellipsoid():
     lb = [-1, -1, -1]
     ub = [1, 1, 1]
     P_low_dim = Polytope(lb=lb, ub=ub).intersection_with_affine_set(Ae=[1, 1, 1], be=[0])
-    with pytest.warns(UserWarning):
-        P_low_dim.maximum_volume_inscribing_ellipsoid()
+    P_low_dim.maximum_volume_inscribing_ellipsoid()
     P_low_dim = Polytope(lb=[-1, -1], ub=[1, 1]).intersection_with_halfspaces(A=[[1, 0], [-1, 0]], b=[1, -1])
-    with pytest.warns(UserWarning):
-        P_low_dim.maximum_volume_inscribing_ellipsoid()
+    P_low_dim.maximum_volume_inscribing_ellipsoid()
 
     # Check for CVXPY error
     P_full_dim.cvxpy_args_socp = {"solver": "WRONG_SOLVER"}
-    P_low_dim.cvxpy_args_sdp = {"solver": "WRONG_SOLVER"}
     with pytest.raises(NotImplementedError):
         P_full_dim.maximum_volume_inscribing_ellipsoid()
-    with pytest.raises(NotImplementedError):
-        P_low_dim.maximum_volume_inscribing_ellipsoid()
 
     # Empty polytope
     with pytest.raises(ValueError):
         Polytope().maximum_volume_inscribing_ellipsoid()
+    P = Polytope(A=np.vstack((np.eye(2), -np.eye(2))), b=[2, 2, -3, -3])
+    assert P.is_empty
+    with pytest.raises(ValueError):
+        P.maximum_volume_inscribing_ellipsoid()
 
     # Unbounded polytope
     P = Polytope(A=[[1, 0], [0, 1]], b=[1, 1])
@@ -221,10 +236,12 @@ def test_maximum_volume_ellipsoid():
     with pytest.raises(ValueError):
         P.maximum_volume_inscribing_ellipsoid()
 
-    P = Polytope(A=np.vstack((np.eye(2), -np.eye(2))), b=[2, 2, -3, -3])
-    assert P.is_empty
-    with pytest.raises(ValueError):
-        P.maximum_volume_inscribing_ellipsoid()
+    # Singleton
+    P = Polytope(V=[[1, 1]])
+    c, Q, G = P.maximum_volume_inscribing_ellipsoid()
+    assert np.allclose(c, [1, 1])
+    assert np.allclose(Q, np.zeros((2, 2)))
+    assert np.allclose(G, np.zeros((2, 0)))
 
 
 def test_volume():
@@ -283,5 +300,34 @@ def test_approximate_volume_from_grid_and_minimum_volume_circumscribing_rectangl
     assert np.allclose(ub, ub_rect)
     with pytest.raises(ValueError):
         approximate_volume_from_grid(C, area_grid_step_size=-0.5)
+
+    # Unbounded Polytope
+    C = Polytope(A=[[1, 0], [0, 1]], b=[1, 1])
     with pytest.raises(ValueError):
-        approximate_volume_from_grid(C, area_grid_step_size=[0.5, 0.1])
+        approximate_volume_from_grid(C, area_grid_step_size=0.5)
+
+
+def test_decompose_as_affine_transform_of_polytope_without_equalities():
+    # Full-dimensional case
+    lb = [-1, -1]
+    ub = [1, 1]
+    P_full_dim = Polytope(lb=lb, ub=ub)
+    full_dimensional_polytope, affine_transform_offset, affine_transform_matrix = (
+        P_full_dim.decompose_as_affine_transform_of_polytope_without_equalities()
+    )
+    assert full_dimensional_polytope == P_full_dim
+    assert np.allclose(affine_transform_matrix, np.eye(2))
+    assert np.allclose(affine_transform_offset, [0, 0])
+
+    # Lower-dimensional case
+    P_low_dim = Polytope(lb=[-1, -1], ub=[1, 1]).intersection_with_affine_set(Ae=[1, 0], be=1)
+    full_dimensional_polytope, affine_transform_offset, affine_transform_matrix = (
+        P_low_dim.decompose_as_affine_transform_of_polytope_without_equalities()
+    )
+    assert full_dimensional_polytope == Polytope(lb=[-1], ub=[1])
+    assert np.allclose(affine_transform_matrix, [[0], [1]])
+    assert np.allclose(affine_transform_offset, [1, 0])
+
+    # Empty case
+    with pytest.raises(ValueError):
+        Polytope(dim=2).decompose_as_affine_transform_of_polytope_without_equalities()

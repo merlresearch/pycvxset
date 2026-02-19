@@ -1,17 +1,21 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
 Files: .vscode/*
-Copyright: 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright: 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 License: AGPL-3.0-or-later
 
 Files: examples/*
-Copyright: 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright: 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 License: AGPL-3.0-or-later
 
 Files: docs/*
-Copyright: 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright: 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 License: AGPL-3.0-or-later
 
 Files: MANUAL.pdf
-Copyright: 2020-2025 Mitsubishi Electric Research Laboratories (MERL)
+Copyright: 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
+License: AGPL-3.0-or-later
+
+Files: .github/ISSUE_TEMPLATE/*
+Copyright: 2020-2026 Mitsubishi Electric Research Laboratories (MERL)
 License: AGPL-3.0-or-later

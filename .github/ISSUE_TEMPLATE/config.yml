@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Start a Discussion
+    url: https://github.com/merlresearch/pycvxset/discussions
+    about: |
+      Please start a Discussion for getting help in setting up pycvxset to work on your computer, advice on how to use
+      pycvxset for your set manipulations problem, suggestions on documentation of the code, and collecting ideas for
+      potential new features/enhancements from the community.
